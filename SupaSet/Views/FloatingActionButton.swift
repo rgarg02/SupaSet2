@@ -12,21 +12,17 @@ struct FloatingActionButton: View {
     let hasOngoingWorkout: Bool
     let action: () -> Void
     @Query(filter: #Predicate<Workout> { !$0.isFinished }) private var ongoingWorkouts: [Workout]
-    private let buttonSize: CGFloat = 60  // Match the size used in WorkoutStartView
     var body: some View {
-        Button(action: action) {
-            ZStack {
-                Color.blue
-                    .matchedGeometryEffect(id: "background", in: namespace)
-                
-                Image(systemName: hasOngoingWorkout ? "clock" : "plus")
-                    .font(.title2)
-                    .foregroundColor(.white)
-                    .matchedGeometryEffect(id: "icon", in: namespace)
-            }
-        }
-        .frame(width: buttonSize, height: buttonSize)
-        .cornerRadius(buttonSize / 2)
+        CustomButton(
+                    icon: hasOngoingWorkout ? "clock" : "plus",
+                    size: .large,
+                    matchGeometry: true,
+                    namespace: namespace,
+                    action: action
+                )
+                .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .bottomTrailing)
+                .padding(.trailing, 20)
+                .padding(.bottom, 100)
     }
 }
 

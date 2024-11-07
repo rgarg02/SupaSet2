@@ -48,7 +48,6 @@ final class WorkoutExercise {
     var order: Int  // To maintain exercise order in workout
     var notes: String?
     @Relationship(deleteRule: .cascade) var sets: [ExerciseSet] = []
-    
     @Relationship(inverse: \Workout.exercises) var workout: Workout?
     
     init(exercise: Exercise, order: Int = 0, notes: String? = nil) {
@@ -73,7 +72,7 @@ final class ExerciseSet {
     var rpe: Int?  // Rate of Perceived Exertion (1-10)
     var notes: String?
     var order: Int  // To maintain set order in exercise
-    
+    var isDone: Bool
     @Relationship(inverse: \WorkoutExercise.sets) var workoutExercise: WorkoutExercise?
     
     init(
@@ -82,7 +81,8 @@ final class ExerciseSet {
         isWarmupSet: Bool = false,
         rpe: Int? = nil,
         notes: String? = nil,
-        order: Int = 0
+        order: Int = 0,
+        isDone: Bool = false
     ) {
         self.reps = reps
         self.weight = weight
@@ -90,5 +90,6 @@ final class ExerciseSet {
         self.rpe = rpe
         self.notes = notes
         self.order = order
+        self.isDone = isDone
     }
 }

@@ -21,7 +21,7 @@ struct SupaSetApp: App {
         
         let modelConfiguration = ModelConfiguration(
             schema: schema,
-            isStoredInMemoryOnly: true
+            isStoredInMemoryOnly: true 
         )
         
         do {

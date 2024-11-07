@@ -28,7 +28,7 @@ struct CustomFilterPicker<T: RawRepresentable & CaseIterable & Hashable>: View w
     }
     private var sortedOptions: [T] {
         // Special handling for Level enum
-        if let firstOption = options.first as? Level {
+        if let _ = options.first as? Level {
             return options // Keep original order for levels
         }
         // Default alphabetical sorting for other types

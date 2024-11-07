@@ -43,8 +43,6 @@ struct WorkoutPageView: View {
                     }
                 )
                 .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .bottomTrailing)
-                .padding(.trailing, 20)
-                .padding(.bottom, 100)
             }
         }
     }

@@ -42,7 +42,7 @@ struct ExerciseRowView: View {
                 }
             }
         }
-        .padding(.vertical, 8)
+        .padding(.all, 8)
     }
 }
 
@@ -56,10 +56,10 @@ struct Badge<T: RawRepresentable>: View where T.RawValue == String {
        self.text = value.rawValue.capitalized
        
        if let level = value as? Level {
-           self.backgroundColor = level.color.opacity(0.2)
+           self.backgroundColor = level.color.lighter()
            self.textColor = level.color
        } else {
-           self.backgroundColor = backgroundColor.opacity(0.2)
+           self.backgroundColor = backgroundColor.lighter()
            self.textColor = textColor ?? backgroundColor
        }
    }
@@ -71,6 +71,7 @@ struct Badge<T: RawRepresentable>: View where T.RawValue == String {
            .padding(.vertical, 4)
            .background(backgroundColor)
            .foregroundColor(textColor)
+           .bold()
            .clipShape(Capsule())
    }
 }

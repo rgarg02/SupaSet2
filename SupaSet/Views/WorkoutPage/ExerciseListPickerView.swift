@@ -8,6 +8,8 @@ import SwiftUI
 
 struct ExerciseListPickerView: View {
     @Environment(ExerciseViewModel.self) var viewModel
+    @Binding var isPresented : Bool
+    @Bindable var workout : Workout
     @State private var searchText = ""
     @State private var selectedCategory: Category?
     @State private var selectedMuscleGroup: MuscleGroup?
@@ -38,7 +40,18 @@ struct ExerciseListPickerView: View {
         
         return exercises
     }
-    
+    // Helper function to check if exercise exists in workout
+    private func isExerciseInWorkout(_ exercise: Exercise) -> Bool {
+        return workout.exercises.contains { workoutExercise in
+            workoutExercise.exercise.id == exercise.id
+        }
+    }
+    // Helper function to get workout exercise if it exists
+    private func getWorkoutExercise(for exercise: Exercise) -> WorkoutExercise? {
+        return workout.exercises.first { workoutExercise in
+            workoutExercise.exercise.id == exercise.id
+        }
+    }
     var body: some View {
         NavigationStack {
             VStack(spacing: 0) {
@@ -86,7 +99,23 @@ struct ExerciseListPickerView: View {
                                 bottom: 4,
                                 trailing: 16
                             ))
+                            .listRowSeparator(.hidden)
+                            .background(isExerciseInWorkout(exercise) ? Color.theme.secondary : Color.theme.background)
                             .contentShape(Rectangle())
+                            .onTapGesture{
+                                withAnimation {
+                                    if let existingExercise = getWorkoutExercise(for: exercise) {
+                                        // Remove exercise if it already exists
+                                        if let index = workout.exercises.firstIndex(where: { $0.id == existingExercise.id }) {
+                                            workout.exercises.remove(at: index)
+                                        }
+                                    } else {
+                                        // Add new exercise
+                                        let workoutExercise = WorkoutExercise(exercise: exercise)
+                                        workout.exercises.append(workoutExercise)
+                                    }
+                                }
+                            }
                     }
                 }
                 .listStyle(.plain)
@@ -97,7 +126,7 @@ struct ExerciseListPickerView: View {
             .toolbar {
                 ToolbarItem(placement: .topBarLeading) {
                     Button("Cancel") {
-                        dismiss()
+                        isPresented = false
                     }
                 }
             }
@@ -109,7 +138,16 @@ struct ExerciseListPickerView: View {
 }
 
 // Preview
-#Preview {
-    ExerciseListPickerView()
-        .environment(ExerciseViewModel())
+struct ExerciseListPickerView_Preview: PreviewProvider {
+    static var previews: some View {
+        let workout = Workout(name: "New Workout", isFinished: false)
+        let viewModel = ExerciseViewModel()
+        ExerciseListPickerView(isPresented: .constant(true), workout: workout)
+            .modelContainer(previewContainer)
+            .environment(viewModel)
+            .onAppear {
+                viewModel.loadExercises()
+                previewContainer.mainContext.insert(workout)
+            }
+    }
 }
