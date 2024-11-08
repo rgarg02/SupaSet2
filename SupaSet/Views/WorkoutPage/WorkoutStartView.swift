@@ -34,13 +34,14 @@ struct WorkoutStartView: View {
     
     /// Tracks the vertical offset during drag gestures.
     @State var offsetY: CGFloat = 0
+    @State private var scrollOffset: CGFloat = 0
     
     /// The workout model object being displayed and modified.
     @Bindable var workout: Workout
     
     /// View model providing exercise-related functionality.
     @Environment(ExerciseViewModel.self) var exerciseViewModel
-    
+    @Environment(\.modelContext) var modelContext
     // MARK: - Private Properties
     
     /// The threshold distance for dismissing the view when dragged.
@@ -75,73 +76,86 @@ struct WorkoutStartView: View {
             let currentX = startX + (endX - startX) * progress
             let currentY = startY + (endY - startY) * progress
             NavigationView{
-                ZStack {
+                ZStack(alignment: .bottom) {
                     Color.theme.background
                         .matchedGeometryEffect(id: "background", in: namespace)
                         .ignoresSafeArea()
-                    
                     VStack(spacing: 20) {
-                        VStack {
-                            RoundedRectangle(cornerRadius: 2.5)
-                                .fill(.gray)
-                                .frame(width: 40, height: 5)
-                                .opacity(1 - progress)
-                            Text("Current Workout")
-                                .font(.title2)
-                                .bold()
-                                .foregroundColor(.theme.text)
-                            Spacer()
-                            ScrollView{
-                                ForEach(workout.exercises, id: \.self) { exercise in
+                        RoundedRectangle(cornerRadius: 2.5)
+                            .fill(.gray)
+                            .frame(width: 40, height: 5)
+                            .opacity(1 - progress)
+                        WorkoutTopControls(workout: workout, isExpanded: $isExpanded, scrollOffset: scrollOffset)
+                        ScrollView{
+                            VStack{
+                                WorkoutInfoView(workout: workout)
+                                
+                                ForEach(workout.sortedExercises, id: \.self) { exercise in
                                     ExerciseCardView(workoutExercise: exercise
                                                      , focused: $focused)
-                                        .frame(height: 500)
+                                    .frame(height: 500)
                                 }
                             }
-                            CustomButton(
-                                icon: "plus.circle",
-                                title: "Add Exercises",
-                                style: .filled(),
-                                action: {
-                                    withAnimation{
-                                        showExercisePicker = true
-                                    }
+                            .overlay{
+                                GeometryReader { proxy in
+                                    let minY = proxy.frame(in: .scrollView(axis: .vertical)).minY
+                                    Color.clear
+                                        .preference(key: OffsetKey.self, value: minY)
                                 }
-                            )
+                            }
                         }
-                        .padding()
+                        .onPreferenceChange(OffsetKey.self) { value in
+                            withAnimation(.easeInOut(duration: 0.2)) {
+                                scrollOffset = -value
+                            }
+                        }
                     }
-                    .opacity(1 - progress)
+                    CustomButton(
+                        icon: "plus.circle",
+                        title: "Add Exercises",
+                        style: .filled(),
+                        action: {
+                            withAnimation{
+                                showExercisePicker = true
+                            }
+                        }
+                    )
+                    .padding()
                 }
                 .matchedGeometryEffect(id: "icon", in: namespace)
-                .frame(width: width, height: height)
-                .cornerRadius(progress * 30)
-                .position(x: currentX, y: currentY)
-                .gesture(
-                    DragGesture()
-                        .onChanged(dragChanged)
-                        .onEnded(dragEnded)
-                )
-                .opacity(showExercisePicker ? 0.5 : 1)
-                .overlay {
-                    if showExercisePicker {
-                        ExerciseListPickerView(
-                            isPresented: $showExercisePicker,
-                            workout: workout
-                        )
-                        .frame(width: geometry.size.width*0.9, height: geometry.size.height*0.9)
-                        .transition(.move(edge: .trailing))
-                    }
-                }
+                .ignoresSafeArea(.keyboard)
                 .toolbar {
-                    ToolbarItemGroup(placement: .keyboard) {
-                        Spacer()
-                        Button("Done") {
-                            focused = false
+                    if focused{
+                        ToolbarItemGroup(placement: .keyboard) {
+                            Spacer()
+                            Button("Done") {
+                                focused = false
+                            }
                         }
                     }
                 }
-                .animation(.easeInOut, value: showExercisePicker)
+                
+            }
+            .opacity(1-progress)
+            .frame(width: width, height: height)
+            .cornerRadius(progress * 30)
+            .position(x: currentX, y: currentY)
+            .gesture(
+                DragGesture()
+                    .onChanged(dragChanged)
+                    .onEnded(dragEnded)
+            )
+            .opacity(showExercisePicker ? 0.5 : 1)
+            .animation(.easeInOut, value: showExercisePicker)
+            .overlay {
+                if showExercisePicker {
+                    ExerciseListPickerView(
+                        isPresented: $showExercisePicker,
+                        workout: workout
+                    )
+                    .frame(width: geometry.size.width*0.9, height: geometry.size.height*0.9)
+                    .transition(.move(edge: .trailing))
+                }
             }
         }
     }
@@ -186,59 +200,22 @@ struct WorkoutStartView: View {
         }
     }
 }
-
 // MARK: - Preview Provider
 
 /// Provides preview configurations for WorkoutStartView.
 ///
 /// This preview creates a sample workout with exercises and necessary dependencies
 /// for testing the view in Xcode's preview canvas.
-struct WorkoutStartView_Previews: PreviewProvider {
-    static var previews: some View {
-        @Namespace var namespace
-        
-        let workout = Workout(name: "New Workout", isFinished: false)
-        let viewModel = ExerciseViewModel()
-        
-        WorkoutStartView(
-            namespace: namespace,
-            isExpanded: .constant(true),
-            workout: workout
-        )
-        .modelContainer(previewContainer)
-        .environment(viewModel)
-        .onAppear {
-            viewModel.loadExercises()
-            previewContainer.mainContext.insert(workout)
-            workout.exercises.append(
-                WorkoutExercise(
-                    exercise: Exercise(
-                        id: "bench-press",
-                        name: "Bench Press",
-                        level: .intermediate,
-                        primaryMuscles: [.chest],
-                        secondaryMuscles: [.shoulders, .triceps],
-                        instructions: ["Bench press instructions"],
-                        category: .strength,
-                        images: []
-                    )
-                )
-            )
-            workout.exercises.append(
-                WorkoutExercise(
-                    exercise: Exercise(
-                        id: "shoulder-press",
-                        name: "Shoulder Press",
-                        level: .intermediate,
-                        primaryMuscles: [.shoulders],
-                        secondaryMuscles: [.triceps],
-                        instructions: ["Shoulder press instructions"],
-                        category: .strength,
-                        images: []
-                    )
-                )
-            )
-        }
-    }
+#Preview {
+    let previewContainer = PreviewContainer.preview
+    let namespace = Namespace().wrappedValue
+    
+    return WorkoutStartView(
+        namespace: namespace,
+        isExpanded: .constant(true),
+        workout: previewContainer.workout
+    )
+    .modelContainer(previewContainer.container)
+    .environment(previewContainer.viewModel)
 }
 

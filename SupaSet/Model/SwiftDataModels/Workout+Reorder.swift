@@ -73,8 +73,8 @@ extension Workout {
     /// - Parameters:
     ///   - exercise: The Exercise to add to the workout
     ///   - position: The desired position for the new exercise
-    func insertExercise(_ exercise: Exercise, at position: Int) {
-        let workoutExercise = WorkoutExercise(exercise: exercise, order: position)
+    func insertExercise(_ exercise: Exercise) {
+        let workoutExercise = WorkoutExercise(exercise: exercise, order: exercises.count)
         exercises.append(workoutExercise)
         reorderExercises()
     }
@@ -104,5 +104,21 @@ extension Workout {
     /// - Returns: An array of WorkoutExercise instances sorted by their order property
     var sortedExercises: [WorkoutExercise] {
         exercises.sorted { $0.order < $1.order }
+    }
+}
+// MARK: - Query Extensions
+extension Workout {
+    /// Returns the WorkoutExercise instance for a given Exercise if it exists in the workout.
+    /// - Parameter exercise: The Exercise to look for
+    /// - Returns: The corresponding WorkoutExercise if found, nil otherwise
+    func getWorkoutExercise(for exercise: Exercise) -> WorkoutExercise? {
+        exercises.first { $0.exercise.id == exercise.id }
+    }
+    
+    /// Checks if a given exercise is already in the workout
+    /// - Parameter exercise: The Exercise to check
+    /// - Returns: True if the exercise is in the workout, false otherwise
+    func containsExercise(_ exercise: Exercise) -> Bool {
+        exercises.contains { $0.exercise.id == exercise.id }
     }
 }

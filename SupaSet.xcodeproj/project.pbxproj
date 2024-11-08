@@ -6,6 +6,12 @@
 	objectVersion = 77;
 	objects = {
 
+/* Begin PBXBuildFile section */
+		D9AF183C2CDEBF42001ACDDA /* WidgetKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = D9AF183B2CDEBF42001ACDDA /* WidgetKit.framework */; };
+		D9AF183E2CDEBF42001ACDDA /* SwiftUI.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = D9AF183D2CDEBF42001ACDDA /* SwiftUI.framework */; };
+		D9AF184F2CDEBF44001ACDDA /* SupaSetWidgetExtension.appex in Embed Foundation Extensions */ = {isa = PBXBuildFile; fileRef = D9AF18392CDEBF42001ACDDA /* SupaSetWidgetExtension.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
+/* End PBXBuildFile section */
+
 /* Begin PBXContainerItemProxy section */
 		D9A0C12B2CD9E805008F4E70 /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
@@ -21,13 +27,47 @@
 			remoteGlobalIDString = D9A0C1182CD9E803008F4E70;
 			remoteInfo = SupaSet;
 		};
+		D9AF184D2CDEBF44001ACDDA /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = D9A0C1112CD9E803008F4E70 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = D9AF18382CDEBF42001ACDDA;
+			remoteInfo = SupaSetWidgetExtension;
+		};
 /* End PBXContainerItemProxy section */
+
+/* Begin PBXCopyFilesBuildPhase section */
+		D9AF18502CDEBF44001ACDDA /* Embed Foundation Extensions */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = "";
+			dstSubfolderSpec = 13;
+			files = (
+				D9AF184F2CDEBF44001ACDDA /* SupaSetWidgetExtension.appex in Embed Foundation Extensions */,
+			);
+			name = "Embed Foundation Extensions";
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
 		D9A0C1192CD9E803008F4E70 /* SupaSet.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = SupaSet.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		D9A0C12A2CD9E805008F4E70 /* SupaSetTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = SupaSetTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		D9A0C1342CD9E805008F4E70 /* SupaSetUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = SupaSetUITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
+		D9AF18392CDEBF42001ACDDA /* SupaSetWidgetExtension.appex */ = {isa = PBXFileReference; explicitFileType = "wrapper.app-extension"; includeInIndex = 0; path = SupaSetWidgetExtension.appex; sourceTree = BUILT_PRODUCTS_DIR; };
+		D9AF183B2CDEBF42001ACDDA /* WidgetKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = WidgetKit.framework; path = System/Library/Frameworks/WidgetKit.framework; sourceTree = SDKROOT; };
+		D9AF183D2CDEBF42001ACDDA /* SwiftUI.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = SwiftUI.framework; path = System/Library/Frameworks/SwiftUI.framework; sourceTree = SDKROOT; };
 /* End PBXFileReference section */
+
+/* Begin PBXFileSystemSynchronizedBuildFileExceptionSet section */
+		D9AF18532CDEBF44001ACDDA /* Exceptions for "SupaSetWidget" folder in "SupaSetWidgetExtension" target */ = {
+			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
+			membershipExceptions = (
+				Info.plist,
+			);
+			target = D9AF18382CDEBF42001ACDDA /* SupaSetWidgetExtension */;
+		};
+/* End PBXFileSystemSynchronizedBuildFileExceptionSet section */
 
 /* Begin PBXFileSystemSynchronizedRootGroup section */
 		D9A0C11B2CD9E803008F4E70 /* SupaSet */ = {
@@ -43,6 +83,14 @@
 		D9A0C1372CD9E805008F4E70 /* SupaSetUITests */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
 			path = SupaSetUITests;
+			sourceTree = "<group>";
+		};
+		D9AF183F2CDEBF42001ACDDA /* SupaSetWidget */ = {
+			isa = PBXFileSystemSynchronizedRootGroup;
+			exceptions = (
+				D9AF18532CDEBF44001ACDDA /* Exceptions for "SupaSetWidget" folder in "SupaSetWidgetExtension" target */,
+			);
+			path = SupaSetWidget;
 			sourceTree = "<group>";
 		};
 /* End PBXFileSystemSynchronizedRootGroup section */
@@ -69,6 +117,15 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
+		D9AF18362CDEBF42001ACDDA /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				D9AF183E2CDEBF42001ACDDA /* SwiftUI.framework in Frameworks */,
+				D9AF183C2CDEBF42001ACDDA /* WidgetKit.framework in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
@@ -78,6 +135,8 @@
 				D9A0C11B2CD9E803008F4E70 /* SupaSet */,
 				D9A0C12D2CD9E805008F4E70 /* SupaSetTests */,
 				D9A0C1372CD9E805008F4E70 /* SupaSetUITests */,
+				D9AF183F2CDEBF42001ACDDA /* SupaSetWidget */,
+				D9AF183A2CDEBF42001ACDDA /* Frameworks */,
 				D9A0C11A2CD9E803008F4E70 /* Products */,
 			);
 			sourceTree = "<group>";
@@ -88,8 +147,18 @@
 				D9A0C1192CD9E803008F4E70 /* SupaSet.app */,
 				D9A0C12A2CD9E805008F4E70 /* SupaSetTests.xctest */,
 				D9A0C1342CD9E805008F4E70 /* SupaSetUITests.xctest */,
+				D9AF18392CDEBF42001ACDDA /* SupaSetWidgetExtension.appex */,
 			);
 			name = Products;
+			sourceTree = "<group>";
+		};
+		D9AF183A2CDEBF42001ACDDA /* Frameworks */ = {
+			isa = PBXGroup;
+			children = (
+				D9AF183B2CDEBF42001ACDDA /* WidgetKit.framework */,
+				D9AF183D2CDEBF42001ACDDA /* SwiftUI.framework */,
+			);
+			name = Frameworks;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -102,10 +171,12 @@
 				D9A0C1152CD9E803008F4E70 /* Sources */,
 				D9A0C1162CD9E803008F4E70 /* Frameworks */,
 				D9A0C1172CD9E803008F4E70 /* Resources */,
+				D9AF18502CDEBF44001ACDDA /* Embed Foundation Extensions */,
 			);
 			buildRules = (
 			);
 			dependencies = (
+				D9AF184E2CDEBF44001ACDDA /* PBXTargetDependency */,
 			);
 			fileSystemSynchronizedGroups = (
 				D9A0C11B2CD9E803008F4E70 /* SupaSet */,
@@ -163,6 +234,28 @@
 			productReference = D9A0C1342CD9E805008F4E70 /* SupaSetUITests.xctest */;
 			productType = "com.apple.product-type.bundle.ui-testing";
 		};
+		D9AF18382CDEBF42001ACDDA /* SupaSetWidgetExtension */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = D9AF18542CDEBF44001ACDDA /* Build configuration list for PBXNativeTarget "SupaSetWidgetExtension" */;
+			buildPhases = (
+				D9AF18352CDEBF42001ACDDA /* Sources */,
+				D9AF18362CDEBF42001ACDDA /* Frameworks */,
+				D9AF18372CDEBF42001ACDDA /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			fileSystemSynchronizedGroups = (
+				D9AF183F2CDEBF42001ACDDA /* SupaSetWidget */,
+			);
+			name = SupaSetWidgetExtension;
+			packageProductDependencies = (
+			);
+			productName = SupaSetWidgetExtension;
+			productReference = D9AF18392CDEBF42001ACDDA /* SupaSetWidgetExtension.appex */;
+			productType = "com.apple.product-type.app-extension";
+		};
 /* End PBXNativeTarget section */
 
 /* Begin PBXProject section */
@@ -184,6 +277,9 @@
 						CreatedOnToolsVersion = 16.1;
 						TestTargetID = D9A0C1182CD9E803008F4E70;
 					};
+					D9AF18382CDEBF42001ACDDA = {
+						CreatedOnToolsVersion = 16.1;
+					};
 				};
 			};
 			buildConfigurationList = D9A0C1142CD9E803008F4E70 /* Build configuration list for PBXProject "SupaSet" */;
@@ -203,6 +299,7 @@
 				D9A0C1182CD9E803008F4E70 /* SupaSet */,
 				D9A0C1292CD9E805008F4E70 /* SupaSetTests */,
 				D9A0C1332CD9E805008F4E70 /* SupaSetUITests */,
+				D9AF18382CDEBF42001ACDDA /* SupaSetWidgetExtension */,
 			);
 		};
 /* End PBXProject section */
@@ -223,6 +320,13 @@
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 		D9A0C1322CD9E805008F4E70 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		D9AF18372CDEBF42001ACDDA /* Resources */ = {
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
@@ -253,6 +357,13 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
+		D9AF18352CDEBF42001ACDDA /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 /* End PBXSourcesBuildPhase section */
 
 /* Begin PBXTargetDependency section */
@@ -265,6 +376,11 @@
 			isa = PBXTargetDependency;
 			target = D9A0C1182CD9E803008F4E70 /* SupaSet */;
 			targetProxy = D9A0C1352CD9E805008F4E70 /* PBXContainerItemProxy */;
+		};
+		D9AF184E2CDEBF44001ACDDA /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = D9AF18382CDEBF42001ACDDA /* SupaSetWidgetExtension */;
+			targetProxy = D9AF184D2CDEBF44001ACDDA /* PBXContainerItemProxy */;
 		};
 /* End PBXTargetDependency section */
 
@@ -396,6 +512,7 @@
 				ENABLE_HARDENED_RUNTIME = YES;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.healthcare-fitness";
 				"INFOPLIST_KEY_UIApplicationSceneManifest_Generation[sdk=iphoneos*]" = YES;
 				"INFOPLIST_KEY_UIApplicationSceneManifest_Generation[sdk=iphonesimulator*]" = YES;
 				"INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents[sdk=iphoneos*]" = YES;
@@ -404,8 +521,8 @@
 				"INFOPLIST_KEY_UILaunchScreen_Generation[sdk=iphonesimulator*]" = YES;
 				"INFOPLIST_KEY_UIStatusBarStyle[sdk=iphoneos*]" = UIStatusBarStyleDefault;
 				"INFOPLIST_KEY_UIStatusBarStyle[sdk=iphonesimulator*]" = UIStatusBarStyleDefault;
-				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
-				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPhone = "UIInterfaceOrientationPortrait UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
+				INFOPLIST_KEY_UISupportedInterfaceOrientations = UIInterfaceOrientationPortrait;
+				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown";
 				IPHONEOS_DEPLOYMENT_TARGET = 18.0;
 				LD_RUNPATH_SEARCH_PATHS = "@executable_path/Frameworks";
 				"LD_RUNPATH_SEARCH_PATHS[sdk=macosx*]" = "@executable_path/../Frameworks";
@@ -436,6 +553,7 @@
 				ENABLE_HARDENED_RUNTIME = YES;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.healthcare-fitness";
 				"INFOPLIST_KEY_UIApplicationSceneManifest_Generation[sdk=iphoneos*]" = YES;
 				"INFOPLIST_KEY_UIApplicationSceneManifest_Generation[sdk=iphonesimulator*]" = YES;
 				"INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents[sdk=iphoneos*]" = YES;
@@ -444,8 +562,8 @@
 				"INFOPLIST_KEY_UILaunchScreen_Generation[sdk=iphonesimulator*]" = YES;
 				"INFOPLIST_KEY_UIStatusBarStyle[sdk=iphoneos*]" = UIStatusBarStyleDefault;
 				"INFOPLIST_KEY_UIStatusBarStyle[sdk=iphonesimulator*]" = UIStatusBarStyleDefault;
-				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
-				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPhone = "UIInterfaceOrientationPortrait UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
+				INFOPLIST_KEY_UISupportedInterfaceOrientations = UIInterfaceOrientationPortrait;
+				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown";
 				IPHONEOS_DEPLOYMENT_TARGET = 18.0;
 				LD_RUNPATH_SEARCH_PATHS = "@executable_path/Frameworks";
 				"LD_RUNPATH_SEARCH_PATHS[sdk=macosx*]" = "@executable_path/../Frameworks";
@@ -553,6 +671,65 @@
 			};
 			name = Release;
 		};
+		D9AF18512CDEBF44001ACDDA /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				ASSETCATALOG_COMPILER_WIDGET_BACKGROUND_COLOR_NAME = WidgetBackground;
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = 3RXQC7X4AK;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = SupaSetWidget/Info.plist;
+				INFOPLIST_KEY_CFBundleDisplayName = SupaSetWidget;
+				INFOPLIST_KEY_NSHumanReadableCopyright = "";
+				IPHONEOS_DEPLOYMENT_TARGET = 18.1;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@executable_path/../../Frameworks",
+				);
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = rishigarg.SupaSet.SupaSetWidget;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = iphoneos;
+				SKIP_INSTALL = YES;
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Debug;
+		};
+		D9AF18522CDEBF44001ACDDA /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				ASSETCATALOG_COMPILER_WIDGET_BACKGROUND_COLOR_NAME = WidgetBackground;
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = 3RXQC7X4AK;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = SupaSetWidget/Info.plist;
+				INFOPLIST_KEY_CFBundleDisplayName = SupaSetWidget;
+				INFOPLIST_KEY_NSHumanReadableCopyright = "";
+				IPHONEOS_DEPLOYMENT_TARGET = 18.1;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@executable_path/../../Frameworks",
+				);
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = rishigarg.SupaSet.SupaSetWidget;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = iphoneos;
+				SKIP_INSTALL = YES;
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				VALIDATE_PRODUCT = YES;
+			};
+			name = Release;
+		};
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
@@ -588,6 +765,15 @@
 			buildConfigurations = (
 				D9A0C1452CD9E805008F4E70 /* Debug */,
 				D9A0C1462CD9E805008F4E70 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		D9AF18542CDEBF44001ACDDA /* Build configuration list for PBXNativeTarget "SupaSetWidgetExtension" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				D9AF18512CDEBF44001ACDDA /* Debug */,
+				D9AF18522CDEBF44001ACDDA /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;

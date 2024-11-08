@@ -69,7 +69,7 @@ struct SetRowView: View {
                 Image(systemName: set.isDone ? "checkmark.circle.fill" : "circle")
                     .resizable()
                     .frame(width: 24, height: 24)
-                    .foregroundColor(set.isDone ? .accentColor : .gray)
+                    .foregroundColor(set.isDone ? .theme.text : .gray)
             }
             .frame(width: 50)
         }
@@ -77,7 +77,7 @@ struct SetRowView: View {
         .padding(.vertical, 12)
         .background(
             RoundedRectangle(cornerRadius: 8)
-                .fill(set.isWarmupSet ? Color.yellow.opacity(0.1) : Color.theme.background)
+                .fill(set.isDone ? Color.theme.accent : Color.clear)
                 .shadow(
                     color: Color.black.opacity(0.05),
                     radius: 2,
@@ -93,17 +93,38 @@ struct SetRowView: View {
     
 }
 
-// Preview
-//struct SetCardView_Previews: PreviewProvider {
-//    @FocusState var focused : Bool
-//    static var previews: some View {
-//        let set = ExerciseSet(reps: 10, weight: 10)
-//        VStack(spacing: 8) {
-//            // Multiple sets for preview
-//            SetRowView(setNumber: 1, set: set, focused: .constant(focused))
-//        }
-//        .padding()
-//        .previewLayout(.sizeThatFits)
-//        
-//    }
-//}
+// Preview Container to manage FocusState
+struct SetRowPreviewContainer: View {
+    @FocusState private var focused: Bool
+    let set: ExerciseSet
+    let setNumber: Int
+    
+    var body: some View {
+        SetRowView(
+            setNumber: setNumber,
+            set: set,
+            focused: $focused
+        )
+    }
+}
+
+#Preview("Default Set") {
+    VStack(spacing: 16) {
+        SetRowPreviewContainer(
+            set: ExerciseSet(reps: 10, weight: 20),
+            setNumber: 1
+        )
+        
+        SetRowPreviewContainer(
+            set: ExerciseSet(reps: 8, weight: 25, isDone: true),
+            setNumber: 2
+        )
+        
+        SetRowPreviewContainer(
+            set: ExerciseSet(reps: 12, weight: 15, isWarmupSet: true),
+            setNumber: 3
+        )
+    }
+    .padding()
+}
+

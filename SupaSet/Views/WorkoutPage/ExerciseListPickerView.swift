@@ -8,6 +8,7 @@ import SwiftUI
 
 struct ExerciseListPickerView: View {
     @Environment(ExerciseViewModel.self) var viewModel
+    @Environment(\.modelContext) var modelContext
     @Binding var isPresented : Bool
     @Bindable var workout : Workout
     @State private var searchText = ""
@@ -43,12 +44,6 @@ struct ExerciseListPickerView: View {
     // Helper function to check if exercise exists in workout
     private func isExerciseInWorkout(_ exercise: Exercise) -> Bool {
         return workout.exercises.contains { workoutExercise in
-            workoutExercise.exercise.id == exercise.id
-        }
-    }
-    // Helper function to get workout exercise if it exists
-    private func getWorkoutExercise(for exercise: Exercise) -> WorkoutExercise? {
-        return workout.exercises.first { workoutExercise in
             workoutExercise.exercise.id == exercise.id
         }
     }
@@ -102,17 +97,16 @@ struct ExerciseListPickerView: View {
                             .listRowSeparator(.hidden)
                             .background(isExerciseInWorkout(exercise) ? Color.theme.secondary : Color.theme.background)
                             .contentShape(Rectangle())
-                            .onTapGesture{
+                            .onTapGesture {
                                 withAnimation {
-                                    if let existingExercise = getWorkoutExercise(for: exercise) {
+                                    if let existingExercise = workout.getWorkoutExercise(for: exercise) {
                                         // Remove exercise if it already exists
-                                        if let index = workout.exercises.firstIndex(where: { $0.id == existingExercise.id }) {
-                                            workout.exercises.remove(at: index)
-                                        }
+                                        workout.deleteExercise(exercise: exercise) // Changed to pass the exercise directly
+                                        modelContext.delete(existingExercise)
+                                        try? modelContext.save() // Fixed: Added parentheses for method call
                                     } else {
-                                        // Add new exercise
-                                        let workoutExercise = WorkoutExercise(exercise: exercise)
-                                        workout.exercises.append(workoutExercise)
+                                        // Add new exercise at the end
+                                        workout.insertExercise(exercise) // Fixed: Added 'at' parameter label
                                     }
                                 }
                             }

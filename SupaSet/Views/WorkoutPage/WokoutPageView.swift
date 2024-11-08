@@ -19,31 +19,35 @@ struct WorkoutPageView: View {
     }
     
     var body: some View {
-        ZStack {
-            if isExpanded && hasOngoingWorkout {
-                WorkoutStartView(
-                    namespace: namespace,
-                    isExpanded: $isExpanded,
-                    workout: ongoingWorkouts[0]
-                )
-            }
-            
-            if !isExpanded {
-                FloatingActionButton(
-                    namespace: namespace,
-                    hasOngoingWorkout: hasOngoingWorkout,
-                    action: {
-                        withAnimation(.spring(duration: 0.5)) {
-                            if hasOngoingWorkout {
-                                isExpanded = true
-                            } else {
-                                startNewWorkout()
+        NavigationStack{
+            ZStack {
+                if isExpanded && hasOngoingWorkout {
+                    WorkoutStartView(
+                        namespace: namespace,
+                        isExpanded: $isExpanded,
+                        workout: ongoingWorkouts[0]
+                    )
+                    .ignoresSafeArea()
+                }
+                
+                if !isExpanded {
+                    FloatingActionButton(
+                        namespace: namespace,
+                        hasOngoingWorkout: hasOngoingWorkout,
+                        action: {
+                            withAnimation(.spring(duration: 0.5)) {
+                                if hasOngoingWorkout {
+                                    isExpanded = true
+                                } else {
+                                    startNewWorkout()
+                                }
                             }
                         }
-                    }
-                )
-                .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .bottomTrailing)
+                    )
+                    .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .bottomTrailing)
+                }
             }
+            .navigationTitle("Workouts")
         }
     }
     
@@ -55,8 +59,9 @@ struct WorkoutPageView: View {
 }
 
 #Preview {
-    let container = try! ModelContainer(for: Workout.self)
+    let container = PreviewContainer.preview
     WorkoutPageView()
-        .modelContainer(container)
+        .environment(container.viewModel)
+        .modelContainer(container.container)
 }
 

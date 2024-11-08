@@ -12,7 +12,11 @@ class ExerciseViewModel {
     private(set) var exercises: [Exercise] = []
     private(set) var error: Error?
     private(set) var isLoading = false
-    
+    init(){
+            loadExercises()
+            let paths = NSSearchPathForDirectoriesInDomains(FileManager.SearchPathDirectory.documentDirectory, FileManager.SearchPathDomainMask.userDomainMask, true)
+            print(paths[0])
+        }
     // Filtered collections
     var strengthExercises: [Exercise] {
         exercises.filter { $0.category == .strength }

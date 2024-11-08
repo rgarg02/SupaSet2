@@ -10,9 +10,6 @@ import SwiftData
 
 struct ExerciseCardView: View {
     let workoutExercise: WorkoutExercise
-    private var orderedSets: [ExerciseSet] {
-        return workoutExercise.sets.sorted { $0.order < $1.order }
-    }
     @Environment(\.modelContext) private var modelContext
     @FocusState.Binding var focused : Bool
     @State private var offsets = [CGSize](repeating: CGSize.zero, count: 6)
@@ -48,8 +45,8 @@ struct ExerciseCardView: View {
             .padding(.horizontal, 16)
             VStack(spacing: 8) {
                 ScrollView{
-                    ForEach(orderedSets, id: \.self) { set in
-                        SwipeAction(cornerRadius: 15, direction: .trailing){
+                    ForEach(workoutExercise.sortedSets, id: \.self) { set in
+                        SwipeAction(cornerRadius: 8, direction: .trailing){
                             SetRowView(
                                 setNumber: set.order + 1,
                                 set: set,
@@ -58,20 +55,17 @@ struct ExerciseCardView: View {
                             .padding(.horizontal)
                         } actions:{
                             Action(tint: .red, icon: "trash.fill") {
-                                print("Delete")
+                                withAnimation(.easeInOut){
+                                    workoutExercise.deleteSet(set)
+                                    modelContext.delete(set)
+                                }
                             }                        }
                     }
                 }
             }
             Spacer()
             CustomButton(icon: "plus", title: "Add Set", size: .small, style: .filled()) {
-                let nextOrder = (orderedSets.last?.order ?? -1) + 1
-                let newSet = ExerciseSet(
-                    reps: orderedSets.last?.reps ?? 0,
-                    weight: orderedSets.last?.weight ?? 0,
-                    order: nextOrder
-                )
-                workoutExercise.sets.append(newSet)
+                workoutExercise.insertSet(reps: workoutExercise.sortedSets.last?.reps ?? 0, weight: workoutExercise.sortedSets.last?.weight ?? 0)
             }
         }
         .frame(maxWidth: .infinity, alignment: .leading)
@@ -92,23 +86,6 @@ struct ExerciseCardView: View {
                 .stroke(Color.theme.accent, lineWidth: 1)
                 .padding(8)
         )
-    }
-    private func deleteSet(_ set: ExerciseSet) {
-        
-        // Remove from the workout exercise
-        workoutExercise.sets.removeAll(where: {$0.id == set.id})
-        
-        // Remove from the context
-        modelContext.delete(set)
-        
-        // Reorder remaining sets
-        let remainingSets = workoutExercise.sets.sorted { $0.order < $1.order }
-        for (index, remainingSet) in remainingSets.enumerated() {
-            remainingSet.order = index
-        }
-        
-        // Save context
-        try? modelContext.save()
     }
 }
 

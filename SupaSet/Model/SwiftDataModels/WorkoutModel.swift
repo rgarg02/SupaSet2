@@ -9,9 +9,11 @@ import Foundation
 import SwiftData
 
 @Model
-final class Workout {
+final class Workout: Hashable {
+    var id: UUID
     var name: String
     var date: Date
+    var endTime : Date?
     var isFinished: Bool
     var notes: String?
     var duration: TimeInterval?
@@ -21,12 +23,15 @@ final class Workout {
     init(
         name: String,
         date: Date = Date(),
+        endTime: Date? = nil,
         isFinished: Bool = false,
         notes: String? = nil,
         duration: TimeInterval? = nil
     ) {
+        self.id = UUID()
         self.name = name
         self.date = date
+        self.endTime = endTime
         self.isFinished = isFinished
         self.notes = notes
         self.duration = duration
@@ -40,10 +45,20 @@ final class Workout {
             }
         }
     }
+    
+    // Hashable conformance
+    static func == (lhs: Workout, rhs: Workout) -> Bool {
+        lhs.id == rhs.id
+    }
+    
+    func hash(into hasher: inout Hasher) {
+        hasher.combine(id)
+    }
 }
 
 @Model
-final class WorkoutExercise {
+final class WorkoutExercise: Hashable {
+    var id: UUID
     var exercise: Exercise  // Reference to the exercise from your existing model
     var order: Int  // To maintain exercise order in workout
     var notes: String?
@@ -51,6 +66,7 @@ final class WorkoutExercise {
     @Relationship(inverse: \Workout.exercises) var workout: Workout?
     
     init(exercise: Exercise, order: Int = 0, notes: String? = nil) {
+        self.id = UUID()
         self.exercise = exercise
         self.order = order
         self.notes = notes
@@ -62,10 +78,20 @@ final class WorkoutExercise {
             total + (set.weight * Double(set.reps))
         }
     }
+    
+    // Hashable conformance
+    static func == (lhs: WorkoutExercise, rhs: WorkoutExercise) -> Bool {
+        lhs.id == rhs.id
+    }
+    
+    func hash(into hasher: inout Hasher) {
+        hasher.combine(id)
+    }
 }
 
 @Model
-final class ExerciseSet {
+final class ExerciseSet: Hashable {
+    var id: UUID
     var reps: Int
     var weight: Double  // in whatever unit (lbs/kg) the user prefers
     var isWarmupSet: Bool
@@ -84,6 +110,7 @@ final class ExerciseSet {
         order: Int = 0,
         isDone: Bool = false
     ) {
+        self.id = UUID()
         self.reps = reps
         self.weight = weight
         self.isWarmupSet = isWarmupSet
@@ -91,5 +118,14 @@ final class ExerciseSet {
         self.notes = notes
         self.order = order
         self.isDone = isDone
+    }
+    
+    // Hashable conformance
+    static func == (lhs: ExerciseSet, rhs: ExerciseSet) -> Bool {
+        lhs.id == rhs.id
+    }
+    
+    func hash(into hasher: inout Hasher) {
+        hasher.combine(id)
     }
 }

@@ -9,8 +9,11 @@ import SwiftUI
 
 struct HomePageView: View {
     var body: some View {
-        ZStack{
-            Text("hi")
+        NavigationStack{
+            ZStack{
+                Text("hi")
+            }
+            .navigationTitle("Home")
         }
     }
 }
