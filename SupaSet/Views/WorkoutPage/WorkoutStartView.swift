@@ -86,7 +86,6 @@ struct WorkoutStartView: View {
                                 .fill(.gray)
                                 .frame(width: 40, height: 5)
                                 .opacity(1 - progress)
-                            
                             Text("Current Workout")
                                 .font(.title2)
                                 .bold()
@@ -153,8 +152,12 @@ struct WorkoutStartView: View {
     ///
     /// - Parameter value: The current drag gesture value containing translation information.
     private func dragChanged(_ value: DragGesture.Value) {
-        if value.translation.height > 0 {
-            offsetY = value.translation.height
+        let startPoint = value.startLocation.y
+        // Only allow drag if it started in the top 100 pixels
+        if startPoint < 100 {
+            if value.translation.height > 0 {
+                offsetY = value.translation.height
+            }
         }
     }
     
@@ -166,16 +169,19 @@ struct WorkoutStartView: View {
     ///
     /// - Parameter value: The final drag gesture value containing translation information.
     private func dragEnded(_ value: DragGesture.Value) {
-        if value.translation.height > dismissThreshold {
-            withAnimation(.easeOut(duration: 0.3)) {
-                offsetY = maxDragDistance
-            }
-            DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
-                isExpanded = false
-            }
-        } else {
-            withAnimation(.spring()) {
-                offsetY = 0
+        let startPoint = value.startLocation.y
+        if startPoint < 100 {
+            if value.translation.height > dismissThreshold {
+                withAnimation(.easeOut(duration: 0.3)) {
+                    offsetY = maxDragDistance
+                }
+                DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
+                    isExpanded = false
+                }
+            } else {
+                withAnimation(.spring()) {
+                    offsetY = 0
+                }
             }
         }
     }
@@ -236,8 +242,3 @@ struct WorkoutStartView_Previews: PreviewProvider {
     }
 }
 
-/// Creates a ModelContainer for preview purposes.
-let previewContainer: ModelContainer = {
-    let container = try! ModelContainer(for: Workout.self)
-    return container
-}()

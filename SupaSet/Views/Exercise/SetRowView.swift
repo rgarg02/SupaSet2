@@ -11,7 +11,6 @@ struct SetRowView: View {
     let setNumber: Int
     @Bindable var set: ExerciseSet
     @FocusState.Binding var focused: Bool
-    
     var body: some View {
         HStack(spacing: 16) {
             // Set Number
@@ -91,6 +90,7 @@ struct SetRowView: View {
                 .stroke(Color.theme.accent, lineWidth: 1)
         )
     }
+    
 }
 
 // Preview
