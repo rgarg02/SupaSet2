@@ -7,47 +7,43 @@
 
 import SwiftUI
 import SwiftData
-
+import ActivityKit
 struct WorkoutPageView: View {
     @State private var isExpanded = false
     @Namespace private var namespace
     @Query(filter: #Predicate<Workout> { !$0.isFinished }) private var ongoingWorkouts: [Workout]
     @Environment(\.modelContext) private var modelContext
-    
+    @State private var activityID: String?
     private var hasOngoingWorkout: Bool {
         !ongoingWorkouts.isEmpty
     }
     
     var body: some View {
-        NavigationStack{
-            ZStack {
-                if isExpanded && hasOngoingWorkout {
-                    WorkoutStartView(
-                        namespace: namespace,
-                        isExpanded: $isExpanded,
-                        workout: ongoingWorkouts[0]
-                    )
-                    .ignoresSafeArea()
-                }
-                
-                if !isExpanded {
-                    FloatingActionButton(
-                        namespace: namespace,
-                        hasOngoingWorkout: hasOngoingWorkout,
-                        action: {
-                            withAnimation(.spring(duration: 0.5)) {
-                                if hasOngoingWorkout {
-                                    isExpanded = true
-                                } else {
-                                    startNewWorkout()
-                                }
+        ZStack {
+            if isExpanded && hasOngoingWorkout {
+                WorkoutStartView(
+                    namespace: namespace,
+                    isExpanded: $isExpanded,
+                    workout: ongoingWorkouts[0]
+                )
+            }
+            
+            if !isExpanded {
+                FloatingActionButton(
+                    namespace: namespace,
+                    hasOngoingWorkout: hasOngoingWorkout,
+                    action: {
+                        withAnimation(.spring(duration: 0.5)) {
+                            if hasOngoingWorkout {
+                                isExpanded = true
+                            } else {
+                                startNewWorkout()
                             }
                         }
-                    )
-                    .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .bottomTrailing)
-                }
+                    }
+                )
+                .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .bottomTrailing)
             }
-            .navigationTitle("Workouts")
         }
     }
     

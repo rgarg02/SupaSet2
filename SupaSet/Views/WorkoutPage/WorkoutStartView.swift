@@ -7,7 +7,7 @@
 
 import SwiftUI
 import SwiftData
-
+import ActivityKit
 /// A view that displays the workout start interface with smooth transition animations and drag-to-dismiss functionality.
 ///
 /// This view implements a custom transition between an expanded workout view and a compact button state,
@@ -35,6 +35,7 @@ struct WorkoutStartView: View {
     /// Tracks the vertical offset during drag gestures.
     @State var offsetY: CGFloat = 0
     @State private var scrollOffset: CGFloat = 0
+    @State private var activity: Activity<WorkoutAttributes>? = nil
     
     /// The workout model object being displayed and modified.
     @Bindable var workout: Workout
@@ -57,6 +58,7 @@ struct WorkoutStartView: View {
     private let buttonSize: CGFloat = 60
     
     @FocusState var focused: Bool
+    @State private var activityID: String?
     /// The main view body implementing the interactive workout interface.
     ///
     /// This view uses GeometryReader to create smooth transitions between states and
@@ -79,7 +81,11 @@ struct WorkoutStartView: View {
                 ZStack(alignment: .bottom) {
                     Color.theme.background
                         .matchedGeometryEffect(id: "background", in: namespace)
-                        .ignoresSafeArea()
+                    if progress != 0 {
+                        Color.theme.primary
+                            .matchedGeometryEffect(id: "background", in: namespace)
+                            .opacity(progress)
+                    }
                     VStack(spacing: 20) {
                         RoundedRectangle(cornerRadius: 2.5)
                             .fill(.gray)
@@ -93,6 +99,9 @@ struct WorkoutStartView: View {
                                 ForEach(workout.sortedExercises, id: \.self) { exercise in
                                     ExerciseCardView(workoutExercise: exercise
                                                      , focused: $focused)
+                                    .onChange(of: exercise.sets) { _, _ in
+                                        updateLiveActivity()
+                                    }
                                     .frame(height: 500)
                                 }
                             }
@@ -110,6 +119,7 @@ struct WorkoutStartView: View {
                             }
                         }
                     }
+                    .opacity(1-progress)
                     CustomButton(
                         icon: "plus.circle",
                         title: "Add Exercises",
@@ -121,6 +131,7 @@ struct WorkoutStartView: View {
                         }
                     )
                     .padding()
+                    .opacity(1-progress)
                 }
                 .matchedGeometryEffect(id: "icon", in: namespace)
                 .ignoresSafeArea(.keyboard)
@@ -136,7 +147,17 @@ struct WorkoutStartView: View {
                 }
                 
             }
-            .opacity(1-progress)
+            .onChange(of: workout.sortedExercises) { _, _ in
+                updateLiveActivity()
+            }
+            .task {
+                // Start the live activity when the view appears
+                do {
+                    activityID = try LiveActivityManager.startActivity(currentExerciseName: workout.sortedExercises.last?.exercise.name ?? "No Exercise", workoutStartTime: workout.date, setNumber: workout.sortedExercises.last?.sortedSets.last?.order ?? 0)
+                } catch {
+                    print("Failed to start live activity: \(error)")
+                }
+            }
             .frame(width: width, height: height)
             .cornerRadius(progress * 30)
             .position(x: currentX, y: currentY)
@@ -196,6 +217,22 @@ struct WorkoutStartView: View {
                 withAnimation(.spring()) {
                     offsetY = 0
                 }
+            }
+        }
+    }
+    private func updateLiveActivity() {
+        guard let currentExercise = workout.sortedExercises.first else { return }
+        
+        Task {
+            do {
+                try await LiveActivityManager.updateActivity(
+                    id: activityID,
+                    workoutStartTime: workout.date,
+                    currentExerciseName: currentExercise.exercise.name,
+                    setNumber: currentExercise.sortedSets.count
+                )
+            } catch {
+                print("Failed to update live activity: \(error)")
             }
         }
     }

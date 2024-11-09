@@ -60,6 +60,15 @@
 /* End PBXFileReference section */
 
 /* Begin PBXFileSystemSynchronizedBuildFileExceptionSet section */
+		D9073FA02CDEE0C0000E23DA /* Exceptions for "SupaSet" folder in "SupaSetWidgetExtension" target */ = {
+			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
+			membershipExceptions = (
+				Extensions/Color.swift,
+				LiveActivities/LiveActivityManager.swift,
+				LiveActivities/WorkoutAttributes.swift,
+			);
+			target = D9AF18382CDEBF42001ACDDA /* SupaSetWidgetExtension */;
+		};
 		D9AF18532CDEBF44001ACDDA /* Exceptions for "SupaSetWidget" folder in "SupaSetWidgetExtension" target */ = {
 			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
 			membershipExceptions = (
@@ -72,6 +81,9 @@
 /* Begin PBXFileSystemSynchronizedRootGroup section */
 		D9A0C11B2CD9E803008F4E70 /* SupaSet */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
+			exceptions = (
+				D9073FA02CDEE0C0000E23DA /* Exceptions for "SupaSet" folder in "SupaSetWidgetExtension" target */,
+			);
 			path = SupaSet;
 			sourceTree = "<group>";
 		};
@@ -513,6 +525,7 @@
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.healthcare-fitness";
+				INFOPLIST_KEY_NSSupportsLiveActivities = YES;
 				"INFOPLIST_KEY_UIApplicationSceneManifest_Generation[sdk=iphoneos*]" = YES;
 				"INFOPLIST_KEY_UIApplicationSceneManifest_Generation[sdk=iphonesimulator*]" = YES;
 				"INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents[sdk=iphoneos*]" = YES;
@@ -554,6 +567,7 @@
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.healthcare-fitness";
+				INFOPLIST_KEY_NSSupportsLiveActivities = YES;
 				"INFOPLIST_KEY_UIApplicationSceneManifest_Generation[sdk=iphoneos*]" = YES;
 				"INFOPLIST_KEY_UIApplicationSceneManifest_Generation[sdk=iphonesimulator*]" = YES;
 				"INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents[sdk=iphoneos*]" = YES;

@@ -7,12 +7,35 @@
 		<key>SupaSet.xcscheme_^#shared#^_</key>
 		<dict>
 			<key>orderHint</key>
-			<integer>0</integer>
+			<integer>1</integer>
 		</dict>
 		<key>SupaSetWidgetExtension.xcscheme_^#shared#^_</key>
 		<dict>
 			<key>orderHint</key>
-			<integer>1</integer>
+			<integer>0</integer>
+		</dict>
+	</dict>
+	<key>SuppressBuildableAutocreation</key>
+	<dict>
+		<key>D9A0C1182CD9E803008F4E70</key>
+		<dict>
+			<key>primary</key>
+			<true/>
+		</dict>
+		<key>D9A0C1292CD9E805008F4E70</key>
+		<dict>
+			<key>primary</key>
+			<true/>
+		</dict>
+		<key>D9A0C1332CD9E805008F4E70</key>
+		<dict>
+			<key>primary</key>
+			<true/>
+		</dict>
+		<key>D9AF18382CDEBF42001ACDDA</key>
+		<dict>
+			<key>primary</key>
+			<true/>
 		</dict>
 	</dict>
 </dict>

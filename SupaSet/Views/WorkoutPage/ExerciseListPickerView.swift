@@ -98,7 +98,7 @@ struct ExerciseListPickerView: View {
                             .background(isExerciseInWorkout(exercise) ? Color.theme.secondary : Color.theme.background)
                             .contentShape(Rectangle())
                             .onTapGesture {
-                                withAnimation {
+                                withAnimation(.bouncy){
                                     if let existingExercise = workout.getWorkoutExercise(for: exercise) {
                                         // Remove exercise if it already exists
                                         workout.deleteExercise(exercise: exercise) // Changed to pass the exercise directly
@@ -135,13 +135,12 @@ struct ExerciseListPickerView: View {
 struct ExerciseListPickerView_Preview: PreviewProvider {
     static var previews: some View {
         let workout = Workout(name: "New Workout", isFinished: false)
-        let viewModel = ExerciseViewModel()
+        let container = PreviewContainer.preview
         ExerciseListPickerView(isPresented: .constant(true), workout: workout)
-            .modelContainer(previewContainer)
-            .environment(viewModel)
+            .modelContainer(container.container)
+            .environment(container.viewModel)
             .onAppear {
-                viewModel.loadExercises()
-                previewContainer.mainContext.insert(workout)
+                container.container.mainContext.insert(workout)
             }
     }
 }

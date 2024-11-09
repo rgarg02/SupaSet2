@@ -7,82 +7,109 @@
 
 import WidgetKit
 import SwiftUI
+import ActivityKit
 
-struct Provider: AppIntentTimelineProvider {
-    func placeholder(in context: Context) -> SimpleEntry {
-        SimpleEntry(date: Date(), configuration: ConfigurationAppIntent())
-    }
-
-    func snapshot(for configuration: ConfigurationAppIntent, in context: Context) async -> SimpleEntry {
-        SimpleEntry(date: Date(), configuration: configuration)
-    }
-    
-    func timeline(for configuration: ConfigurationAppIntent, in context: Context) async -> Timeline<SimpleEntry> {
-        var entries: [SimpleEntry] = []
-
-        // Generate a timeline consisting of five entries an hour apart, starting from the current date.
-        let currentDate = Date()
-        for hourOffset in 0 ..< 5 {
-            let entryDate = Calendar.current.date(byAdding: .hour, value: hourOffset, to: currentDate)!
-            let entry = SimpleEntry(date: entryDate, configuration: configuration)
-            entries.append(entry)
-        }
-
-        return Timeline(entries: entries, policy: .atEnd)
-    }
-
-//    func relevances() async -> WidgetRelevances<ConfigurationAppIntent> {
-//        // Generate a list containing the contexts this widget is relevant in.
-//    }
-}
-
-struct SimpleEntry: TimelineEntry {
-    let date: Date
-    let configuration: ConfigurationAppIntent
-}
-
-struct SupaSetWidgetEntryView : View {
-    var entry: Provider.Entry
-
-    var body: some View {
-        VStack {
-            Text("Time:")
-            Text(entry.date, style: .time)
-
-            Text("Favorite Emoji:")
-            Text(entry.configuration.favoriteEmoji)
-        }
-    }
-}
+import WidgetKit
+import SwiftUI
+import ActivityKit
 
 struct SupaSetWidget: Widget {
-    let kind: String = "SupaSetWidget"
-
     var body: some WidgetConfiguration {
-        AppIntentConfiguration(kind: kind, intent: ConfigurationAppIntent.self, provider: Provider()) { entry in
-            SupaSetWidgetEntryView(entry: entry)
-                .containerBackground(.fill.tertiary, for: .widget)
+        ActivityConfiguration(for: WorkoutAttributes.self) { context in
+            // Live Activity View
+            VStack(spacing: 12) {
+                // Header
+                HStack {
+                    Image(systemName: "figure.run")
+                        .foregroundStyle(.green)
+                    Text("Workout in Progress")
+                        .font(.headline)
+                    Spacer()
+                    Text(context.state.workoutStartTime, style: .timer)
+                        .monospacedDigit()
+                }
+                .padding(.horizontal)
+                
+                // Current Exercise
+                VStack(alignment: .leading, spacing: 4) {
+                    Text("Current Exercise")
+                        .font(.subheadline)
+                        .foregroundStyle(.secondary)
+                    Text(context.state.currentExerciseName)
+                        .font(.title2)
+                        .bold()
+                }
+                .frame(maxWidth: .infinity, alignment: .leading)
+                .padding(.horizontal)
+                
+                // Set Progress
+                VStack(alignment: .leading, spacing: 4) {
+                    HStack {
+                        Text("Set")
+                            .foregroundStyle(.secondary)
+                        Text("\(context.state.setNumber)")
+                            .bold()
+                    }
+                    .font(.subheadline)
+                    
+                    ProgressView(value: Double(context.state.setNumber), total: 5)
+                        .tint(.green)
+                }
+                .padding(.horizontal)
+            }
+            .padding(.vertical)
+            .frame(maxWidth: .infinity)
+            
+        } dynamicIsland: { context in
+            DynamicIsland {
+                // Expanded Dynamic Island
+                DynamicIslandExpandedRegion(.leading) {
+                    Image(systemName: "figure.run")
+                        .foregroundStyle(.green)
+                }
+                
+                DynamicIslandExpandedRegion(.center) {
+                    Text(context.state.currentExerciseName)
+                        .font(.system(.headline, weight: .bold))
+                        .lineLimit(1)
+                }
+                
+                DynamicIslandExpandedRegion(.trailing) {
+                    Text("Set \(context.state.setNumber)")
+                        .font(.system(.subheadline, weight: .semibold))
+                }
+                
+                DynamicIslandExpandedRegion(.bottom) {
+                    HStack {
+                        Label {
+                            Text(context.state.workoutStartTime, style: .timer)
+                                .monospacedDigit()
+                        } icon: {
+                            Image(systemName: "timer")
+                        }
+                        .font(.system(.body, weight: .medium))
+                        
+                        Spacer()
+                        
+                        Label("\(context.state.setNumber)/5", systemImage: "chart.bar.fill")
+                            .font(.system(.body, weight: .medium))
+                    }
+                    .padding(.top, 4)
+                }
+            } compactLeading: {
+                // Compact leading view
+                Image(systemName: "figure.run")
+                    .foregroundStyle(.green)
+            } compactTrailing: {
+                // Compact trailing view
+                Text("Set \(context.state.setNumber)")
+                    .font(.caption2)
+                    .bold()
+            } minimal: {
+                // Minimal view
+                Image(systemName: "figure.run")
+                    .foregroundStyle(.green)
+            }
         }
     }
-}
-
-extension ConfigurationAppIntent {
-    fileprivate static var smiley: ConfigurationAppIntent {
-        let intent = ConfigurationAppIntent()
-        intent.favoriteEmoji = "😀"
-        return intent
-    }
-    
-    fileprivate static var starEyes: ConfigurationAppIntent {
-        let intent = ConfigurationAppIntent()
-        intent.favoriteEmoji = "🤩"
-        return intent
-    }
-}
-
-#Preview(as: .systemSmall) {
-    SupaSetWidget()
-} timeline: {
-    SimpleEntry(date: .now, configuration: .smiley)
-    SimpleEntry(date: .now, configuration: .starEyes)
 }
