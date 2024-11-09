@@ -77,7 +77,7 @@ struct SetRowView: View {
         .padding(.vertical, 12)
         .background(
             RoundedRectangle(cornerRadius: 8)
-                .fill(set.isDone ? Color.theme.accent : Color.clear)
+                .fill(set.isDone ? Color.theme.accent : Color.theme.background)
                 .shadow(
                     color: Color.black.opacity(0.05),
                     radius: 2,

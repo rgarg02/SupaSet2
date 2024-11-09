@@ -107,7 +107,7 @@ struct ExerciseCardView_Previews: PreviewProvider {
                 images: []
             )
         )
-        
+        let preview = PreviewContainer.preview
         NavigationStack {
             ExerciseCardView(
                 workoutExercise: workoutExercise,
@@ -116,27 +116,9 @@ struct ExerciseCardView_Previews: PreviewProvider {
             .frame(maxHeight: 400)
             .padding()
         }
-        .modelContainer(previewContainer)
+        .modelContainer(preview.container)
         .onAppear {
-            // Add sample sets to the workout exercise
-            let setsData: [(weight: Double, reps: Int)] = [
-                (135, 12),
-                (155, 10),
-                (175, 8),
-                (175, 8)
-            ]
-            
-            for (index, setData) in setsData.enumerated() {
-                let set = ExerciseSet(
-                    reps: setData.reps,
-                    weight: setData.weight,
-                    order: index
-                )
-                workoutExercise.sets.append(set)
-            }
-            
-            // Insert the workout exercise into the container
-            previewContainer.mainContext.insert(workoutExercise)
+            preview.container.mainContext.insert(workoutExercise)
         }
     }
 }
