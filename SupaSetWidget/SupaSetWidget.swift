@@ -32,6 +32,7 @@ struct SupaSetWidget: Widget {
                 
                 // Current Exercise
                 VStack(alignment: .leading, spacing: 4) {
+                    //current exercise
                     Text("Current Exercise")
                         .font(.subheadline)
                         .foregroundStyle(.secondary)
