@@ -12,6 +12,7 @@ struct Theme {
     let accent = Color("AccentColor")
     let background = Color("BackgroundColor")
     let text = Color("TextColor")
+    let textOpposite = Color("TextColorOpposite")
     let primary = Color("PrimaryThemeColor")
     let secondary = Color("SecondaryThemeColor")
     let secondaryLight = Color("SecondaryColorLight")

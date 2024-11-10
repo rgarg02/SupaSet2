@@ -64,7 +64,7 @@ struct ExerciseCardView: View {
                 }
             }
             Spacer()
-            CustomButton(icon: "plus", title: "Add Set", size: .small, style: .filled()) {
+            CustomButton(icon: "plus", title: "Add Set", size: .small, style: .filled(background: .theme.accent, foreground: .theme.text)) {
                 workoutExercise.insertSet(reps: workoutExercise.sortedSets.last?.reps ?? 0, weight: workoutExercise.sortedSets.last?.weight ?? 0)
             }
         }

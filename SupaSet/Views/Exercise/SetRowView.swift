@@ -11,12 +11,12 @@ struct SetRowView: View {
     let setNumber: Int
     @Bindable var set: ExerciseSet
     @FocusState.Binding var focused: Bool
+    @State var textColor : Color = .theme.text
     var body: some View {
         HStack(spacing: 16) {
             // Set Number
             Text("\(setNumber)")
                 .font(.headline)
-                .foregroundColor(.theme.text)
                 .frame(width: 30)
             
             // Weight Input
@@ -36,7 +36,6 @@ struct SetRowView: View {
                 
                 Text("kg")
                     .font(.caption)
-                    .foregroundColor(.theme.text)
             }
             .frame(width: 80)
             
@@ -56,7 +55,6 @@ struct SetRowView: View {
                     })
                 Text("reps")
                     .font(.caption)
-                    .foregroundColor(.theme.text)
             }
             .frame(width: 80)
             
@@ -69,15 +67,23 @@ struct SetRowView: View {
                 Image(systemName: set.isDone ? "checkmark.circle.fill" : "circle")
                     .resizable()
                     .frame(width: 24, height: 24)
-                    .foregroundColor(set.isDone ? .theme.text : .gray)
+                    .foregroundColor(set.isDone ? .theme.accent : .gray)
             }
             .frame(width: 50)
         }
+        .onChange(of: set.isDone, { oldValue, newValue in
+            if newValue {
+                textColor = .theme.textOpposite
+            }else{
+                textColor = .theme.text
+            }
+        })
+        .foregroundStyle(textColor)
         .padding(.horizontal, 16)
         .padding(.vertical, 12)
         .background(
             RoundedRectangle(cornerRadius: 8)
-                .fill(set.isDone ? Color.theme.accent : Color.theme.background)
+                .fill(set.isDone ? Color.theme.primary : Color.theme.background)
                 .shadow(
                     color: Color.black.opacity(0.05),
                     radius: 2,
