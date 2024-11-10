@@ -12,7 +12,5 @@ import SwiftUI
 struct SupaSetWidgetBundle: WidgetBundle {
     var body: some Widget {
         SupaSetWidget()
-        SupaSetWidgetControl()
-        SupaSetWidgetLiveActivity()
     }
 }
