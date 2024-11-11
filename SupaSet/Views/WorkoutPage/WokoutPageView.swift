@@ -26,6 +26,7 @@ struct WorkoutPageView: View {
                     isExpanded: $isExpanded,
                     workout: ongoingWorkouts[0]
                 )
+                .ignoresSafeArea()
             }
             
             if !isExpanded {
@@ -42,6 +43,7 @@ struct WorkoutPageView: View {
                         }
                     }
                 )
+                .ignoresSafeArea()
                 .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .bottomTrailing)
             }
         }
