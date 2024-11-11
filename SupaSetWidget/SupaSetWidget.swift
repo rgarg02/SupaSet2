@@ -16,9 +16,7 @@ import ActivityKit
 struct SupaSetWidget: Widget {
     var body: some WidgetConfiguration {
         ActivityConfiguration(for: WorkoutAttributes.self) { context in
-            // Live Activity View
             VStack(spacing: 12) {
-                // Header
                 HStack {
                     Image(systemName: "figure.run")
                         .foregroundStyle(.green)
@@ -43,7 +41,6 @@ struct SupaSetWidget: Widget {
                 .frame(maxWidth: .infinity, alignment: .leading)
                 .padding(.horizontal)
                 
-                // Set Progress
                 VStack(alignment: .leading, spacing: 4) {
                     HStack {
                         Text("Set")
