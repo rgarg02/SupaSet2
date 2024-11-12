@@ -33,9 +33,6 @@ struct WorkoutTopControls: View {
 
             Button("Finish"){
                 finishWorkout()
-                Task{
-                    await LiveActivityManager.endAllActivities()
-                }
             }
             .foregroundStyle(.green)
             .font(.headline)

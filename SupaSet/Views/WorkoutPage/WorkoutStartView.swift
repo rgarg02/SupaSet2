@@ -35,7 +35,6 @@ struct WorkoutStartView: View {
     /// Tracks the vertical offset during drag gestures.
     @State var offsetY: CGFloat = 0
     @State private var scrollOffset: CGFloat = 0
-    @State private var activity: Activity<WorkoutAttributes>? = nil
     
     /// The workout model object being displayed and modified.
     @Bindable var workout: Workout
@@ -99,8 +98,9 @@ struct WorkoutStartView: View {
                                 ForEach(workout.sortedExercises, id: \.self) { exercise in
                                     ExerciseCardView(workoutExercise: exercise
                                                      , focused: $focused)
-                                    .onChange(of: exercise.sets) { _, _ in
-                                        updateLiveActivity()
+                                    .onChange(of: exercise.sets.count) { V,
+                                        V in
+                                        WorkoutActivityManager.shared.updateWorkoutActivity(workout: workout)
                                     }
                                     .frame(height: 500)
                                 }
@@ -147,16 +147,11 @@ struct WorkoutStartView: View {
                 }
                 
             }
-            .onChange(of: workout.sortedExercises) { _, _ in
-                updateLiveActivity()
+            .onAppear {
+                WorkoutActivityManager.shared.startWorkoutActivity(workout: workout)
             }
-            .task {
-                // Start the live activity when the view appears
-                do {
-                    activityID = try LiveActivityManager.startActivity(currentExerciseName: workout.sortedExercises.last?.exercise.name ?? "No Exercise", workoutStartTime: workout.date, setNumber: workout.sortedExercises.last?.sortedSets.last?.order ?? 0)
-                } catch {
-                    print("Failed to start live activity: \(error)")
-                }
+            .onDisappear {
+                WorkoutActivityManager.shared.endWorkoutActivity()
             }
             .frame(width: width, height: height)
             .cornerRadius(progress * 30)
@@ -217,22 +212,6 @@ struct WorkoutStartView: View {
                 withAnimation(.spring()) {
                     offsetY = 0
                 }
-            }
-        }
-    }
-    private func updateLiveActivity() {
-        guard let currentExercise = workout.sortedExercises.first else { return }
-        
-        Task {
-            do {
-                try await LiveActivityManager.updateActivity(
-                    id: activityID,
-                    workoutStartTime: workout.date,
-                    currentExerciseName: currentExercise.exercise.name,
-                    setNumber: currentExercise.sortedSets.count
-                )
-            } catch {
-                print("Failed to update live activity: \(error)")
             }
         }
     }
