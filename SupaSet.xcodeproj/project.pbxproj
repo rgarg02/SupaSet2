@@ -63,9 +63,11 @@
 		D9073FA02CDEE0C0000E23DA /* Exceptions for "SupaSet" folder in "SupaSetWidgetExtension" target */ = {
 			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
 			membershipExceptions = (
+				AppContainer.swift,
+				AppIntentmain.swift,
 				Extensions/Color.swift,
-				LiveActivities/LiveActivityManager.swift,
-				LiveActivities/WorkoutAttributes.swift,
+				Model/Exercises.swift,
+				Model/SwiftDataModels/WorkoutModel.swift,
 			);
 			target = D9AF18382CDEBF42001ACDDA /* SupaSetWidgetExtension */;
 		};
@@ -75,6 +77,17 @@
 				Info.plist,
 			);
 			target = D9AF18382CDEBF42001ACDDA /* SupaSetWidgetExtension */;
+		};
+		D9DDFC0B2CE2CFCD00049AC0 /* Exceptions for "SupaSetWidget" folder in "SupaSet" target */ = {
+			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
+			membershipExceptions = (
+				AppIntent.swift,
+				Live/WorkoutActivityManager.swift,
+				Live/WorkoutAttributes.swift,
+				Live/WorkoutLiveActivityView.swift,
+				SupaSetWidget.swift,
+			);
+			target = D9A0C1182CD9E803008F4E70 /* SupaSet */;
 		};
 /* End PBXFileSystemSynchronizedBuildFileExceptionSet section */
 
@@ -100,6 +113,7 @@
 		D9AF183F2CDEBF42001ACDDA /* SupaSetWidget */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
 			exceptions = (
+				D9DDFC0B2CE2CFCD00049AC0 /* Exceptions for "SupaSetWidget" folder in "SupaSet" target */,
 				D9AF18532CDEBF44001ACDDA /* Exceptions for "SupaSetWidget" folder in "SupaSetWidgetExtension" target */,
 			);
 			path = SupaSetWidget;

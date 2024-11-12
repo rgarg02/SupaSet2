@@ -13,12 +13,16 @@ final class Workout: Hashable {
     var id: UUID
     var name: String
     var date: Date
-    var endTime : Date?
+    var endTime: Date?
     var isFinished: Bool
     var notes: String?
     var duration: TimeInterval?
     var totalVolume: Double?  // Total weight lifted across all exercises
     @Relationship(deleteRule: .cascade) var exercises: [WorkoutExercise] = []
+    
+    // New properties for tracking current position
+    var currentExerciseOrder: Int
+    var currentSetOrder: Int
     
     init(
         name: String,
@@ -26,7 +30,9 @@ final class Workout: Hashable {
         endTime: Date? = nil,
         isFinished: Bool = false,
         notes: String? = nil,
-        duration: TimeInterval? = nil
+        duration: TimeInterval? = nil,
+        currentExerciseOrder: Int = 0,
+        currentSetOrder: Int = 0
     ) {
         self.id = UUID()
         self.name = name
@@ -35,6 +41,44 @@ final class Workout: Hashable {
         self.isFinished = isFinished
         self.notes = notes
         self.duration = duration
+        self.currentExerciseOrder = currentExerciseOrder
+        self.currentSetOrder = currentSetOrder
+    }
+    
+    // Helper methods for workout progression
+    func moveToNextExercise() {
+        if currentExerciseOrder < exercises.count - 1 {
+            currentExerciseOrder += 1
+            currentSetOrder = 0
+        }
+    }
+    
+    func moveToPreviousExercise() {
+        if currentExerciseOrder > 0 {
+            currentExerciseOrder -= 1
+            currentSetOrder = 0
+        }
+    }
+    
+    func completeCurrentSet() {
+        guard let currentExercise = exercises.first(where: { $0.order == currentExerciseOrder }),
+              currentSetOrder < currentExercise.sets.count else { return }
+        
+        currentExercise.sets[currentSetOrder].isDone = true
+        currentSetOrder += 1
+        
+        // If all sets are complete, move to next exercise
+        if currentSetOrder >= currentExercise.sets.count {
+            moveToNextExercise()
+        }
+    }
+    
+    var currentExercise: WorkoutExercise? {
+        exercises.first { $0.order == currentExerciseOrder }
+    }
+    
+    var currentSet: ExerciseSet? {
+        currentExercise?.sets.first { $0.order == currentSetOrder }
     }
     
     // Computed property to calculate total volume
@@ -70,6 +114,7 @@ final class WorkoutExercise: Hashable {
         self.exercise = exercise
         self.order = order
         self.notes = notes
+        self.sets = [ExerciseSet(reps: 0, weight: 0)]
     }
     
     // Computed property for total volume of this exercise
