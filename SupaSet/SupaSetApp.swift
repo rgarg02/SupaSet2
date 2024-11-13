@@ -31,7 +31,6 @@ struct SupaSetApp: App {
             ContentView()
                 .modelContainer(container)
                 .onAppear {
-                    // Optionally share the container with other parts of your app
                     AppContainer.shared.container = container
                 }
         }

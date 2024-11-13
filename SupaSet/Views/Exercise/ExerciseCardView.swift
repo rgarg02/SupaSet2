@@ -9,6 +9,7 @@ import SwiftUI
 import SwiftData
 
 struct ExerciseCardView: View {
+    let workout: Workout
     let workoutExercise: WorkoutExercise
     @Environment(\.modelContext) private var modelContext
     @FocusState.Binding var focused : Bool
@@ -58,8 +59,10 @@ struct ExerciseCardView: View {
                                 withAnimation(.easeInOut){
                                     workoutExercise.deleteSet(set)
                                     modelContext.delete(set)
+                                    WorkoutActivityManager.shared.updateWorkoutActivity(workout: workout)
                                 }
-                            }                        }
+                            }
+                        }
                     }
                 }
             }
@@ -92,24 +95,25 @@ struct ExerciseCardView: View {
 
 struct ExerciseCardView_Previews: PreviewProvider {
     static var previews: some View {
-        let workoutExercise = WorkoutExercise(
-            exercise: Exercise(
-                id: "bench-press",
-                name: "Bench Press",
-                force: .push,
-                level: .intermediate,
-                mechanic: .compound,
-                equipment: .barbell,
-                primaryMuscles: [.chest],
-                secondaryMuscles: [.shoulders, .triceps],
-                instructions: ["Bench press instructions"],
-                category: .strength,
-                images: []
-            )
+        let workout = Workout(name: "Workout")
+        let exercise = Exercise(
+            id: "bench-press",
+            name: "Bench Press",
+            force: .push,
+            level: .intermediate,
+            mechanic: .compound,
+            equipment: .barbell,
+            primaryMuscles: [.chest],
+            secondaryMuscles: [.shoulders, .triceps],
+            instructions: ["Bench press instructions"],
+            category: .strength,
+            images: []
         )
+        let workoutExercise = WorkoutExercise(exercise: exercise)
         let preview = PreviewContainer.preview
         NavigationStack {
             ExerciseCardView(
+                workout: workout,
                 workoutExercise: workoutExercise,
                 focused: FocusState<Bool>().projectedValue
             )

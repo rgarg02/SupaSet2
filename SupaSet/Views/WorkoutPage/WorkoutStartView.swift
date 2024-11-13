@@ -96,7 +96,7 @@ struct WorkoutStartView: View {
                                 WorkoutInfoView(workout: workout)
                                 
                                 ForEach(workout.sortedExercises, id: \.self) { exercise in
-                                    ExerciseCardView(workoutExercise: exercise
+                                    ExerciseCardView(workout: workout, workoutExercise: exercise
                                                      , focused: $focused)
                                     .onChange(of: exercise.sets.count) { V,
                                         V in
@@ -146,6 +146,10 @@ struct WorkoutStartView: View {
                     }
                 }
                 
+            }
+            .onChange(of: workout.exercises.count) { V,
+                V in
+                WorkoutActivityManager.shared.updateWorkoutActivity(workout: workout)
             }
             .onAppear {
                 WorkoutActivityManager.shared.startWorkoutActivity(workout: workout)

@@ -65,8 +65,11 @@
 			membershipExceptions = (
 				AppContainer.swift,
 				AppIntentmain.swift,
+				CustomComponents/Button.swift,
 				Extensions/Color.swift,
 				Model/Exercises.swift,
+				"Model/SwiftDataModels/Workout+Reorder.swift",
+				"Model/SwiftDataModels/WorkoutExercise+Reorder.swift",
 				Model/SwiftDataModels/WorkoutModel.swift,
 			);
 			target = D9AF18382CDEBF42001ACDDA /* SupaSetWidgetExtension */;
@@ -85,7 +88,7 @@
 				Live/WorkoutActivityManager.swift,
 				Live/WorkoutAttributes.swift,
 				Live/WorkoutLiveActivityView.swift,
-				SupaSetWidget.swift,
+				LiveActivityWidget.swift,
 			);
 			target = D9A0C1182CD9E803008F4E70 /* SupaSet */;
 		};
@@ -531,6 +534,7 @@
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_ENTITLEMENTS = SupaSet/SupaSet.entitlements;
+				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_ASSET_PATHS = "\"SupaSet/Preview Content\"";
@@ -557,6 +561,7 @@
 				MARKETING_VERSION = 1.001;
 				PRODUCT_BUNDLE_IDENTIFIER = rishigarg.SupaSet;
 				PRODUCT_NAME = "$(TARGET_NAME)";
+				PROVISIONING_PROFILE_SPECIFIER = "";
 				SDKROOT = auto;
 				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
 				SUPPORTS_MACCATALYST = NO;
@@ -573,6 +578,7 @@
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_ENTITLEMENTS = SupaSet/SupaSet.entitlements;
+				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_ASSET_PATHS = "\"SupaSet/Preview Content\"";
@@ -599,6 +605,7 @@
 				MARKETING_VERSION = 1.001;
 				PRODUCT_BUNDLE_IDENTIFIER = rishigarg.SupaSet;
 				PRODUCT_NAME = "$(TARGET_NAME)";
+				PROVISIONING_PROFILE_SPECIFIER = "";
 				SDKROOT = auto;
 				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
 				SUPPORTS_MACCATALYST = NO;
