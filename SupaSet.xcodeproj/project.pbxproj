@@ -64,7 +64,7 @@
 			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
 			membershipExceptions = (
 				AppContainer.swift,
-				AppIntentmain.swift,
+				AppIntentMain.swift,
 				CustomComponents/Button.swift,
 				Extensions/Color.swift,
 				Model/Other/Exercises.swift,
@@ -85,7 +85,6 @@
 		D9DDFC0B2CE2CFCD00049AC0 /* Exceptions for "SupaSetWidget" folder in "SupaSet" target */ = {
 			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
 			membershipExceptions = (
-				AppIntent.swift,
 				Live/WorkoutActivityManager.swift,
 				Live/WorkoutAttributes.swift,
 				Live/WorkoutLiveActivityView.swift,
