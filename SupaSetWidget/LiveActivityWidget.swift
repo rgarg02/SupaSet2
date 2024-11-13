@@ -143,6 +143,7 @@ struct LiveActivityWidget: Widget {
                     .frame(height: 10)
                     .symbolEffect(.breathe)
             }
+            .keylineTint(Color.theme.accent)
         }
     }
 }
