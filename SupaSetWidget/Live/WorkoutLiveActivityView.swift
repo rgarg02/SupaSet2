@@ -114,6 +114,7 @@ struct WorkoutLiveActivityView: View {
         }
     }
 }
+#if DEBUG
 // MARK: - Live Activity Previews
 #Preview("Live Activity - Regular Set", as: .content, using: WorkoutAttributes.previewAttributes) {
     LiveActivityWidget()
@@ -132,3 +133,4 @@ struct WorkoutLiveActivityView: View {
 } contentStates: {
     WorkoutAttributes.previewMiddleExercise
 }
+#endif

@@ -8,12 +8,12 @@ struct ContentView: View {
             Color.theme.background
                 .ignoresSafeArea()
             TabView {
-                HomePageView()
-                    .tabItem { Image(systemName: "house") }
+//                HomePageView()
+//                    .tabItem { Image(systemName: "house") }
                 WorkoutPageView()
                     .tabItem { Image(systemName: "dumbbell") }
-                ProfilePageView()
-                    .tabItem { Image(systemName: "person") }
+//                ProfilePageView()
+//                    .tabItem { Image(systemName: "person") }
                 WorkoutHistoryView()
                     .tabItem {Image(systemName: "clock.arrow.circlepath")}
             }
