@@ -77,6 +77,7 @@ extension Workout {
         let workoutExercise = WorkoutExercise(exercise: exercise, order: exercises.count)
         exercises.append(workoutExercise)
         reorderExercises()
+        updateCurrentOrder()
     }
     
     /// Deletes an exercise from the workout and reorders remaining exercises.
@@ -87,10 +88,8 @@ extension Workout {
     /// - Parameter exercise: The Exercise to remove from the workout
     func deleteExercise(exercise: Exercise) {
         exercises.removeAll(where: { $0.exercise.id == exercise.id })
-        let remainingExercises = sortedExercises
-        for (index, remainingExercise) in remainingExercises.enumerated() {
-            remainingExercise.order = index
-        }
+        reorderExercises()
+        updateCurrentOrder()
     }
 }
 

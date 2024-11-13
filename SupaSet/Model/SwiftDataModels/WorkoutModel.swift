@@ -64,42 +64,39 @@ final class Workout: Hashable {
     
     // MARK: - Navigation Methods
     func completeCurrentSet() {
-        guard let currentSet = currentSet else { return }
+        guard let currentExercise = currentExercise,
+              currentSetOrder < currentExercise.sets.count else { return }
         
         // Mark current set as done
-        currentSet.isDone = true
+        let existingSet = currentExercise.sets[currentSetOrder]
+        existingSet.isDone = true
         
         // Find next incomplete set
         if let nextSet = nextIncompleteSet() {
             currentExerciseOrder = nextSet.exerciseOrder
             currentSetOrder = nextSet.setOrder
-        } else {
-            // If no more incomplete sets, finish workout
-//            isFinished = true
-//            endTime = Date()
         }
+        
+        // Always validate the order after changes
+        updateCurrentOrder()
     }
     
     private func nextIncompleteSet() -> (exerciseOrder: Int, setOrder: Int)? {
+        // Get sorted exercises to ensure proper order
         let sortedExercises = exercises.sorted { $0.order < $1.order }
         
-        // Check remaining sets in current exercise
+        // First check remaining sets in current exercise
         if let currentExercise = currentExercise {
-            let remainingSets = currentExercise.sets
-                .filter { $0.order > currentSetOrder && !$0.isDone }
-                .sorted { $0.order < $1.order }
-            
-            if let nextSet = remainingSets.first {
+            let sortedSets = currentExercise.sets.sorted { $0.order < $1.order }
+            if let nextSet = sortedSets.first(where: { $0.order > currentSetOrder && !$0.isDone }) {
                 return (currentExerciseOrder, nextSet.order)
             }
         }
         
-        // Check subsequent exercises
+        // Then check subsequent exercises
         for exercise in sortedExercises where exercise.order > currentExerciseOrder {
-            if let firstIncompleteSet = exercise.sets
-                .filter({ !$0.isDone })
-                .sorted(by: { $0.order < $1.order })
-                .first {
+            let sortedSets = exercise.sets.sorted { $0.order < $1.order }
+            if let firstIncompleteSet = sortedSets.first(where: { !$0.isDone }) {
                 return (exercise.order, firstIncompleteSet.order)
             }
         }
@@ -118,11 +115,12 @@ final class Workout: Hashable {
         // Validate exercise order
         let maxExerciseOrder = exercises.map(\.order).max() ?? 0
         currentExerciseOrder = min(currentExerciseOrder, maxExerciseOrder)
-        
+        print("current exercise order \(currentExerciseOrder)")
         // Validate set order
         if let currentExercise = currentExercise {
             let maxSetOrder = currentExercise.sets.map(\.order).max() ?? 0
             currentSetOrder = min(currentSetOrder, maxSetOrder)
+            print("current set order \(currentSetOrder)")
         } else {
             currentSetOrder = 0
         }
@@ -230,11 +228,6 @@ extension Workout {
         currentSetOrder = max(0, currentSetOrder - 1)
     }
     
-    func updateCurrentSet(_ set: ExerciseSet) {
-        // Implement the logic to update the current set
-        guard let currentExercise = currentExercise else { return }
-        currentExercise.sets[currentSetOrder] = set
-    }
     // Helper methods for workout progression
     func moveToNextExercise() {
         if currentExerciseOrder < exercises.count - 1 {
@@ -248,5 +241,33 @@ extension Workout {
             currentExerciseOrder -= 1
             currentSetOrder = 0
         }
+    }
+}
+// First, update the Workout extension with a safer updateCurrentSet method:
+extension Workout {
+    func updateCurrentSet(_ set: ExerciseSet) {
+        guard let currentExercise = currentExercise,
+              currentSetOrder < currentExercise.sets.count else { return }
+        
+        // Instead of direct assignment, update properties
+        let existingSet = currentExercise.sets[currentSetOrder]
+        existingSet.weight = set.weight
+        existingSet.reps = set.reps
+        existingSet.isWarmupSet = set.isWarmupSet
+        existingSet.rpe = set.rpe
+        existingSet.notes = set.notes
+        existingSet.isDone = set.isDone
+    }
+}
+extension WorkoutExercise {
+    func updateSet(at order: Int, with newValues: ExerciseSet) {
+        guard order < sets.count else { return }
+        let existingSet = sets[order]
+        existingSet.weight = newValues.weight
+        existingSet.reps = newValues.reps
+        existingSet.isWarmupSet = newValues.isWarmupSet
+        existingSet.rpe = newValues.rpe
+        existingSet.notes = newValues.notes
+        existingSet.isDone = newValues.isDone
     }
 }

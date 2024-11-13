@@ -69,7 +69,13 @@ class WorkoutActivityManager {
     }
     // MARK: - Set Management
     func completeCurrentSet(workout: Workout) {
+        // Ensure we're in the right state before making changes
+        workout.updateCurrentOrder()
+        
+        // Complete the set
         workout.completeCurrentSet()
+        
+        // Update the live activity
         updateWorkoutActivity(workout: workout)
     }
     func moveToNextSet(workout: Workout) {
@@ -84,39 +90,75 @@ class WorkoutActivityManager {
         updateWorkoutActivity(workout: workout)
     }
     
-    // MARK: - Weight Management
     func incrementWeight(workout: Workout, by amount: Double = 5.0) {
         guard let currentSet = workout.currentSet else { return }
-        print(currentSet.order)
-        currentSet.weight += amount
-        workout.updateCurrentSet(currentSet)
+        
+        // Create temporary set with new values
+        let updatedSet = ExerciseSet(
+            reps: currentSet.reps,
+            weight: currentSet.weight + amount,
+            isWarmupSet: currentSet.isWarmupSet,
+            rpe: currentSet.rpe,
+            notes: currentSet.notes,
+            order: currentSet.order,
+            isDone: currentSet.isDone
+        )
+        
+        workout.updateCurrentSet(updatedSet)
         updateWorkoutActivity(workout: workout)
     }
     
     func decrementWeight(workout: Workout, by amount: Double = 5.0) {
+        workout.updateCurrentOrder()
         guard let currentSet = workout.currentSet else { return }
         
-        let newWeight = max(0, currentSet.weight - amount)
-        currentSet.weight = newWeight
-        workout.updateCurrentSet(currentSet)
+        let updatedSet = ExerciseSet(
+            reps: currentSet.reps,
+            weight: max(0, currentSet.weight - amount),
+            isWarmupSet: currentSet.isWarmupSet,
+            rpe: currentSet.rpe,
+            notes: currentSet.notes,
+            order: currentSet.order,
+            isDone: currentSet.isDone
+        )
+        
+        workout.updateCurrentSet(updatedSet)
         updateWorkoutActivity(workout: workout)
     }
     
-    // MARK: - Reps Management
     func incrementReps(workout: Workout) {
+        workout.updateCurrentOrder()
         guard let currentSet = workout.currentSet else { return }
-        print(currentSet.reps)
-        currentSet.reps += 1
-        workout.updateCurrentSet(currentSet)
+        
+        let updatedSet = ExerciseSet(
+            reps: currentSet.reps + 1,
+            weight: currentSet.weight,
+            isWarmupSet: currentSet.isWarmupSet,
+            rpe: currentSet.rpe,
+            notes: currentSet.notes,
+            order: currentSet.order,
+            isDone: currentSet.isDone
+        )
+        
+        workout.updateCurrentSet(updatedSet)
         updateWorkoutActivity(workout: workout)
     }
     
     func decrementReps(workout: Workout) {
+        workout.updateCurrentOrder()
         guard let currentSet = workout.currentSet else { return }
         
-        let newReps = max(1, currentSet.reps - 1)
-        currentSet.reps = newReps
-        workout.updateCurrentSet(currentSet)
+        let updatedSet = ExerciseSet(
+            reps: max(1, currentSet.reps - 1),
+            weight: currentSet.weight,
+            isWarmupSet: currentSet.isWarmupSet,
+            rpe: currentSet.rpe,
+            notes: currentSet.notes,
+            order: currentSet.order,
+            isDone: currentSet.isDone
+        )
+        
+        workout.updateCurrentSet(updatedSet)
         updateWorkoutActivity(workout: workout)
     }
     func moveToNextExercise(workout: Workout) {
