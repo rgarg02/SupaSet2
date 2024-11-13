@@ -15,7 +15,7 @@ struct LiveActivityWidget: Widget {
         ActivityConfiguration(for: WorkoutAttributes.self) { context in
             WorkoutLiveActivityView(context: context)
                 .containerBackground(.fill.tertiary, for: .widget)
-                .background(Color.theme.primary)
+                .background(Color.theme.background.gradient)
         } dynamicIsland: { context in
             DynamicIsland {
                 DynamicIslandExpandedRegion(.leading) {
@@ -24,46 +24,75 @@ struct LiveActivityWidget: Widget {
                             .font(.callout.bold())
                             .padding(.leading)
                             .frame(height: 10)
+                            .symbolEffect(.breathe)
                         
                         Text("\(Int(context.state.weight))lb")
                             .font(.headline.monospacedDigit())
                             .frame(width: 65, alignment: .center)
+                            .padding(.top, 5)
                         HStack{
                             Button(intent: DecrementWeightIntent(workoutId: context.attributes.workoutId)) {
-                                Image(systemName: "minus.circle.fill")
-                                    .foregroundStyle(.secondary)
+                                Image(systemName: "minus")
+                                    .foregroundStyle(Color.theme.textOpposite)
+                                    .padding(7)
                             }
+                            .frame(maxHeight: .infinity)
+                            .buttonStyle(PlainButtonStyle())
+                            .background(Color.theme.accent)
+                            .clipShape(.circle)
                             
                             Button(intent: IncrementWeightIntent(workoutId: context.attributes.workoutId)) {
-                                Image(systemName: "plus.circle.fill")
-                                    .foregroundStyle(.secondary)
+                                Image(systemName: "plus")
+                                    .foregroundStyle(Color.theme.textOpposite)
+                                    .padding(7)
                             }
+                            .frame(maxHeight: .infinity)
+                            .buttonStyle(PlainButtonStyle())
+                            .background(Color.theme.accent)
+                            .clipShape(.circle)
                         }
                     }
+                    .foregroundStyle(Color.theme.text)
                 }
                 
                 DynamicIslandExpandedRegion(.trailing) {
                     VStack(spacing: 5){
                         Text("00:00")
-                            .padding(.trailing)
-                            .font(.callout.bold())
+                            .hidden()
+                            .overlay(alignment: .leading){
+                                Text(context.attributes.startTime, style: .timer)
+                                    .multilineTextAlignment(.trailing)
+                            }
                             .frame(height: 10)
                         
                         Text("\(Int(context.state.targetReps)) reps")
                             .font(.headline.monospacedDigit())
                             .frame(width: 65, alignment: .center)
+                            .padding(.top, 5)
                         HStack{
                             Button(intent: DecrementRepsIntent(workoutId: context.attributes.workoutId)) {
-                                Image(systemName: "minus.circle.fill")
-                                    .foregroundStyle(.secondary)
+                                Image(systemName: "minus")
+                                    .foregroundStyle(Color.theme.textOpposite)
+                                    .padding(7)
                             }
+                            .frame(maxHeight: .infinity)
+                            .buttonStyle(PlainButtonStyle())
+                            .background(Color.theme.accent)
+                            .clipShape(.circle)
                             
                             Button(intent: IncrementRepsIntent(workoutId: context.attributes.workoutId)) {
-                                Image(systemName: "plus.circle.fill")
-                                    .foregroundStyle(.secondary)
+                                Image(systemName: "plus")
+                                    .foregroundStyle(Color.theme.textOpposite)
+                                    .padding(7)
+                                    
                             }
+                            .frame(maxHeight: .infinity)
+                            .buttonStyle(PlainButtonStyle())
+                            .background(Color.theme.accent)
+                            .clipShape(.circle)
                         }
                     }
+                    .foregroundStyle(Color.theme.text)
                 }
                 
                 DynamicIslandExpandedRegion(.center) {
@@ -73,9 +102,11 @@ struct LiveActivityWidget: Widget {
                             .lineLimit(1)
                         Text("Set \(context.state.currentSetNumber)/\(context.state.totalSets)")
                             .padding(.horizontal, 6)
-                            .background(Color.theme.secondary.opacity(0.4))
+                            .padding(.vertical, 2)
+                            .background(Color.theme.secondary.opacity(0.5))
                             .clipShape(Capsule())
                     }
+                    .foregroundStyle(Color.theme.text)
                 }
                 
                 DynamicIslandExpandedRegion(.bottom) {
@@ -84,10 +115,14 @@ struct LiveActivityWidget: Widget {
                             Image(systemName: "checkmark.circle.fill")
                             Text("Complete Set")
                         }
-                        .font(.headline)
-                        .frame(maxWidth: .infinity)
                         .padding(.vertical, 2)
                     }
+                    .buttonStyle(PlainButtonStyle())
+                    .frame(maxWidth: .infinity)
+                    .padding(5)
+                    .background(Color.theme.secondary)
+                    .clipShape(.capsule)
+                    .foregroundStyle(Color.theme.text)
                 }
             } compactLeading: {
                 Text("\(context.state.currentSetNumber)/\(context.state.totalSets)")

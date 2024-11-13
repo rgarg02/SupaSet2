@@ -21,11 +21,13 @@ struct WorkoutLiveActivityView: View {
             HStack {
                 Label(context.state.workoutName, systemImage: "dumbbell.fill")
                     .font(.callout.bold())
+                    .symbolEffect(.breathe)
                 Spacer()
                 Text("00:00:00")
                     .hidden()
-                    .overlay{
+                    .overlay(alignment: .leading){
                         Text(context.attributes.startTime, style: .timer)
+                            .multilineTextAlignment(.trailing)
                     }
             }
             .foregroundStyle(.secondary)
@@ -42,8 +44,8 @@ struct WorkoutLiveActivityView: View {
                 HStack(spacing: 4) {
                     Text("Set \(context.state.currentSetNumber)/\(context.state.totalSets)")
                         .padding(.horizontal, 6)
-                        .padding(.vertical, 2)
-                        .background(.secondary.opacity(0.15))
+                        .padding(.vertical, 4)
+                        .background(Color.theme.secondary.opacity(0.5))
                         .clipShape(Capsule())
                     
                     if context.state.isWarmupSet {
@@ -63,37 +65,57 @@ struct WorkoutLiveActivityView: View {
                 // Weight Controls
                 HStack(spacing: 2) {
                     Button(intent: DecrementWeightIntent(workoutId: context.attributes.workoutId)) {
-                        Image(systemName: "minus.circle.fill")
-                            .foregroundStyle(.secondary)
+                        Image(systemName: "minus")
+                            .foregroundStyle(Color.theme.textOpposite)
+                            .padding(7)
                     }
+                    .frame(maxHeight: .infinity)
+                    .buttonStyle(PlainButtonStyle())
+                    .background(Color.theme.accent)
+                    .clipShape(.circle)
                     
                     Text("\(Int(context.state.weight))lb")
                         .font(.headline.monospacedDigit())
                         .frame(width: 65, alignment: .center)
                     
                     Button(intent: IncrementWeightIntent(workoutId: context.attributes.workoutId)) {
-                        Image(systemName: "plus.circle.fill")
-                            .foregroundStyle(.secondary)
+                        Image(systemName: "plus")
+                            .foregroundStyle(Color.theme.textOpposite)
+                            .padding(7)
                     }
+                    .buttonStyle(PlainButtonStyle())
+                    .background(Color.theme.accent)
+                    .clipShape(.circle)
                 }
                 
                 // Reps Controls
                 HStack(spacing: 2) {
                     Button(intent: DecrementRepsIntent(workoutId: context.attributes.workoutId)) {
-                        Image(systemName: "minus.circle.fill")
-                            .foregroundStyle(.secondary)
+                        Image(systemName: "minus")
+                            .foregroundStyle(Color.theme.textOpposite)
+                            .padding(7)
+                        
                     }
+                    .frame(maxHeight: .infinity)
+                    .buttonStyle(PlainButtonStyle())
+                    .background(Color.theme.accent)
+                    .clipShape(.circle)
                     
                     Text("\(context.state.targetReps) reps")
                         .font(.headline.monospacedDigit())
                         .frame(width: 65, alignment: .center)
                     
                     Button(intent: IncrementRepsIntent(workoutId: context.attributes.workoutId)) {
-                        Image(systemName: "plus.circle.fill")
-                            .foregroundStyle(.secondary)
+                        Image(systemName: "plus")
+                            .foregroundStyle(Color.theme.textOpposite)
+                            .padding(7)
                     }
+                    .buttonStyle(PlainButtonStyle())
+                    .background(Color.theme.accent)
+                    .clipShape(.circle)
                 }
             }
+            .frame(maxHeight: .infinity)
             .padding(.vertical, 4)
             
             // Complete Set Button
@@ -102,13 +124,15 @@ struct WorkoutLiveActivityView: View {
                     Image(systemName: "checkmark.circle.fill")
                     Text("Complete Set")
                 }
-                .font(.headline)
-                .frame(maxWidth: .infinity)
                 .padding(.vertical, 2)
             }
-            .buttonStyle(.borderedProminent)
-            .buttonBorderShape(.capsule)
+            .frame(maxWidth: .infinity)
+            .padding(5)
+            .buttonStyle(PlainButtonStyle())
+            .background(Color.theme.secondary)
+            .clipShape(.capsule)
         }
+        .foregroundStyle(Color.theme.text)
         .padding(12)
     }
 }
