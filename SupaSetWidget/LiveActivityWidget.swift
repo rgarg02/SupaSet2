@@ -57,11 +57,11 @@ struct LiveActivityWidget: Widget {
                 
                 DynamicIslandExpandedRegion(.trailing) {
                     VStack(spacing: 5){
-                        Text("00:00")
+                        Text("00:00:00")
                             .hidden()
                             .overlay(alignment: .leading){
                                 Text(context.attributes.startTime, style: .timer)
-                                    .multilineTextAlignment(.trailing)
+                                    .multilineTextAlignment(.leading)
                             }
                             .frame(height: 10)
                         
@@ -115,33 +115,43 @@ struct LiveActivityWidget: Widget {
                             Image(systemName: "checkmark.circle.fill")
                             Text("Complete Set")
                         }
+                        .frame(maxWidth: .infinity)
                         .padding(.vertical, 2)
                     }
                     .buttonStyle(PlainButtonStyle())
-                    .frame(maxWidth: .infinity)
                     .padding(5)
                     .background(Color.theme.secondary)
                     .clipShape(.capsule)
                     .foregroundStyle(Color.theme.text)
                 }
             } compactLeading: {
-                Text("\(context.state.currentSetNumber)/\(context.state.totalSets)")
+                Image(systemName: "dumbbell.fill")
+                    .font(.callout.bold())
+                    .symbolEffect(.breathe)
             } compactTrailing: {
-                Text("\(context.state.weight, specifier: "%.0f")×\(context.state.targetReps)")
+                Text("0:00:00")
+                    .hidden()
+                    .overlay{
+                        Text(context.attributes.startTime,
+                             style: .timer)
+                        .contentTransition(.numericText(countsDown: true))
+                        .multilineTextAlignment(.center)
+                    }
             } minimal: {
-                Text("\(context.state.currentSetNumber)")
+                Image(systemName: "dumbbell.fill")
+                    .font(.callout.bold())
+                    .frame(height: 10)
+                    .symbolEffect(.breathe)
             }
         }
     }
 }
-
-
 #if DEBUG
 // MARK: - Preview Content States
 extension WorkoutAttributes {
     static let previewAttributes = WorkoutAttributes(
         workoutId: UUID().uuidString,
-        startTime: Date(timeInterval: -1000, since: Date())
+        startTime: Date(timeInterval: -3596, since: Date())
     )
     
     static let previewRegularSet = ContentState(
