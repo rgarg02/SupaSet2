@@ -19,9 +19,6 @@ struct ContentView: View {
             }
             .environment(exerciseViewModel)
         }
-        .onAppear{
-            print(modelContext.sqliteCommand)
-        }
     }
 }
 

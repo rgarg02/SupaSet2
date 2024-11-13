@@ -15,49 +15,79 @@ struct LiveActivityWidget: Widget {
         ActivityConfiguration(for: WorkoutAttributes.self) { context in
             WorkoutLiveActivityView(context: context)
                 .containerBackground(.fill.tertiary, for: .widget)
-                .background(Color.theme.background)
+                .background(Color.theme.primary)
         } dynamicIsland: { context in
             DynamicIsland {
                 DynamicIslandExpandedRegion(.leading) {
-                    Text(context.state.currentExerciseName)
-                        .font(.headline)
-                        .lineLimit(1)
+                    VStack(spacing: 5){
+                        Image(systemName: "dumbbell.fill")
+                            .font(.callout.bold())
+                            .padding(.leading)
+                            .frame(height: 10)
+                        
+                        Text("\(Int(context.state.weight))lb")
+                            .font(.headline.monospacedDigit())
+                            .frame(width: 65, alignment: .center)
+                        HStack{
+                            Button(intent: DecrementWeightIntent(workoutId: context.attributes.workoutId)) {
+                                Image(systemName: "minus.circle.fill")
+                                    .foregroundStyle(.secondary)
+                            }
+                            
+                            Button(intent: IncrementWeightIntent(workoutId: context.attributes.workoutId)) {
+                                Image(systemName: "plus.circle.fill")
+                                    .foregroundStyle(.secondary)
+                            }
+                        }
+                    }
                 }
                 
                 DynamicIslandExpandedRegion(.trailing) {
-                    Text("Set \(context.state.currentSetNumber)/\(context.state.totalSets)")
-                        .font(.callout)
+                    VStack(spacing: 5){
+                        Text("00:00")
+                            .padding(.trailing)
+                            .font(.callout.bold())
+                            .frame(height: 10)
+                        
+                        Text("\(Int(context.state.targetReps)) reps")
+                            .font(.headline.monospacedDigit())
+                            .frame(width: 65, alignment: .center)
+                        HStack{
+                            Button(intent: DecrementRepsIntent(workoutId: context.attributes.workoutId)) {
+                                Image(systemName: "minus.circle.fill")
+                                    .foregroundStyle(.secondary)
+                            }
+                            
+                            Button(intent: IncrementRepsIntent(workoutId: context.attributes.workoutId)) {
+                                Image(systemName: "plus.circle.fill")
+                                    .foregroundStyle(.secondary)
+                            }
+                        }
+                    }
                 }
                 
                 DynamicIslandExpandedRegion(.center) {
-                    HStack {
-                        Text("\(Int(context.state.weight))lbs")
-                        Text("×")
-                        Text("\(context.state.targetReps)")
+                    VStack{
+                        Text(context.state.currentExerciseName)
+                            .font(.title3.bold())
+                            .lineLimit(1)
+                        Text("Set \(context.state.currentSetNumber)/\(context.state.totalSets)")
+                            .padding(.horizontal, 6)
+                            .background(Color.theme.secondary.opacity(0.4))
+                            .clipShape(Capsule())
                     }
-                    .font(.title3)
                 }
                 
                 DynamicIslandExpandedRegion(.bottom) {
-                    HStack {
-                        Button("Previous") {
-                            // Previous exercise action
+                    Button(intent: CompleteSetIntent(workoutId: context.attributes.workoutId)) {
+                        HStack {
+                            Image(systemName: "checkmark.circle.fill")
+                            Text("Complete Set")
                         }
-                        
-                        Spacer()
-                        
-                        Button("Complete Set") {
-                            // Complete set action
-                        }
-                        .buttonStyle(.borderedProminent)
-                        
-                        Spacer()
-                        
-                        Button("Next") {
-                            // Next exercise action
-                        }
+                        .font(.headline)
+                        .frame(maxWidth: .infinity)
+                        .padding(.vertical, 2)
                     }
-                    .padding(.top, 8)
                 }
             } compactLeading: {
                 Text("\(context.state.currentSetNumber)/\(context.state.totalSets)")
@@ -76,11 +106,11 @@ struct LiveActivityWidget: Widget {
 extension WorkoutAttributes {
     static let previewAttributes = WorkoutAttributes(
         workoutId: UUID().uuidString,
-        workoutName: "Upper Body Workout",
-        startTime: Date(timeInterval: -100000, since: Date())
+        startTime: Date(timeInterval: -1000, since: Date())
     )
     
     static let previewRegularSet = ContentState(
+        workoutName: "Upper Body Workout",
         currentExerciseName: "Bench Press",
         currentSetNumber: 2,
         totalSets: 4,
@@ -92,6 +122,7 @@ extension WorkoutAttributes {
     )
     
     static let previewWarmupSet = ContentState(
+        workoutName: "Upper Body Workout",
         currentExerciseName: "Barbell Squats",
         currentSetNumber: 1,
         totalSets: 3,
@@ -103,6 +134,7 @@ extension WorkoutAttributes {
     )
     
     static let previewMiddleExercise = ContentState(
+        workoutName: "Upper Body Workout",
         currentExerciseName: "Shoulder Press",
         currentSetNumber: 2,
         totalSets: 4,

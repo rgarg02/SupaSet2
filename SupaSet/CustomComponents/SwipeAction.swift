@@ -92,8 +92,12 @@ struct SwipeAction<Content: View>: View {
                 }
                 .scrollTargetLayout()
                 .visualEffect { content, geometryProxy in
+                    /// Calculates the scroll offset for the visual effect.
                     content
-                        .offset(x: scrollOffset(geometryProxy))
+                        .offset(x: {
+                            let minX = geometryProxy.frame(in: .scrollView(axis: .horizontal)).minX
+                            return (minX > 0 ? -minX : 0)
+                        }())
                 }
             }
             .scrollIndicators(.hidden)
@@ -146,14 +150,6 @@ struct SwipeAction<Content: View>: View {
                     }
                 }
             }
-    }
-    
-    /// Calculates the scroll offset for the visual effect.
-    /// - Parameter proxy: The geometry proxy providing layout information.
-    /// - Returns: The calculated scroll offset.
-    func scrollOffset(_ proxy: GeometryProxy) -> CGFloat {
-        let minX = proxy.frame(in: .scrollView(axis: .horizontal)).minX
-        return (minX > 0 ? -minX : 0)
     }
 }
 

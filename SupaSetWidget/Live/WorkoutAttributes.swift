@@ -14,6 +14,7 @@ import WidgetKit
 // MARK: - Activity Attributes
 struct WorkoutAttributes: ActivityAttributes {
     public struct ContentState: Codable, Hashable {
+        var workoutName: String
         var currentExerciseName: String
         var currentSetNumber: Int
         var totalSets: Int
@@ -24,6 +25,5 @@ struct WorkoutAttributes: ActivityAttributes {
         var totalExercises: Int
     }
     var workoutId: String
-    var workoutName: String
     var startTime: Date
 }

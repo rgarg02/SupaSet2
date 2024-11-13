@@ -161,6 +161,10 @@ struct WorkoutStartView: View {
                 }
                 
             }
+            .onChange(of: workout.name) { V,
+                V in
+                WorkoutActivityManager.shared.updateWorkoutActivity(workout: workout)
+            }
             .onChange(of: workout.exercises.count) { V,
                 V in
                 WorkoutActivityManager.shared.updateWorkoutActivity(workout: workout)
