@@ -21,7 +21,6 @@ struct WorkoutLiveActivityView: View {
             HStack {
                 Label(context.state.workoutName, systemImage: "dumbbell.fill")
                     .font(.callout.bold())
-                    .symbolEffect(.breathe)
                 Spacer()
                 Text("00:00:00")
                     .hidden()
