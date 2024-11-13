@@ -45,34 +45,7 @@ final class Workout: Hashable {
         self.currentSetOrder = currentSetOrder
     }
     
-    // Helper methods for workout progression
-    func moveToNextExercise() {
-        if currentExerciseOrder < exercises.count - 1 {
-            currentExerciseOrder += 1
-            currentSetOrder = 0
-        }
-    }
-    
-    func moveToPreviousExercise() {
-        if currentExerciseOrder > 0 {
-            currentExerciseOrder -= 1
-            currentSetOrder = 0
-        }
-    }
-    
-    func completeCurrentSet() {
-        guard let currentExercise = exercises.first(where: { $0.order == currentExerciseOrder }),
-              currentSetOrder < currentExercise.sets.count else { return }
-        
-        currentExercise.sets[currentSetOrder].isDone = true
-        currentSetOrder += 1
-        
-        // If all sets are complete, move to next exercise
-        if currentSetOrder >= currentExercise.sets.count {
-            moveToNextExercise()
-        }
-    }
-    
+    // MARK: - Computed Properties
     var currentExercise: WorkoutExercise? {
         exercises.first { $0.order == currentExerciseOrder }
     }
@@ -81,7 +54,6 @@ final class Workout: Hashable {
         currentExercise?.sets.first { $0.order == currentSetOrder }
     }
     
-    // Computed property to calculate total volume
     func calculateTotalVolume() -> Double {
         exercises.reduce(0) { total, exercise in
             total + exercise.sets.reduce(0) { setTotal, set in
@@ -90,13 +62,70 @@ final class Workout: Hashable {
         }
     }
     
-    // Hashable conformance
-    static func == (lhs: Workout, rhs: Workout) -> Bool {
-        lhs.id == rhs.id
+    // MARK: - Navigation Methods
+    func completeCurrentSet() {
+        guard let currentSet = currentSet else { return }
+        
+        // Mark current set as done
+        currentSet.isDone = true
+        
+        // Find next incomplete set
+        if let nextSet = nextIncompleteSet() {
+            currentExerciseOrder = nextSet.exerciseOrder
+            currentSetOrder = nextSet.setOrder
+        } else {
+            // If no more incomplete sets, finish workout
+//            isFinished = true
+//            endTime = Date()
+        }
     }
     
-    func hash(into hasher: inout Hasher) {
-        hasher.combine(id)
+    private func nextIncompleteSet() -> (exerciseOrder: Int, setOrder: Int)? {
+        let sortedExercises = exercises.sorted { $0.order < $1.order }
+        
+        // Check remaining sets in current exercise
+        if let currentExercise = currentExercise {
+            let remainingSets = currentExercise.sets
+                .filter { $0.order > currentSetOrder && !$0.isDone }
+                .sorted { $0.order < $1.order }
+            
+            if let nextSet = remainingSets.first {
+                return (currentExerciseOrder, nextSet.order)
+            }
+        }
+        
+        // Check subsequent exercises
+        for exercise in sortedExercises where exercise.order > currentExerciseOrder {
+            if let firstIncompleteSet = exercise.sets
+                .filter({ !$0.isDone })
+                .sorted(by: { $0.order < $1.order })
+                .first {
+                return (exercise.order, firstIncompleteSet.order)
+            }
+        }
+        
+        return nil
+    }
+    
+    // MARK: - Order Validation
+    func updateCurrentOrder() {
+        if exercises.isEmpty {
+            currentExerciseOrder = 0
+            currentSetOrder = 0
+            return
+        }
+        
+        // Validate exercise order
+        let maxExerciseOrder = exercises.map(\.order).max() ?? 0
+        currentExerciseOrder = min(currentExerciseOrder, maxExerciseOrder)
+        
+        // Validate set order
+        if let currentExercise = currentExercise {
+            let maxSetOrder = currentExercise.sets.map(\.order).max() ?? 0
+            currentSetOrder = min(currentSetOrder, maxSetOrder)
+        } else {
+            currentSetOrder = 0
+        }
     }
 }
 
@@ -124,14 +153,6 @@ final class WorkoutExercise: Hashable {
         }
     }
     
-    // Hashable conformance
-    static func == (lhs: WorkoutExercise, rhs: WorkoutExercise) -> Bool {
-        lhs.id == rhs.id
-    }
-    
-    func hash(into hasher: inout Hasher) {
-        hasher.combine(id)
-    }
 }
 
 @Model
@@ -165,12 +186,67 @@ final class ExerciseSet: Hashable {
         self.isDone = isDone
     }
     
-    // Hashable conformance
+}
+
+// MARK: - Hashable Conformance
+extension Workout {
+    static func == (lhs: Workout, rhs: Workout) -> Bool {
+        lhs.id == rhs.id
+    }
+    
+    func hash(into hasher: inout Hasher) {
+        hasher.combine(id)
+    }
+}
+
+extension WorkoutExercise {
+    static func == (lhs: WorkoutExercise, rhs: WorkoutExercise) -> Bool {
+        lhs.id == rhs.id
+    }
+    
+    func hash(into hasher: inout Hasher) {
+        hasher.combine(id)
+    }
+}
+
+extension ExerciseSet {
     static func == (lhs: ExerciseSet, rhs: ExerciseSet) -> Bool {
         lhs.id == rhs.id
     }
     
     func hash(into hasher: inout Hasher) {
         hasher.combine(id)
+    }
+}
+// MARK: - Required Workout Model Extensions
+extension Workout {
+    func moveToNextSet() {
+        // Implement the logic to move to the next set
+        currentSetOrder += 1
+    }
+    
+    func moveToPreviousSet() {
+        // Implement the logic to move to the previous set
+        currentSetOrder = max(0, currentSetOrder - 1)
+    }
+    
+    func updateCurrentSet(_ set: ExerciseSet) {
+        // Implement the logic to update the current set
+        guard let currentExercise = currentExercise else { return }
+        currentExercise.sets[currentSetOrder] = set
+    }
+    // Helper methods for workout progression
+    func moveToNextExercise() {
+        if currentExerciseOrder < exercises.count - 1 {
+            currentExerciseOrder += 1
+            currentSetOrder = 0
+        }
+    }
+    
+    func moveToPreviousExercise() {
+        if currentExerciseOrder > 0 {
+            currentExerciseOrder -= 1
+            currentSetOrder = 0
+        }
     }
 }
