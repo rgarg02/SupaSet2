@@ -7,6 +7,7 @@
 
 
 import ActivityKit
+import Foundation
 
 
 // MARK: - Live Activity Manager
@@ -21,11 +22,12 @@ class WorkoutActivityManager {
         let currentSet = workout.currentSet
         
         let attributes = WorkoutAttributes(
-            workoutId: workout.id.uuidString, workoutName: workout.name,
+            workoutId: workout.id.uuidString,
             startTime: workout.date
         )
         
         let contentState = WorkoutAttributes.ContentState(
+            workoutName: workout.name,
             currentExerciseName: currentExercise?.exercise.name ?? "",
             currentSetNumber: workout.currentSetOrder + 1,
             totalSets: currentExercise?.sets.count ?? 0,
@@ -35,11 +37,10 @@ class WorkoutActivityManager {
             exerciseNumber: workout.currentExerciseOrder + 1,
             totalExercises: workout.exercises.count
         )
-        
         do {
             let activity = try Activity.request(
                 attributes: attributes,
-                contentState: contentState,
+                content: .init(state:contentState,staleDate: nil),
                 pushType: nil
             )
             currentActivity = activity
@@ -53,6 +54,7 @@ class WorkoutActivityManager {
         guard let currentExercise = workout.currentExercise,
               let currentSet = workout.currentSet else { return }
         let contentState = WorkoutAttributes.ContentState(
+            workoutName: workout.name,
             currentExerciseName: currentExercise.exercise.name,
             currentSetNumber: workout.currentSetOrder + 1,
             totalSets: currentExercise.sets.count,
@@ -64,7 +66,7 @@ class WorkoutActivityManager {
         )
         
         Task {
-            await currentActivity?.update(using: contentState)
+            await currentActivity?.update(.init(state: contentState, staleDate: nil))
         }
     }
     // MARK: - Set Management
@@ -163,7 +165,6 @@ class WorkoutActivityManager {
     }
     func moveToNextExercise(workout: Workout) {
         workout.moveToNextExercise()
-        print(workout.currentSetOrder)
         updateWorkoutActivity(workout: workout)
     }
     
@@ -176,7 +177,7 @@ class WorkoutActivityManager {
     
     func endWorkoutActivity() {
         Task {
-            await currentActivity?.end(using: currentActivity?.contentState, dismissalPolicy: .immediate)
+            await currentActivity?.end(currentActivity?.content)
         }
     }
 }
