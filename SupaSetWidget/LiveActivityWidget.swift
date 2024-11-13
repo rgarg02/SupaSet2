@@ -24,7 +24,6 @@ struct LiveActivityWidget: Widget {
                             .font(.callout.bold())
                             .padding(.leading)
                             .frame(height: 10)
-                            .symbolEffect(.breathe)
                         
                         Text("\(Int(context.state.weight))lb")
                             .font(.headline.monospacedDigit())
@@ -127,7 +126,6 @@ struct LiveActivityWidget: Widget {
             } compactLeading: {
                 Image(systemName: "dumbbell.fill")
                     .font(.callout.bold())
-                    .symbolEffect(.breathe)
             } compactTrailing: {
                 Text("0:00:00")
                     .hidden()
@@ -141,8 +139,8 @@ struct LiveActivityWidget: Widget {
                 Image(systemName: "dumbbell.fill")
                     .font(.callout.bold())
                     .frame(height: 10)
-                    .symbolEffect(.breathe)
             }
+            .keylineTint(Color.theme.accent)
         }
     }
 }
