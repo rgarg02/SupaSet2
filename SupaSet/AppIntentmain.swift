@@ -58,24 +58,33 @@ struct IncrementWeightIntent: LiveActivityIntent {
     
     @MainActor
     func perform() async throws -> some IntentResult {
-        guard let uuid = UUID(uuidString: workoutId) else{
+        guard let uuid = UUID(uuidString: workoutId) else {
             return .result()
         }
-        let container = AppContainer.shared.container
+        
+        let context = AppContainer.shared.container.mainContext
         
         do {
-            let descriptor = FetchDescriptor<Workout>()
-            let workouts = try container.mainContext.fetch(descriptor)
+            let descriptor = FetchDescriptor<Workout>(
+                predicate: #Predicate<Workout> { workout in
+                    workout.id == uuid
+                }
+            )
             
-            guard let workout = workouts.first(where: { $0.id == uuid }) else {
+            let workouts = try context.fetch(descriptor)
+            guard let workout = workouts.first else {
                 print("No workout found with id \(workoutId)")
                 return .result()
             }
             
+            // Ensure we're operating within the correct context
             WorkoutActivityManager.shared.incrementWeight(workout: workout)
+            
+            
+            try context.save()
             return .result()
         } catch {
-            print("Error fetching workouts: \(error)")
+            print("Error in increment weight intent: \(error)")
             return .result()
         }
     }
