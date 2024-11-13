@@ -120,7 +120,9 @@ struct ExerciseListPickerView: View {
             .toolbar {
                 ToolbarItem(placement: .topBarLeading) {
                     Button("Cancel") {
-                        isPresented = false
+                        withAnimation{
+                            isPresented = false
+                        }
                     }
                 }
             }

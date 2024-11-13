@@ -58,6 +58,7 @@ struct WorkoutStartView: View {
     
     @FocusState var focused: Bool
     @State private var activityID: String?
+    @State var scrolledExercise: Int?
     /// The main view body implementing the interactive workout interface.
     ///
     /// This view uses GeometryReader to create smooth transitions between states and
@@ -85,7 +86,7 @@ struct WorkoutStartView: View {
                             .matchedGeometryEffect(id: "background", in: namespace)
                             .opacity(progress)
                     }
-                    VStack(spacing: 20) {
+                    VStack(spacing: 5) {
                         RoundedRectangle(cornerRadius: 2.5)
                             .fill(.gray)
                             .frame(width: 40, height: 5)
@@ -94,7 +95,6 @@ struct WorkoutStartView: View {
                         ScrollView{
                             VStack{
                                 WorkoutInfoView(workout: workout)
-                                
                                 ForEach(workout.sortedExercises, id: \.self) { exercise in
                                     ExerciseCardView(workout: workout, workoutExercise: exercise
                                                      , focused: $focused)
@@ -102,9 +102,11 @@ struct WorkoutStartView: View {
                                         V in
                                         WorkoutActivityManager.shared.updateWorkoutActivity(workout: workout)
                                     }
-                                    .frame(height: 500)
+                                    .id(exercise.order)
+                                    .containerRelativeFrame(.vertical, count: 1, spacing: 16)
                                 }
                             }
+//                            .frame(width: geometry.size.width*0.9)
                             .overlay{
                                 GeometryReader { proxy in
                                     let minY = proxy.frame(in: .scrollView(axis: .vertical)).minY
@@ -112,27 +114,39 @@ struct WorkoutStartView: View {
                                         .preference(key: OffsetKey.self, value: minY)
                                 }
                             }
+                            .scrollTargetLayout()
                         }
+                        .frame(width: geometry.size.width * 0.9)
+                        .scrollTargetBehavior(.viewAligned)
+                        .scrollPosition(id: $scrolledExercise)
+                        .contentMargins(30, for: .scrollContent)
                         .onPreferenceChange(OffsetKey.self) { value in
                             withAnimation(.easeInOut(duration: 0.2)) {
                                 scrollOffset = -value
                             }
                         }
+                        CustomButton(
+                            icon: "plus.circle",
+                            title: "Add Exercises",
+                            style: .filled(),
+                            action: {
+                                withAnimation{
+                                    showExercisePicker = true
+                                }
+                            }
+                        )
+                        .padding(.horizontal, 50.0)
+                        .padding(.vertical)
                     }
                     .opacity(1-progress)
-                    CustomButton(
-                        icon: "plus.circle",
-                        title: "Add Exercises",
-                        style: .filled(),
-                        action: {
-                            withAnimation{
-                                showExercisePicker = true
-                            }
-                        }
-                    )
-                    .padding()
-                    .opacity(1-progress)
                 }
+                .overlay(alignment: .trailing) {
+                        WorkoutProgressDots(
+                            totalExercises: workout.exercises.count,
+                            currentExerciseIndex: scrolledExercise ?? 0
+                        )
+                        .padding(.trailing, 5)
+                    }
                 .matchedGeometryEffect(id: "icon", in: namespace)
                 .ignoresSafeArea(.keyboard)
                 .toolbar {
@@ -166,14 +180,13 @@ struct WorkoutStartView: View {
                     .onEnded(dragEnded)
             )
             .opacity(showExercisePicker ? 0.5 : 1)
-            .animation(.easeInOut, value: showExercisePicker)
             .overlay {
                 if showExercisePicker {
                     ExerciseListPickerView(
                         isPresented: $showExercisePicker,
                         workout: workout
                     )
-                    .frame(width: geometry.size.width*0.9, height: geometry.size.height*0.9)
+                    .frame(width: geometry.size.width*0.8, height: geometry.size.height*0.8)
                     .transition(.move(edge: .trailing))
                 }
             }
