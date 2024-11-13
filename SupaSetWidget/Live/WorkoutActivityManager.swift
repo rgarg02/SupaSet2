@@ -71,12 +71,8 @@ class WorkoutActivityManager {
     }
     // MARK: - Set Management
     func completeCurrentSet(workout: Workout) {
-        // Ensure we're in the right state before making changes
-        workout.updateCurrentOrder()
-        
         // Complete the set
         workout.completeCurrentSet()
-        
         // Update the live activity
         updateWorkoutActivity(workout: workout)
     }
@@ -94,7 +90,7 @@ class WorkoutActivityManager {
     
     func incrementWeight(workout: Workout, by amount: Double = 5.0) {
         guard let currentSet = workout.currentSet else { return }
-        
+        print(currentSet.weight)
         // Create temporary set with new values
         let updatedSet = ExerciseSet(
             reps: currentSet.reps,

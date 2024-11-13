@@ -66,10 +66,10 @@ extension SupaSetSchema{
         // MARK: - Navigation Methods
         func completeCurrentSet() {
             guard let currentExercise = currentExercise,
+                  let existingSet = currentSet,
                   currentSetOrder < currentExercise.sets.count else { return }
             
             // Mark current set as done
-            let existingSet = currentExercise.sets[currentSetOrder]
             existingSet.isDone = true
             
             // Find next incomplete set
@@ -246,10 +246,11 @@ extension Workout {
 extension Workout {
     func updateCurrentSet(_ set: ExerciseSet) {
         guard let currentExercise = currentExercise,
+              let existingSet = currentSet,
               currentSetOrder < currentExercise.sets.count else { return }
         
         // Instead of direct assignment, update properties
-        let existingSet = currentExercise.sets[currentSetOrder]
+        
         existingSet.weight = set.weight
         existingSet.reps = set.reps
         existingSet.isWarmupSet = set.isWarmupSet
@@ -260,8 +261,8 @@ extension Workout {
 }
 extension WorkoutExercise {
     func updateSet(at order: Int, with newValues: ExerciseSet) {
-        guard order < sets.count else { return }
-        let existingSet = sets[order]
+        guard let existingSet = sets.first(where: {$0.order == order}),
+              order < sets.count else { return }
         existingSet.weight = newValues.weight
         existingSet.reps = newValues.reps
         existingSet.isWarmupSet = newValues.isWarmupSet

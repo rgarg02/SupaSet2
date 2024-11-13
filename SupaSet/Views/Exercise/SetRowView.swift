@@ -34,7 +34,7 @@ struct SetRowView: View {
                         }
                     })
                 
-                Text("kg")
+                Text("lbs")
                     .font(.caption)
             }
             .frame(width: 80)

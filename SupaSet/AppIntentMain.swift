@@ -76,10 +76,9 @@ struct IncrementWeightIntent: LiveActivityIntent {
                 print("No workout found with id \(workoutId)")
                 return .result()
             }
-            
+            print(workout.currentSetOrder)
             // Ensure we're operating within the correct context
             WorkoutActivityManager.shared.incrementWeight(workout: workout)
-            
             
             try context.save()
             return .result()

@@ -124,8 +124,8 @@ struct WorkoutLiveActivityView: View {
                     Text("Complete Set")
                 }
                 .padding(.vertical, 2)
+                .frame(maxWidth: .infinity)
             }
-            .frame(maxWidth: .infinity)
             .padding(5)
             .buttonStyle(PlainButtonStyle())
             .background(Color.theme.secondary)
