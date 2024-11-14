@@ -12,19 +12,11 @@ struct WorkoutInfoView: View {
     @State private var isEditingName: Bool = false
     @State private var elapsedTime: TimeInterval = 0
     @FocusState private var isFocused: Bool
-    private let timer = Timer.publish(every: 1, on: .main, in: .common).autoconnect()
-    
+
     private var formattedDate: String {
         Date().formatted(date: .abbreviated, time: .shortened)
     }
-    
-    private var formattedElapsedTime: String {
-        let hours = Int(elapsedTime) / 3600
-        let minutes = Int(elapsedTime) / 60 % 60
-        let seconds = Int(elapsedTime) % 60
-        return String(format: "%02d:%02d:%02d", hours, minutes, seconds)
-    }
-    
+        
     var body: some View {
         VStack(spacing: 20) {
             HStack {
@@ -61,13 +53,16 @@ struct WorkoutInfoView: View {
             HStack {
                 Label(formattedDate, systemImage: "calendar")
                 Spacer()
-                Label(formattedElapsedTime, systemImage: "timer")
-                    .foregroundColor(.theme.accent)
+                Image(systemName: "clock")
+                    .foregroundStyle(Color.theme.accent)
+                Text("00:00:00")
+                    .hidden()
+                    .overlay(alignment: .leading){
+                        Text(workout.date, style: .timer)
+                            .foregroundStyle(Color.theme.accent)
+                    }
             }
             .padding(.horizontal)
-        }
-        .onReceive(timer) { _ in
-            elapsedTime = Date().timeIntervalSince(workout.date)
         }
     }
 }

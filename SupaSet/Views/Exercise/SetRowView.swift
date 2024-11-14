@@ -29,6 +29,12 @@ struct SetRowView: View {
                     .keyboardType(.decimalPad)
                     .focused($focused)
                     .multilineTextAlignment(.trailing)
+                    .onReceive(NotificationCenter.default.publisher(for: UITextField.textDidBeginEditingNotification)) { obj in
+                            // Click to select all the text.
+                            if let textField = obj.object as? UITextField {
+                                textField.selectAll(nil)
+                            }
+                        }
                     .onChange(of: focused, {
                         if focused {
                             DispatchQueue.main.async {
@@ -48,6 +54,12 @@ struct SetRowView: View {
                     .keyboardType(.numberPad)
                     .focused($focused)
                     .multilineTextAlignment(.trailing)
+                    .onReceive(NotificationCenter.default.publisher(for: UITextField.textDidBeginEditingNotification)) { obj in
+                            // Click to select all the text.
+                            if let textField = obj.object as? UITextField {
+                                textField.selectAll(nil)
+                            }
+                        }
                     .onChange(of: focused, {
                         if focused {
                             DispatchQueue.main.async {
