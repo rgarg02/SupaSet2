@@ -26,33 +26,33 @@ struct ExerciseCardView: View {
                 .font(.title3)
                 .fontWeight(.semibold)
                 .foregroundColor(.theme.text)
-            LazyVGrid(columns: columns) {
-                Text("SET")
-                    .font(.caption)
-                    .foregroundColor(.theme.text)
-                    .frame(maxWidth: .infinity, alignment: .trailing)
-//                    .frame(width: 20)
-                
-                Text("WEIGHT")
-                    .font(.caption)
-                    .foregroundColor(.theme.text)
-                    .frame(maxWidth: .infinity, alignment: .trailing)
-//                    .frame(width: 100)
-                
-                Text("REPS")
-                    .font(.caption)
-                    .foregroundColor(.theme.text)
-                    .frame(maxWidth: .infinity, alignment: .center)
-//                    .frame(width: 100)
-                                
-                Text("DONE")
-                    .font(.caption)
-                    .foregroundColor(.theme.text)
-                    .frame(maxWidth: .infinity, alignment: .center)
-//                    .frame(width: 40)
-            }
             VStack(spacing: 8) {
                 ScrollView{
+                    LazyVGrid(columns: columns) {
+                        Text("SET")
+                            .font(.caption)
+                            .foregroundColor(.theme.text)
+                            .frame(maxWidth: .infinity, alignment: .trailing)
+        //                    .frame(width: 20)
+                        
+                        Text("WEIGHT")
+                            .font(.caption)
+                            .foregroundColor(.theme.text)
+                            .frame(maxWidth: .infinity, alignment: .trailing)
+        //                    .frame(width: 100)
+                        
+                        Text("REPS")
+                            .font(.caption)
+                            .foregroundColor(.theme.text)
+                            .frame(maxWidth: .infinity, alignment: .center)
+        //                    .frame(width: 100)
+                                        
+                        Text("DONE")
+                            .font(.caption)
+                            .foregroundColor(.theme.text)
+                            .frame(maxWidth: .infinity, alignment: .center)
+        //                    .frame(width: 40)
+                    }
                     ForEach(workoutExercise.sortedSets, id: \.self) { set in
                         SwipeAction(cornerRadius: 8, direction: .trailing){
                             SetRowView(
