@@ -16,6 +16,7 @@ struct ExerciseListPickerView: View {
     @State private var selectedMuscleGroup: MuscleGroup?
     @State private var selectedEquipment: Equipment?
     @State private var selectedLevel: Level?
+    @State private var selectedExercises: [Exercise] = []
     @Environment(\.dismiss) private var dismiss
     
     var filteredExercises: [Exercise] {
@@ -40,12 +41,6 @@ struct ExerciseListPickerView: View {
         }
         
         return exercises
-    }
-    // Helper function to check if exercise exists in workout
-    private func isExerciseInWorkout(_ exercise: Exercise) -> Bool {
-        return workout.exercises.contains { workoutExercise in
-            workoutExercise.exercise.id == exercise.id
-        }
     }
     var body: some View {
         NavigationStack {
@@ -95,18 +90,16 @@ struct ExerciseListPickerView: View {
                                 trailing: 16
                             ))
                             .listRowSeparator(.hidden)
-                            .background(isExerciseInWorkout(exercise) ? Color.theme.secondary : Color.theme.background)
+                            .background(selectedExercises.contains(exercise) ? Color.theme.secondary : Color.theme.background)
                             .contentShape(Rectangle())
                             .onTapGesture {
                                 withAnimation(.bouncy){
-                                    if let existingExercise = workout.getWorkoutExercise(for: exercise) {
-                                        // Remove exercise if it already exists
-                                        workout.deleteExercise(exercise: exercise) // Changed to pass the exercise directly
-                                        modelContext.delete(existingExercise)
-                                        try? modelContext.save() // Fixed: Added parentheses for method call
-                                    } else {
+                                    if let existingExerciseIndex = selectedExercises.firstIndex(where: { $0.id == exercise.id }) {
+                                        selectedExercises.remove(at: existingExerciseIndex)
+                                    }
+                                    else {
                                         // Add new exercise at the end
-                                        workout.insertExercise(exercise) // Fixed: Added 'at' parameter label
+                                        selectedExercises.append(exercise)
                                     }
                                 }
                             }
@@ -120,8 +113,22 @@ struct ExerciseListPickerView: View {
             .toolbar {
                 ToolbarItem(placement: .topBarLeading) {
                     Button("Cancel") {
+                        selectedExercises = []
                         withAnimation{
                             isPresented = false
+                        }
+                    }
+                }
+                if !selectedExercises.isEmpty {
+                    ToolbarItem(placement: .topBarTrailing) {
+                        Button("Add") {
+                            for exercise in selectedExercises {
+                                workout.insertExercise(exercise)
+                            }
+                            selectedExercises = []
+                            withAnimation{
+                                isPresented = false
+                            }
                         }
                     }
                 }

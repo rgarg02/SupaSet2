@@ -161,6 +161,26 @@ struct WorkoutStartView: View {
                 }
                 
             }
+            .overlay{
+                if showExercisePicker {
+                    Color.background.opacity(0.75)
+                        .onTapGesture {
+                            withAnimation{
+                                showExercisePicker = false
+                            }
+                        }
+                    ExerciseListPickerView(
+                        isPresented: $showExercisePicker,
+                        workout: workout
+                    )
+                    .shadow(radius: 10)
+                    .ignoresSafeArea()
+                    .frame(width: width*0.9, height: height*0.6)
+//                    .position(x: width / 2, y: height*0.6)
+                    .transition(.move(edge: .trailing))
+                    
+                }
+            }
             .onChange(of: workout.name) { V,
                 V in
                 WorkoutActivityManager.shared.updateWorkoutActivity(workout: workout)
@@ -183,17 +203,6 @@ struct WorkoutStartView: View {
                     .onChanged(dragChanged)
                     .onEnded(dragEnded)
             )
-            .opacity(showExercisePicker ? 0.5 : 1)
-            .overlay {
-                if showExercisePicker {
-                    ExerciseListPickerView(
-                        isPresented: $showExercisePicker,
-                        workout: workout
-                    )
-                    .frame(width: geometry.size.width*0.8, height: geometry.size.height*0.8)
-                    .transition(.move(edge: .trailing))
-                }
-            }
         }
     }
     
