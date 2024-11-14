@@ -13,11 +13,11 @@ struct SetRowView: View {
     @FocusState.Binding var focused: Bool
     @State var textColor : Color = .theme.text
     var body: some View {
-        HStack(spacing: 16) {
+        HStack(spacing: 10) {
             // Set Number
             Text("\(setNumber)")
                 .font(.headline)
-                .frame(width: 30)
+                .frame(width: 20)
             
             // Weight Input
             HStack(spacing: 4) {
@@ -37,7 +37,7 @@ struct SetRowView: View {
                 Text("lbs")
                     .font(.caption)
             }
-            .frame(width: 80)
+            .frame(width: 100)
             
             // Reps Input
             HStack(spacing: 4) {
@@ -56,7 +56,7 @@ struct SetRowView: View {
                 Text("reps")
                     .font(.caption)
             }
-            .frame(width: 80)
+            .frame(width: 100)
             
             Spacer()
             
@@ -67,18 +67,11 @@ struct SetRowView: View {
                 Image(systemName: set.isDone ? "checkmark.circle.fill" : "circle")
                     .resizable()
                     .frame(width: 24, height: 24)
-                    .foregroundColor(set.isDone ? .theme.accent : .gray)
+                    .foregroundColor(set.isDone ? .theme.secondary : .gray)
             }
-            .frame(width: 50)
+            .frame(width: 40)
         }
-        .onChange(of: set.isDone, { oldValue, newValue in
-            if newValue {
-                textColor = .theme.textOpposite
-            }else{
-                textColor = .theme.text
-            }
-        })
-        .foregroundStyle(textColor)
+        .foregroundStyle(set.isDone ? Color.theme.textOpposite : Color.theme.text)
         .padding(.horizontal, 16)
         .padding(.vertical, 12)
         .background(
