@@ -11,12 +11,17 @@ struct SetRowView: View {
     let setNumber: Int
     @Bindable var set: ExerciseSet
     @FocusState.Binding var focused: Bool
+    private let columns = [
+            GridItem(.fixed(40)), // Smaller column for set number
+            GridItem(.flexible()), // Flexible for weight
+            GridItem(.flexible()), // Flexible for reps
+            GridItem(.fixed(80))  // Smaller column for checkbox
+        ]
     var body: some View {
-        HStack(spacing: 10) {
+        LazyVGrid(columns: columns, alignment: .center) {
             // Set Number
             Text("\(setNumber)")
                 .font(.headline)
-                .frame(width: 20)
             
             // Weight Input
             HStack(spacing: 4) {
@@ -24,7 +29,6 @@ struct SetRowView: View {
                     .keyboardType(.decimalPad)
                     .focused($focused)
                     .multilineTextAlignment(.trailing)
-                    .frame(width: 50)
                     .onChange(of: focused, {
                         if focused {
                             DispatchQueue.main.async {
@@ -36,7 +40,6 @@ struct SetRowView: View {
                 Text("lbs")
                     .font(.caption)
             }
-            .frame(width: 100)
             
             // Reps Input
             HStack(spacing: 4) {
@@ -44,7 +47,6 @@ struct SetRowView: View {
                     .keyboardType(.numberPad)
                     .focused($focused)
                     .multilineTextAlignment(.trailing)
-                    .frame(width: 50)
                     .onChange(of: focused, {
                         if focused {
                             DispatchQueue.main.async {
@@ -55,9 +57,6 @@ struct SetRowView: View {
                 Text("reps")
                     .font(.caption)
             }
-            .frame(width: 100)
-            
-            Spacer()
             
             // Done Checkbox
             Button(action: {
@@ -68,7 +67,7 @@ struct SetRowView: View {
                     .frame(width: 24, height: 24)
                     .foregroundColor(set.isDone ? .theme.secondary : .gray)
             }
-            .frame(width: 40)
+            .frame(maxWidth: .infinity, alignment: .trailing)
         }
         .foregroundStyle(set.isDone ? Color.theme.textOpposite : Color.theme.text)
         .padding(.horizontal, 16)
