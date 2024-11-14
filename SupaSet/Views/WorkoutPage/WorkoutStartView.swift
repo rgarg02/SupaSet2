@@ -163,7 +163,7 @@ struct WorkoutStartView: View {
             }
             .overlay{
                 if showExercisePicker {
-                    Color.background.opacity(0.8)
+                    Color.background.opacity(0.75)
                         .onTapGesture {
                             withAnimation{
                                 showExercisePicker = false
