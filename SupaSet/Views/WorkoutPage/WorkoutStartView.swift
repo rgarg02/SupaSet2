@@ -116,6 +116,11 @@ struct WorkoutStartView: View {
                                                 .preference(key: OffsetKey.self, value: minY)
                                         }
                                     }
+                                    .onPreferenceChange(OffsetKey.self) { value in
+                                        withAnimation(.easeInOut(duration: 0.2)) {
+                                            scrollOffset = -value
+                                        }
+                                    }
                                     .scrollTargetLayout()
                                 }
                                 .overlay(alignment: .trailing){
@@ -127,11 +132,6 @@ struct WorkoutStartView: View {
                                 .scrollIndicators(.hidden)
                                 .scrollTargetBehavior(.viewAligned)
                                 .scrollPosition(id: $scrolledExercise)
-                                .onPreferenceChange(OffsetKey.self) { value in
-                                    withAnimation(.easeInOut(duration: 0.2)) {
-                                        scrollOffset = -value
-                                    }
-                                }
                         }
                     }
                     .opacity(1-progress)
