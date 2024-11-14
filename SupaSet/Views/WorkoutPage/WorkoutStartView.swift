@@ -86,67 +86,69 @@ struct WorkoutStartView: View {
                             .matchedGeometryEffect(id: "background", in: namespace)
                             .opacity(progress)
                     }
-                    VStack(spacing: 5) {
+                    VStack {
                         RoundedRectangle(cornerRadius: 2.5)
                             .fill(.gray)
                             .frame(width: 40, height: 5)
                             .opacity(1 - progress)
                         WorkoutTopControls(workout: workout, isExpanded: $isExpanded, scrollOffset: scrollOffset)
-                        ScrollView{
-                            VStack{
-                                WorkoutInfoView(workout: workout)
-                                ForEach(workout.sortedExercises, id: \.self) { exercise in
-                                    ExerciseCardView(workout: workout, workoutExercise: exercise
-                                                     , focused: $focused)
-                                    .onChange(of: exercise.sets.count) { V,
-                                        V in
-                                        WorkoutActivityManager.shared.updateWorkoutActivity(workout: workout)
+                        GeometryReader { geometry in
+                                ScrollView{
+                                    VStack{
+                                        WorkoutInfoView(workout: workout)
+                                        ForEach(workout.sortedExercises, id: \.self) { exercise in
+                                            ExerciseCardView(workout: workout, workoutExercise: exercise
+                                                             , focused: $focused)
+                                            .onChange(of: exercise.sets.count) { V,
+                                                V in
+                                                WorkoutActivityManager.shared.updateWorkoutActivity(workout: workout)
+                                            }
+                                            .frame(height: geometry.size.height*0.85)
+                                            .id(exercise.order)
+                                        }
                                     }
-                                    .id(exercise.order)
-                                    .containerRelativeFrame(.vertical, count: 1, spacing: 16)
+                                    .padding(.horizontal, 10)
+                                    .padding(.bottom, 70)
+                                    .overlay{
+                                        GeometryReader { proxy in
+                                            let minY = proxy.frame(in: .scrollView(axis: .vertical)).minY
+                                            Color.clear
+                                                .preference(key: OffsetKey.self, value: minY)
+                                        }
+                                    }
+                                    .scrollTargetLayout()
                                 }
-                            }
-//                            .frame(width: geometry.size.width*0.9)
-                            .overlay{
-                                GeometryReader { proxy in
-                                    let minY = proxy.frame(in: .scrollView(axis: .vertical)).minY
-                                    Color.clear
-                                        .preference(key: OffsetKey.self, value: minY)
+                                .overlay(alignment: .trailing){
+                                    WorkoutProgressDots(
+                                        totalExercises: workout.exercises.count,
+                                        currentExerciseIndex: scrolledExercise ?? 0
+                                    )
                                 }
-                            }
-                            .scrollTargetLayout()
+                                .scrollIndicators(.hidden)
+                                .scrollTargetBehavior(.viewAligned)
+                                .scrollPosition(id: $scrolledExercise)
+                                .onPreferenceChange(OffsetKey.self) { value in
+                                    withAnimation(.easeInOut(duration: 0.2)) {
+                                        scrollOffset = -value
+                                    }
+                                }
                         }
-                        .frame(width: geometry.size.width * 0.9)
-                        .scrollTargetBehavior(.viewAligned)
-                        .scrollPosition(id: $scrolledExercise)
-                        .contentMargins(30, for: .scrollContent)
-                        .onPreferenceChange(OffsetKey.self) { value in
-                            withAnimation(.easeInOut(duration: 0.2)) {
-                                scrollOffset = -value
-                            }
-                        }
-                        CustomButton(
-                            icon: "plus.circle",
-                            title: "Add Exercises",
-                            style: .filled(),
-                            action: {
-                                withAnimation{
-                                    showExercisePicker = true
-                                }
-                            }
-                        )
-                        .padding(.horizontal, 50.0)
-                        .padding(.vertical)
                     }
                     .opacity(1-progress)
+                    CustomButton(
+                        icon: "plus.circle",
+                        title: "Add Exercises",
+                        style: .filled(),
+                        action: {
+                            withAnimation{
+                                showExercisePicker = true
+                            }
+                        }
+                    )
+                    .opacity(1-progress)
+                    .padding(.horizontal, 50.0)
+                    .padding(.vertical)
                 }
-                .overlay(alignment: .trailing) {
-                        WorkoutProgressDots(
-                            totalExercises: workout.exercises.count,
-                            currentExerciseIndex: scrolledExercise ?? 0
-                        )
-                        .padding(.trailing, 5)
-                    }
                 .matchedGeometryEffect(id: "icon", in: namespace)
                 .ignoresSafeArea(.keyboard)
                 .toolbar {
