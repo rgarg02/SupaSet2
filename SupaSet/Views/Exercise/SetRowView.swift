@@ -36,6 +36,7 @@ struct SetRowView: View {
                             }
                         }
                     })
+                    .frame(maxWidth: .infinity)
                 
                 Text("lbs")
                     .font(.caption)
@@ -54,6 +55,7 @@ struct SetRowView: View {
                             }
                         }
                     })
+                    .frame(maxWidth: .infinity)
                 Text("reps")
                     .font(.caption)
             }
