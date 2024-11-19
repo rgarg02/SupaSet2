@@ -32,6 +32,7 @@ struct SupaSetApp: App {
                 .modelContainer(container)
                 .onAppear {
                     AppContainer.shared.container = container
+                    WorkoutActivityManager.shared.endAllActivities()
                 }
         }
     }

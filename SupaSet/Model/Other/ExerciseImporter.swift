@@ -14,7 +14,6 @@ class ExerciseViewModel {
     private(set) var isLoading = false
     init(){
             loadExercises()
-            let paths = NSSearchPathForDirectoriesInDomains(FileManager.SearchPathDirectory.documentDirectory, FileManager.SearchPathDomainMask.userDomainMask, true)
         }
     // Filtered collections
     var strengthExercises: [Exercise] {

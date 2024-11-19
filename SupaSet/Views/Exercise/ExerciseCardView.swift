@@ -27,7 +27,7 @@ struct ExerciseCardView: View {
                 .fontWeight(.semibold)
                 .foregroundColor(.theme.text)
             VStack(spacing: 8) {
-                ScrollView{
+                ScrollView(.vertical){
                     LazyVGrid(columns: columns) {
                         Text("SET")
                             .font(.caption)

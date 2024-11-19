@@ -103,12 +103,11 @@ struct WorkoutStartView: View {
                                                 V in
                                                 WorkoutActivityManager.shared.updateWorkoutActivity(workout: workout)
                                             }
-                                            .frame(height: geometry.size.height*0.85)
+                                            .containerRelativeFrame(.vertical, alignment: .center)
                                             .id(exercise.order)
                                         }
                                     }
                                     .padding(.horizontal, 10)
-                                    .padding(.bottom, 70)
                                     .overlay{
                                         GeometryReader { proxy in
                                             let minY = proxy.frame(in: .scrollView(axis: .vertical)).minY
@@ -123,6 +122,7 @@ struct WorkoutStartView: View {
                                     }
                                     .scrollTargetLayout()
                                 }
+                                .contentMargins(.vertical, 50)
                                 .overlay(alignment: .trailing){
                                     WorkoutProgressDots(
                                         totalExercises: workout.exercises.count,

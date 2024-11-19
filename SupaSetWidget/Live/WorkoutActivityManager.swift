@@ -176,5 +176,12 @@ class WorkoutActivityManager {
             await currentActivity?.end(currentActivity?.content)
         }
     }
+    func endAllActivities() {
+        for activity in Activity<WorkoutAttributes>.activities {
+          Task {
+            await activity.end(nil, dismissalPolicy: .immediate)
+          }
+        }
+    }
 }
 

@@ -70,6 +70,7 @@ struct WorkoutTopControls: View {
             withAnimation {
                 isExpanded = false
             }
+            WorkoutActivityManager.shared.endAllActivities()
         } catch {
             print("Error saving workout: \(error)")
         }
@@ -80,6 +81,7 @@ struct WorkoutTopControls: View {
         withAnimation {
             isExpanded = false
         }
+        WorkoutActivityManager.shared.endAllActivities()
     }
 }
 
