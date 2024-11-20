@@ -75,6 +75,13 @@
 			);
 			target = D9AF18382CDEBF42001ACDDA /* SupaSetWidgetExtension */;
 		};
+		D913CDB02CED4A25003E0403 /* Exceptions for "SupaSet" folder in "SupaSet" target */ = {
+			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
+			membershipExceptions = (
+				Info.plist,
+			);
+			target = D9A0C1182CD9E803008F4E70 /* SupaSet */;
+		};
 		D9AF18532CDEBF44001ACDDA /* Exceptions for "SupaSetWidget" folder in "SupaSetWidgetExtension" target */ = {
 			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
 			membershipExceptions = (
@@ -98,6 +105,7 @@
 		D9A0C11B2CD9E803008F4E70 /* SupaSet */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
 			exceptions = (
+				D913CDB02CED4A25003E0403 /* Exceptions for "SupaSet" folder in "SupaSet" target */,
 				D9073FA02CDEE0C0000E23DA /* Exceptions for "SupaSet" folder in "SupaSetWidgetExtension" target */,
 			);
 			path = SupaSet;
@@ -542,6 +550,7 @@
 				ENABLE_HARDENED_RUNTIME = YES;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = SupaSet/Info.plist;
 				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.healthcare-fitness";
 				INFOPLIST_KEY_NSSupportsLiveActivities = YES;
 				"INFOPLIST_KEY_UIApplicationSceneManifest_Generation[sdk=iphoneos*]" = YES;
@@ -586,6 +595,7 @@
 				ENABLE_HARDENED_RUNTIME = YES;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = SupaSet/Info.plist;
 				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.healthcare-fitness";
 				INFOPLIST_KEY_NSSupportsLiveActivities = YES;
 				"INFOPLIST_KEY_UIApplicationSceneManifest_Generation[sdk=iphoneos*]" = YES;

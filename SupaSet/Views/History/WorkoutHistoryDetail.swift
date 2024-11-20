@@ -12,9 +12,7 @@ struct WorkoutHistoryDetailView: View {
         List {
             Section {
                 LabeledContent("Date", value: workout.date.formatted(date: .long, time: .shortened))
-                if let duration = workout.duration {
-                    LabeledContent("Duration", value: formatDuration(duration))
-                }
+                LabeledContent("Duration", value: formatDuration(workout.duration))
                 if let volume = workout.totalVolume {
                     LabeledContent("Total Volume", value: "\(Int(volume))lbs")
                 }
