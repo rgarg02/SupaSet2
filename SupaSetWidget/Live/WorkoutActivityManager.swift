@@ -9,14 +9,15 @@
 import ActivityKit
 import Foundation
 
-
-// MARK: - Live Activity Manager
 class WorkoutActivityManager {
     static let shared = WorkoutActivityManager()
     private var currentActivity: Activity<WorkoutAttributes>?
     
     func startWorkoutActivity(workout: Workout) {
         guard ActivityAuthorizationInfo().areActivitiesEnabled else { return }
+        
+        // End any existing activities before starting a new one
+        endAllActivities()
         
         let currentExercise = workout.currentExercise
         let currentSet = workout.currentSet
@@ -37,22 +38,46 @@ class WorkoutActivityManager {
             exerciseNumber: workout.currentExerciseOrder + 1,
             totalExercises: workout.exercises.count
         )
+        
         do {
+            // First, end the current activity if it exists
+            if let currentActivity = currentActivity {
+                Task {
+                    await currentActivity.end(nil, dismissalPolicy: .immediate)
+                }
+            }
+            
+            // Request the new activity
             let activity = try Activity.request(
                 attributes: attributes,
-                content: .init(state:contentState,staleDate: nil),
+                content: .init(state: contentState, staleDate: nil),
                 pushType: nil
             )
+            
+            // Update the current activity reference
             currentActivity = activity
+            
+            print("Started new workout activity: \(workout.name)")
         } catch {
-            print("Error starting workout activity: \(error)")
+            print("Error starting workout activity: \(error.localizedDescription)")
         }
     }
     
+    // Update existing activity
     func updateWorkoutActivity(workout: Workout) {
+        // Only proceed if we have an active activity
+        guard currentActivity != nil else {
+            print("No active workout activity to update")
+            return
+        }
+        
         workout.updateCurrentOrder()
         guard let currentExercise = workout.currentExercise,
-              let currentSet = workout.currentSet else { return }
+              let currentSet = workout.currentSet else {
+            print("No current exercise or set to update")
+            return
+        }
+        
         let contentState = WorkoutAttributes.ContentState(
             workoutName: workout.name,
             currentExerciseName: currentExercise.exercise.name,
@@ -69,19 +94,56 @@ class WorkoutActivityManager {
             await currentActivity?.update(.init(state: contentState, staleDate: nil))
         }
     }
+    
+    // End specific activity
+    func endWorkoutActivity() {
+        guard let activity = currentActivity else {
+            print("No active workout activity to end")
+            return
+        }
+        
+        Task {
+            await activity.end(activity.content, dismissalPolicy: .immediate)
+            currentActivity = nil
+            print("Ended workout activity")
+        }
+    }
+    
+    // End all activities (useful for cleanup)
+    func endAllActivities() {
+        Task {
+            // End current tracked activity
+            if let activity = currentActivity {
+                await activity.end(nil, dismissalPolicy: .immediate)
+                currentActivity = nil
+            }
+            
+            // End any other pending activities
+            for activity in Activity<WorkoutAttributes>.activities {
+                await activity.end(nil, dismissalPolicy: .immediate)
+            }
+            
+            print("Ended all workout activities")
+        }
+    }
+    
     // MARK: - Set Management
+    // These methods remain the same but now check for active activity
+    
     func completeCurrentSet(workout: Workout) {
-        // Complete the set
+        guard currentActivity != nil else { return }
         workout.completeCurrentSet()
-        // Update the live activity
         updateWorkoutActivity(workout: workout)
     }
+    
     func moveToNextSet(workout: Workout) {
+        guard currentActivity != nil else { return }
         workout.moveToNextSet()
         updateWorkoutActivity(workout: workout)
     }
     
     func moveToPreviousSet(workout: Workout) {
+        guard currentActivity != nil else { return }
         guard workout.currentSetOrder > 0 else { return }
         
         workout.moveToPreviousSet()
@@ -89,9 +151,9 @@ class WorkoutActivityManager {
     }
     
     func incrementWeight(workout: Workout, by amount: Double = 5.0) {
-        guard let currentSet = workout.currentSet else { return }
-        print(currentSet.weight)
-        // Create temporary set with new values
+        guard currentActivity != nil,
+              let currentSet = workout.currentSet else { return }
+        
         let updatedSet = ExerciseSet(
             reps: currentSet.reps,
             weight: currentSet.weight + amount,
@@ -107,6 +169,7 @@ class WorkoutActivityManager {
     }
     
     func decrementWeight(workout: Workout, by amount: Double = 5.0) {
+        guard currentActivity != nil else { return }
         workout.updateCurrentOrder()
         guard let currentSet = workout.currentSet else { return }
         
@@ -125,6 +188,7 @@ class WorkoutActivityManager {
     }
     
     func incrementReps(workout: Workout) {
+        guard currentActivity != nil else { return }
         workout.updateCurrentOrder()
         guard let currentSet = workout.currentSet else { return }
         
@@ -143,6 +207,7 @@ class WorkoutActivityManager {
     }
     
     func decrementReps(workout: Workout) {
+        guard currentActivity != nil else { return }
         workout.updateCurrentOrder()
         guard let currentSet = workout.currentSet else { return }
         
@@ -159,29 +224,17 @@ class WorkoutActivityManager {
         workout.updateCurrentSet(updatedSet)
         updateWorkoutActivity(workout: workout)
     }
+    
     func moveToNextExercise(workout: Workout) {
+        guard currentActivity != nil else { return }
         workout.moveToNextExercise()
         updateWorkoutActivity(workout: workout)
     }
     
-    // Previous Exercise Update
     func moveToPreviousExercise(workout: Workout) {
+        guard currentActivity != nil else { return }
         workout.moveToPreviousExercise()
         updateWorkoutActivity(workout: workout)
-    }
-    
-    
-    func endWorkoutActivity() {
-        Task {
-            await currentActivity?.end(currentActivity?.content)
-        }
-    }
-    func endAllActivities() {
-        for activity in Activity<WorkoutAttributes>.activities {
-          Task {
-            await activity.end(nil, dismissalPolicy: .immediate)
-          }
-        }
     }
 }
 
