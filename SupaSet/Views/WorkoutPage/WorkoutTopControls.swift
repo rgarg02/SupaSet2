@@ -12,27 +12,33 @@ struct WorkoutTopControls: View {
     @Environment(\.modelContext) var modelContext
     @Binding var isExpanded : Bool
     let scrollOffset: CGFloat
-    private let titleShowThreshold: CGFloat = 60
-    func formattedDate() -> String {
-        let elapsed = Date().timeIntervalSince(workout.date)
-        if elapsed < 600 {
-            return "0:00"
+    private let titleShowThreshold: CGFloat = 100
+    @State var elapsedTime : String = "0s"
+    let timer = Timer.publish(every: 1, on: .main, in: .common).autoconnect()
+    func formattedDate() {
+        let seconds = Int(Date().timeIntervalSince(workout.date))
+        if seconds < 60 {
+            elapsedTime = "\(seconds)s"
+            return
         }
-        if elapsed < 3600 {
-            return "00:00"
+        let hours = seconds / 3600
+        let minutes = (seconds % 3600) / 60
+        let remainingSeconds = seconds % 60
+        
+        if hours > 0 {
+            elapsedTime = String(format: "%d:%02d:%02d", hours, minutes, remainingSeconds)
+        } else {
+            elapsedTime = String(format: "%d:%02d", minutes, remainingSeconds)
         }
-        if elapsed < 36000 {
-            return "0:00:00"
-        }
-        return "00:00:00"
     }
     var body: some View {
         HStack{
+            // Make the button border red and a capsule
             Button("Cancel"){
                 cancelWorkout()
-            }
-            .padding(.leading)
-            .foregroundStyle(.red)
+            }            .foregroundStyle(.red)
+            .background(.clear)
+            .buttonBorderShape(.capsule)
             .font(.headline)
             Spacer()
             if scrollOffset > titleShowThreshold {
@@ -42,12 +48,7 @@ struct WorkoutTopControls: View {
                     .foregroundColor(.theme.text)
                     .transition(.opacity)
                 Image(systemName: "clock")
-                Text(formattedDate())
-                    .hidden()
-                    .overlay(alignment:.leading){
-                        Text(workout.date, style: .timer)
-                            .foregroundStyle(Color.theme.accent)
-                    }
+                Text(elapsedTime)
                 
                 Spacer()
             }
@@ -55,10 +56,13 @@ struct WorkoutTopControls: View {
             Button("Finish"){
                 finishWorkout()
             }
-            .foregroundStyle(.green)
+            .foregroundStyle(Color.theme.secondary)
             .font(.headline)
-            .padding(.trailing, 20)
         }
+        .onReceive(timer) { _ in
+            formattedDate()
+                }
+        .padding(.horizontal)
     }
     private func finishWorkout() {
         workout.isFinished = true
@@ -85,3 +89,14 @@ struct WorkoutTopControls: View {
     }
 }
 
+
+#Preview {
+    let previewContainer = PreviewContainer.preview
+    let namespace = Namespace().wrappedValue
+    
+    WorkoutTopControls(
+        workout: previewContainer.workout, isExpanded: .constant(true), scrollOffset: 150
+    )
+    .modelContainer(previewContainer.container)
+    .environment(previewContainer.viewModel)
+}

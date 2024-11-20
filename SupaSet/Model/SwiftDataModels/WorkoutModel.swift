@@ -17,7 +17,12 @@ extension SupaSetSchema{
         var endTime: Date?
         var isFinished: Bool
         var notes: String?
-        var duration: TimeInterval?
+        var duration: TimeInterval {
+            guard let endTime = endTime else {
+                return Date().timeIntervalSince(date)
+                }
+            return endTime.timeIntervalSince(date)
+        }
         var totalVolume: Double?  // Total weight lifted across all exercises
         @Relationship(deleteRule: .cascade) var exercises: [WorkoutExercise] = []
         
@@ -31,7 +36,6 @@ extension SupaSetSchema{
             endTime: Date? = nil,
             isFinished: Bool = false,
             notes: String? = nil,
-            duration: TimeInterval? = nil,
             currentExerciseOrder: Int = 0,
             currentSetOrder: Int = 0
         ) {
@@ -41,7 +45,6 @@ extension SupaSetSchema{
             self.endTime = endTime
             self.isFinished = isFinished
             self.notes = notes
-            self.duration = duration
             self.currentExerciseOrder = currentExerciseOrder
             self.currentSetOrder = currentSetOrder
         }

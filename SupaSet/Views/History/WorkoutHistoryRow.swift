@@ -22,11 +22,9 @@ struct WorkoutHistoryRow: View {
             }
             .font(.subheadline)
             
-            if let duration = workout.duration {
-                Text(formatDuration(duration))
-                    .font(.caption)
-                    .foregroundStyle(.secondary)
-            }
+            Text(formatDuration(workout.duration))
+                .font(.caption)
+                .foregroundStyle(.secondary)
             
             if let volume = workout.totalVolume {
                 Text("Total Volume: \(Int(volume))lbs")

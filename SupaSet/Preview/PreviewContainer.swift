@@ -129,8 +129,7 @@ struct PreviewContainer {
             date: startDate,
             endTime: startDate.addingTimeInterval(3600),
             isFinished: true,
-            notes: notes,
-            duration: 3600
+            notes: notes
         )
         
         // Add exercises with realistic sets

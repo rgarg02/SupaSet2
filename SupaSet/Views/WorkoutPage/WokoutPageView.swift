@@ -22,8 +22,7 @@ struct WorkoutPageView: View {
         ZStack {
             if isExpanded && hasOngoingWorkout {
                 WorkoutStartView(
-                    namespace: namespace,
-                    isExpanded: $isExpanded,
+                    isExpanded: $isExpanded, namespace: namespace,
                     workout: ongoingWorkouts[0]
                 )
                 .ignoresSafeArea()
