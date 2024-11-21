@@ -83,7 +83,7 @@ struct ExerciseCardView: View {
             RoundedRectangle(cornerRadius: 12)
                 .fill(Color.theme.background)
                 .shadow(
-                    color: Color.black.opacity(0.1),
+                    color: Color.theme.primary.opacity(0.5),
                     radius: 5,
                     x: 0,
                     y: 2
@@ -94,7 +94,9 @@ struct ExerciseCardView: View {
             RoundedRectangle(cornerRadius: 12)
                 .stroke(Color.theme.accent, lineWidth: 1)
                 .padding(8)
+                
         )
+        
     }
 }
 
