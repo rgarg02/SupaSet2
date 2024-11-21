@@ -22,10 +22,11 @@ struct WorkoutPageView: View {
         ZStack {
             if isExpanded && hasOngoingWorkout {
                 WorkoutStartView(
-                    isExpanded: $isExpanded, namespace: namespace,
+                    namespace: namespace, isExpanded: $isExpanded,
                     workout: ongoingWorkouts[0]
                 )
                 .ignoresSafeArea()
+                .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .bottomTrailing)
             }
             
             if !isExpanded {
@@ -51,6 +52,7 @@ struct WorkoutPageView: View {
     private func startNewWorkout() {
         let workout = Workout(name: "New Workout")
         modelContext.insert(workout)
+        WorkoutActivityManager.shared.startWorkoutActivity(workout: workout)
         isExpanded = true
     }
 }

@@ -12,7 +12,7 @@ struct ProgressDot: View {
     
     var body: some View {
         Circle()
-            .fill(isActive ? Color.blue : Color.gray.opacity(0.3))
+            .fill(isActive ? Color.theme.accent : Color.gray.opacity(0.3))
             .frame(width: 8, height: 8)
     }
 }

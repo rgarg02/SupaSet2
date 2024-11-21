@@ -34,6 +34,7 @@ struct WorkoutInfoView: View {
                         .onSubmit {
                             withAnimation {
                                 isEditingName = false
+                                WorkoutActivityManager.shared.updateWorkoutActivity(workout: workout)
                             }
                         }
                 } else {
@@ -55,12 +56,12 @@ struct WorkoutInfoView: View {
                 Spacer()
                 Image(systemName: "clock")
                     .foregroundStyle(Color.theme.accent)
-                Text("00:00:00")
-                    .hidden()
-                    .overlay(alignment: .leading){
-                        Text(workout.date, style: .timer)
-                            .foregroundStyle(Color.theme.accent)
-                    }
+                Text(
+                    Date(
+                      timeIntervalSinceNow: Double(workout.date.timeIntervalSince1970) - Date().timeIntervalSince1970
+                    ),
+                    style: .timer
+                  )
             }
             .padding(.horizontal)
         }

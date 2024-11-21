@@ -36,7 +36,8 @@ struct WorkoutTopControls: View {
             // Make the button border red and a capsule
             Button("Cancel"){
                 cancelWorkout()
-            }            .foregroundStyle(.red)
+            }
+            .foregroundStyle(.red)
             .background(.clear)
             .buttonBorderShape(.capsule)
             .font(.headline)
@@ -92,7 +93,6 @@ struct WorkoutTopControls: View {
 
 #Preview {
     let previewContainer = PreviewContainer.preview
-    let namespace = Namespace().wrappedValue
     
     WorkoutTopControls(
         workout: previewContainer.workout, isExpanded: .constant(true), scrollOffset: 150
