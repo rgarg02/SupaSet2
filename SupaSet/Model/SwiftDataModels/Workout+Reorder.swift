@@ -30,27 +30,7 @@ extension Workout {
     ///   - destination: The desired index for the exercise
     ///
     /// - Note: If either index is out of bounds or if source equals destination, the method will return without making changes
-    func moveExercise(from source: Int, to destination: Int) {
-        guard source != destination,
-              source >= 0, source < exercises.count,
-              destination >= 0, destination <= exercises.count else { return }
-        
-        let exerciseToMove = sortedExercises[source]  // Use sortedExercises instead of exercises
-        
-        if source < destination {
-            // Moving down - update orders for exercises between source and destination
-            for index in (source + 1)...destination {
-                sortedExercises[index].order -= 1
-            }
-        } else {
-            // Moving up - update orders for exercises between destination and source
-            for index in destination..<source {
-                sortedExercises[index].order += 1
-            }
-        }
-        
-        exerciseToMove.order = destination
-    }
+
     
     /// Moves an exercise using SwiftUI's IndexSet format to a new position.
     ///
@@ -61,8 +41,19 @@ extension Workout {
     ///   - source: The IndexSet containing the source index
     ///   - destination: The desired destination index
     func moveExercise(from source: IndexSet, to destination: Int) {
-        guard let sourceIndex = source.first else { return }
-        moveExercise(from: sourceIndex, to: destination)
+        // Convert exercises to array for easier manipulation
+        var exerciseArray = sortedExercises
+        print(exerciseArray.map({$0.exercise.name}))
+        // Perform the move operation on the array
+        exerciseArray.move(fromOffsets: source, toOffset: destination)
+        print(exerciseArray.map({$0.exercise.name}))
+        // Update the order of all exercises to reflect new positions
+        for (index, exercise) in exerciseArray.enumerated() {
+            // Find the exercise in the set and update its order
+            if let existingExercise = exercises.first(where: { $0.id == exercise.id }) {
+                existingExercise.order = index
+            }
+        }
     }
     
     /// Inserts a new exercise at a specific position in the workout.
@@ -90,6 +81,15 @@ extension Workout {
         exercises.removeAll(where: { $0.exercise.id == exercise.id })
         reorderExercises()
         updateCurrentOrder()
+    }
+    func deleteExercise(at indexSet: IndexSet){
+        let exerciseArray = sortedExercises
+        if let exercise = exerciseArray.first(where: { $0.order == indexSet.first! }) {
+            deleteExercise(exercise: exercise.exercise)
+            reorderExercises()
+            updateCurrentOrder()
+        }
+        
     }
 }
 

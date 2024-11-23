@@ -116,7 +116,7 @@ struct PreviewContainer {
         name: String,
         daysAgo: Int,
         exercises: [Exercise],
-        notes: String? = nil
+        notes: String = ""
     ) -> Workout {
         let startDate = Calendar.current.date(
             byAdding: .day,

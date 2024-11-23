@@ -8,7 +8,7 @@
 import Foundation
 import SwiftData
 
-extension SupaSetSchema{
+extension SupaSetSchemaV1{
     @Model
     final class Workout: Hashable {
         var id: UUID
@@ -16,7 +16,7 @@ extension SupaSetSchema{
         var date: Date
         var endTime: Date?
         var isFinished: Bool
-        var notes: String?
+        var notes: String = ""
         var duration: TimeInterval {
             guard let endTime = endTime else {
                 return Date().timeIntervalSince(date)
@@ -35,7 +35,7 @@ extension SupaSetSchema{
             date: Date = Date(),
             endTime: Date? = nil,
             isFinished: Bool = false,
-            notes: String? = nil,
+            notes: String = "",
             currentExerciseOrder: Int = 0,
             currentSetOrder: Int = 0
         ) {
