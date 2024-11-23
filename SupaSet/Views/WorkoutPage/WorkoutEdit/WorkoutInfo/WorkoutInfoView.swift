@@ -18,7 +18,7 @@ struct WorkoutInfoView: View {
             
             WorkoutTimeSection(workout: workout)
                 .padding(.horizontal)
-            WorkoutNotesSection(workout: workout, focused: focused)
+            WorkoutNotesSection(workout: workout, reorderExercise: reorderExercises, focused: focused)
                 .padding(.horizontal)
             HStack{
                 Spacer()

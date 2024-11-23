@@ -27,8 +27,7 @@ struct ExercisePickerOverlay: View {
             )
             .shadow(radius: 10)
             .ignoresSafeArea()
-            .frame(width: width * 0.9, height: height * 0.6)
-            .transition(.move(edge: .trailing))
+            .frame(width: width * 0.9, height: height * 0.7)
         }
     }
 }

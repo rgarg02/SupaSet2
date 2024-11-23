@@ -93,7 +93,7 @@ struct ExerciseListPickerView: View {
                             .background(selectedExercises.contains(exercise) ? Color.theme.secondary : Color.theme.background)
                             .contentShape(Rectangle())
                             .onTapGesture {
-                                withAnimation(.bouncy){
+                                withAnimation(.easeIn(duration: 0.2)) {
                                     if let existingExerciseIndex = selectedExercises.firstIndex(where: { $0.id == exercise.id }) {
                                         selectedExercises.remove(at: existingExerciseIndex)
                                     }
