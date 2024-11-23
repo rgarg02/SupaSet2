@@ -6,15 +6,11 @@
 //
 
 import SwiftData
-typealias Workout = SupaSetSchema.Workout
-typealias WorkoutExercise = SupaSetSchema.WorkoutExercise
-typealias ExerciseSet = SupaSetSchema.ExerciseSet
-enum SupaSetSchema: VersionedSchema {
+
+enum SupaSetSchemaV1: VersionedSchema {
     static var models: [any PersistentModel.Type] {
         [Workout.self, WorkoutExercise.self, ExerciseSet.self]
     }
-    
     static var versionIdentifier: Schema.Version = .init(1, 0, 0)
-    
 }
 

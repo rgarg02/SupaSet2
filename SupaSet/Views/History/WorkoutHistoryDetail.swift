@@ -16,9 +16,7 @@ struct WorkoutHistoryDetailView: View {
                 if let volume = workout.totalVolume {
                     LabeledContent("Total Volume", value: "\(Int(volume))lbs")
                 }
-                if let notes = workout.notes, !notes.isEmpty {
-                    LabeledContent("Notes", value: notes)
-                }
+                LabeledContent("Notes", value: workout.notes)
             }
             
             Section("Exercises") {

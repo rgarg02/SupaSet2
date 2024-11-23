@@ -68,10 +68,11 @@
 				CustomComponents/Button.swift,
 				Extensions/Color.swift,
 				Model/Other/Exercises.swift,
-				Model/SwiftDataModels/Schema.swift,
+				Model/SwiftDataModels/ModelSchemas.swift,
+				Model/SwiftDataModels/SchemaV1.swift,
+				"Model/SwiftDataModels/SchemaV1+Model.swift",
 				"Model/SwiftDataModels/Workout+Reorder.swift",
 				"Model/SwiftDataModels/WorkoutExercise+Reorder.swift",
-				Model/SwiftDataModels/WorkoutModel.swift,
 			);
 			target = D9AF18382CDEBF42001ACDDA /* SupaSetWidgetExtension */;
 		};

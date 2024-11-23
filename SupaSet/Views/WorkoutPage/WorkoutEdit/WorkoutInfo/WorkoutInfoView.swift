@@ -9,7 +9,8 @@ import SwiftUI
 // MARK: - WorkoutInfoView
 struct WorkoutInfoView: View {
     @Bindable var workout: Workout
-    
+    var focused: FocusState<Bool>.Binding
+    @Binding var reorderExercises: Bool
     var body: some View {
         VStack(spacing: 20) {
             WorkoutNameSection(workout: workout)
@@ -17,7 +18,15 @@ struct WorkoutInfoView: View {
             
             WorkoutTimeSection(workout: workout)
                 .padding(.horizontal)
+            WorkoutNotesSection(workout: workout, focused: focused)
+                .padding(.horizontal)
+            HStack{
+                Spacer()
+                WorkoutEditOptions(reorderExercises: $reorderExercises)
+                    .padding(.horizontal)
+            }
         }
+        .background(Color.theme.background)
     }
 }
 
@@ -25,7 +34,7 @@ struct WorkoutInfoView: View {
 struct WorkoutInfoView_Previews: PreviewProvider {
     static var previews: some View {
         let sampleWorkout = Workout(name: "Morning Workout")
-        return WorkoutInfoView(workout: sampleWorkout)
+        return WorkoutInfoView(workout: sampleWorkout, focused: FocusState<Bool>().projectedValue, reorderExercises: .constant(false))
             .padding()
     }
 }
