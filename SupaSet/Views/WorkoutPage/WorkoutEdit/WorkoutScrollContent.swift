@@ -3,11 +3,9 @@ import SwiftUI
 struct WorkoutScrollContent: View {
     @Bindable var workout: Workout
     @Binding var scrolledExercise: Int?
-    @State private var reorderExercises: Bool = false
-    @State private var heldExerciseID: UUID? = nil
+    @Binding var reorderExercises: Bool
     var focused: FocusState<Bool>.Binding
     var scrollOffset: CGFloat
-    
     var body: some View {
         GeometryReader { geometry in
             if reorderExercises {
@@ -15,17 +13,33 @@ struct WorkoutScrollContent: View {
                     WorkoutInfoView(workout: workout, focused: focused, reorderExercises: $reorderExercises)
                     List {
                         ForEach(workout.sortedExercises) { exercise in
-                            Text(exercise.exercise.name)
+                            ExerciseListRow(exercise: exercise)
+                                .listRowBackground(
+                                    RoundedRectangle(cornerRadius: 12)
+                                        .fill(Color.theme.background)
+                                        .overlay(
+                                            RoundedRectangle(cornerRadius: 12)
+                                                .strokeBorder(Color.theme.accent.opacity(0.3), lineWidth: 2)
+                                        )
+                                        .shadow(color: Color.theme.accent.opacity(0.1), radius: 4, x: 0, y: 2)
+                                )
                         }
                         .onMove { from, to in
                             workout.moveExercise(from: from, to: to)
                         }
                         .onDelete { indexSet in
-                            workout.deleteExercise(at: indexSet)
+                            withAnimation(.smooth){
+                                workout.deleteExercise(at: indexSet)
+                            }
                         }
+                        .listRowSeparator(.hidden)
+                        
                     }
-                    .listStyle(.plain)
+                    .scrollIndicators(.hidden)
+                    .frame(maxHeight: .infinity)
+                    .listRowSpacing(10)
                     .environment(\.editMode, .constant(.active))
+                    .listStyle(.plain)
                 }
                 .padding(.horizontal, 20)
                 
@@ -36,6 +50,7 @@ struct WorkoutScrollContent: View {
                             .padding(.top, -50)
                         
                         ForEach(workout.sortedExercises) { exercise in
+                            
                             ExerciseCardView(workout: workout, workoutExercise: exercise, focused: focused)
                                 .containerRelativeFrame(.vertical, count: 1, spacing: 20)
                                 .scrollTransition { content, phase in
@@ -44,10 +59,6 @@ struct WorkoutScrollContent: View {
                                         .scaleEffect(phase.isIdentity ? 1 : 0.9)
                                 }
                                 .id(exercise.order)
-                                .onLongPressGesture(minimumDuration: 0.5) {
-                                    heldExerciseID = exercise.id
-                                    reorderExercises = true
-                                }
                         }
                     }
                     .scrollTargetLayout()
@@ -68,11 +79,6 @@ struct WorkoutScrollContent: View {
             }
         }
         .background(Color.theme.background)
-        .onChange(of: reorderExercises) { oldValue, newValue in
-            if !newValue {
-                heldExerciseID = nil
-            }
-        }
     }
 }
 
@@ -80,7 +86,7 @@ struct WorkoutScrollContent: View {
     let preview = PreviewContainer.preview
     WorkoutScrollContent(
         workout: preview.workout,
-        scrolledExercise: .constant(0),
+        scrolledExercise: .constant(0), reorderExercises: .constant(false),
         focused: FocusState<Bool>().projectedValue,
         scrollOffset: 140
     )

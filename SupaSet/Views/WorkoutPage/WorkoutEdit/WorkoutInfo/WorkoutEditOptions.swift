@@ -17,13 +17,18 @@ struct WorkoutEditOptions: View {
                 reorderExercises.toggle()
             }
         } label: {
-            HStack {
+            if #available(iOS 18, *) {
                 Image(systemName: "arrow.up.arrow.down")
+                    .font(.title3)
+                    .foregroundStyle(Color.theme.accent)
+                    .symbolEffect(.breathe, isActive: reorderExercises)
+                    .padding(10)
+            }else{
+                Image(systemName: "arrow.up.arrow.down")
+                    .foregroundStyle(Color.theme.accent)
+                    .symbolEffect(.pulse, isActive: reorderExercises)
+                    .padding(10)
             }
-            .padding(10)
-            .background(Color.theme.accent)
-            .foregroundColor(.theme.background)
-            .cornerRadius(10)
         }
     }
 }

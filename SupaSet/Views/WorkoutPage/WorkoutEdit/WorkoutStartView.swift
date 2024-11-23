@@ -66,6 +66,7 @@ struct WorkoutStartView: View {
                         width: metrics.width,
                         height: metrics.height
                     )
+                    .transition(.move(edge: .trailing))
                 }
             }
             .workoutActivityHandling(workout: workout)
