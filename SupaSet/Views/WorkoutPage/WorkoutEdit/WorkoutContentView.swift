@@ -35,14 +35,14 @@ struct WorkoutContentView: View {
                 focused: focused,
                 scrollOffset: scrollOffset
             )
-            if !reorderExercise {
-                AddExerciseButton(showExercisePicker: $showExercisePicker)
-                    .opacity(1 - progress)
-                    .padding(.horizontal, 50.0)
-                    .padding(.vertical)
-            }
         }
         .opacity(1 - progress)
+        if !reorderExercise {
+            AddExerciseButton(showExercisePicker: $showExercisePicker)
+                .opacity(1 - progress)
+                .padding(.horizontal, 50.0)
+                .padding(.vertical)
+        }
     }
 }
 struct AddExerciseButton: View {
