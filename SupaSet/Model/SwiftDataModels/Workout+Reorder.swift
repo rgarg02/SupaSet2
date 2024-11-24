@@ -43,10 +43,8 @@ extension Workout {
     func moveExercise(from source: IndexSet, to destination: Int) {
         // Convert exercises to array for easier manipulation
         var exerciseArray = sortedExercises
-        print(exerciseArray.map({$0.exercise.name}))
         // Perform the move operation on the array
         exerciseArray.move(fromOffsets: source, toOffset: destination)
-        print(exerciseArray.map({$0.exercise.name}))
         // Update the order of all exercises to reflect new positions
         for (index, exercise) in exerciseArray.enumerated() {
             // Find the exercise in the set and update its order
