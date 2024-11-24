@@ -6,12 +6,13 @@
 //
 
 import SwiftUI
+import UniformTypeIdentifiers
 
 // MARK: - WorkoutNotesSection
 struct WorkoutNotesSection: View {
     @Bindable var workout: Workout
     @State private var isEditingNotes: Bool = false
-    let reorderExercise: Bool
+    let moving: Bool
     var focused: FocusState<Bool>.Binding
     
     var body: some View {
@@ -25,7 +26,9 @@ struct WorkoutNotesSection: View {
             ZStack(alignment: .topLeading) {
                 TextEditor(text: $workout.notes)
                     .focused(focused)
-                    .frame(minHeight: 50, maxHeight: reorderExercise ? 50 : 150)
+                    .frame(minHeight: 50, maxHeight: 150)
+                    .disabled(moving)
+                    
                 if !focused.wrappedValue && workout.notes.isEmpty {
                     Text("Add a note")
                         .foregroundColor(Color(uiColor: .placeholderText))
@@ -33,6 +36,12 @@ struct WorkoutNotesSection: View {
                         .padding(.leading, 10)
                         .allowsHitTesting(false)
                 }
+            }
+            .overlay{
+                Color.clear
+                    .onDrop(of: [UTType.exerciseTransfer], isTargeted: nil) { _, _ in
+                                return false // Always reject drops
+                            }
             }
             .cornerRadius(20)
         }
@@ -43,6 +52,6 @@ struct WorkoutNotesSection: View {
 
 #Preview {
     let preview = PreviewContainer.preview
-    WorkoutNotesSection(workout: preview.workout, reorderExercise: true, focused: FocusState<Bool>().projectedValue)
+    WorkoutNotesSection(workout: preview.workout, moving: true, focused: FocusState<Bool>().projectedValue)
         .modelContainer(preview.container)
 }

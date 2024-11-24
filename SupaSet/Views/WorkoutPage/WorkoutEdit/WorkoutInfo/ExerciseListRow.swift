@@ -33,6 +33,11 @@ struct ExerciseListRow: View {
         .padding(.horizontal, 16)
         .padding(.vertical, 12)
         .contentShape(RoundedRectangle(cornerRadius: 12))
+        .overlay(
+            RoundedRectangle(cornerRadius: 12)
+                .strokeBorder(Color.theme.accent.opacity(0.3), lineWidth: 2)
+        )
+        .shadow(color: Color.theme.accent.opacity(0.1), radius: 4, x: 0, y: 2)
     }
 }
 

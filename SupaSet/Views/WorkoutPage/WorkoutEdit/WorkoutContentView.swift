@@ -16,7 +16,7 @@ struct WorkoutContentView: View {
     var focused: FocusState<Bool>.Binding
     var progress: CGFloat
     @Binding var showExercisePicker: Bool
-    @State private var reorderExercise: Bool = false
+    @State private var moving: Bool = false
     var body: some View {
         VStack {
             DragIndicator()
@@ -31,13 +31,13 @@ struct WorkoutContentView: View {
             WorkoutScrollContent(
                 workout: workout,
                 scrolledExercise: $scrolledExercise,
-                reorderExercises: $reorderExercise,
                 focused: focused,
-                scrollOffset: scrollOffset
+                scrollOffset: scrollOffset,
+                moving: $moving
             )
         }
         .opacity(1 - progress)
-        if !reorderExercise {
+        if !moving {
             AddExerciseButton(showExercisePicker: $showExercisePicker)
                 .opacity(1 - progress)
                 .padding(.horizontal, 50.0)
