@@ -26,6 +26,7 @@ struct DropExerciseDelegate: DropDelegate {
     @Binding var dragging: WorkoutExercise?
     let exercise: WorkoutExercise
     let workout: Workout
+    @Binding var haptics: Bool
     func dropUpdated(info: DropInfo) -> DropProposal? {
        return DropProposal(operation: .move)
     }
@@ -46,6 +47,7 @@ struct DropExerciseDelegate: DropDelegate {
                 workout.moveExercise(from: IndexSet(integer: from),
                                    to: to > from ? to + 1 : to)
             }
+            haptics.toggle()
         }
     }
     

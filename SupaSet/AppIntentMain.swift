@@ -11,7 +11,7 @@ import SwiftData
 // MARK: - Previous Exercise Intent
 struct CompleteSetIntent: LiveActivityIntent {
     static var title: LocalizedStringResource = "Complete Current Set"
-    
+    static var isDiscoverable: Bool = false
     @Parameter(title: "Workout ID")
     var workoutId: String
     
@@ -46,7 +46,7 @@ struct CompleteSetIntent: LiveActivityIntent {
 // MARK: - Weight Adjustment Intents
 struct IncrementWeightIntent: LiveActivityIntent {
     static var title: LocalizedStringResource = "Increment Weight"
-    
+    static var isDiscoverable: Bool = false
     @Parameter(title: "Workout ID")
     var workoutId: String
     
@@ -91,7 +91,7 @@ struct IncrementWeightIntent: LiveActivityIntent {
 
 struct DecrementWeightIntent: LiveActivityIntent {
     static var title: LocalizedStringResource = "Decrement Weight"
-    
+    static var isDiscoverable: Bool = false
     @Parameter(title: "Workout ID")
     var workoutId: String
     
@@ -129,7 +129,7 @@ struct DecrementWeightIntent: LiveActivityIntent {
 // MARK: - Reps Adjustment Intents
 struct IncrementRepsIntent: LiveActivityIntent {
     static var title: LocalizedStringResource = "Increment Reps"
-    
+    static var isDiscoverable: Bool = false
     @Parameter(title: "Workout ID")
     var workoutId: String
     
@@ -166,7 +166,7 @@ struct IncrementRepsIntent: LiveActivityIntent {
 
 struct DecrementRepsIntent: LiveActivityIntent {
     static var title: LocalizedStringResource = "Decrement Reps"
-    
+    static var isDiscoverable: Bool = false
     @Parameter(title: "Workout ID")
     var workoutId: String
     

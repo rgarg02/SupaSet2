@@ -8,6 +8,7 @@ struct WorkoutScrollContent: View {
     var scrollOffset: CGFloat
     @State private var dragging: WorkoutExercise?
     @Binding var moving : Bool
+    @State private var haptics: Bool = false
     var body: some View {
         GeometryReader { geometry in
             ScrollView {
@@ -42,7 +43,8 @@ struct WorkoutScrollContent: View {
                                     moving: $moving,
                                     dragging: $dragging,
                                     exercise: exercise,
-                                    workout: workout
+                                    workout: workout,
+                                    haptics: $haptics
                                 ))
                             .id(exercise.order)
                     }
@@ -50,10 +52,8 @@ struct WorkoutScrollContent: View {
                 .scrollTargetLayout()
                 .scrollOffsetTracking(scrollOffset: scrollOffset)
             }
+            .sensoryFeedback(.impact, trigger: haptics)
             .onDrop(of: [UTType.exerciseTransfer], delegate: DropOutsideDelegate(dragging: $dragging, moving: $moving))
-            .onChange(of: moving) { oldValue, newValue in
-                print(moving)
-            }
             .padding(.horizontal, 20)
             .contentMargins(.vertical, 50)
             .scrollTargetBehavior(.viewAligned)
