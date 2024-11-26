@@ -13,7 +13,6 @@ struct WorkoutStartView: View {
     let namespace: Namespace.ID
     @Binding var isExpanded: Bool
     @State var offsetY: CGFloat = 0
-    @State private var scrollOffset: CGFloat = 0
     @Bindable var workout: Workout
     @Environment(ExerciseViewModel.self) var exerciseViewModel
     @Environment(\.modelContext) var modelContext
@@ -34,11 +33,9 @@ struct WorkoutStartView: View {
             NavigationView {
                 ZStack(alignment: .bottom) {
                     backgroundLayer(progress: progress)
-                    
                     WorkoutContentView(
                         workout: workout,
                         isExpanded: $isExpanded,
-                        scrollOffset: scrollOffset,
                         scrolledExercise: $scrolledExercise,
                         focused: $focused,
                         progress: progress,
@@ -170,20 +167,6 @@ extension View {
             }
     }
     
-    func scrollOffsetTracking(scrollOffset: CGFloat) -> some View {
-        self.overlay {
-            GeometryReader { proxy in
-                let minY = proxy.frame(in: .scrollView(axis: .vertical)).minY
-                Color.clear
-                    .preference(key: OffsetKey.self, value: minY)
-            }
-        }
-        .onPreferenceChange(OffsetKey.self) { value in
-            withAnimation(.easeInOut(duration: 0.2)) {
-                _ = -value // Use scrollOffset here if needed
-            }
-        }
-    }
 }
 #Preview {
     let previewContainer = PreviewContainer.preview

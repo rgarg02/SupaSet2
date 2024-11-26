@@ -11,7 +11,6 @@ import SwiftUI
 struct WorkoutContentView: View {
     @Bindable var workout: Workout
     @Binding var isExpanded: Bool
-    var scrollOffset: CGFloat
     @Binding var scrolledExercise: Int?
     var focused: FocusState<Bool>.Binding
     var progress: CGFloat
@@ -19,23 +18,26 @@ struct WorkoutContentView: View {
     @State private var moving: Bool = false
     var body: some View {
         VStack {
-            DragIndicator()
-                .opacity(1 - progress)
-            
-            WorkoutTopControls(
-                workout: workout,
-                isExpanded: $isExpanded,
-                scrollOffset: scrollOffset
-            )
-            
             WorkoutScrollContent(
                 workout: workout,
                 scrolledExercise: $scrolledExercise,
                 focused: focused,
-                scrollOffset: scrollOffset,
                 moving: $moving
             )
         }
+        .toolbar(content: {
+            ToolbarItem(placement: .principal) {
+                VStack{
+                    DragIndicator()
+                        .opacity(1 - progress)
+                    WorkoutTopControls(
+                        workout: workout,
+                        isExpanded: $isExpanded
+                    )
+                }
+                .background(Color.theme.background)
+            }
+        })
         .opacity(1 - progress)
         if !moving {
             AddExerciseButton(showExercisePicker: $showExercisePicker)
@@ -60,4 +62,19 @@ struct AddExerciseButton: View {
             }
         )
     }
+}
+
+#Preview {
+    let preview = PreviewContainer.preview
+    NavigationView{
+        WorkoutContentView(
+            workout: preview.workout,
+            isExpanded: .constant(false),
+            scrolledExercise: .constant(nil),
+            focused: FocusState<Bool>().projectedValue,
+            progress: 0.0,
+            showExercisePicker: .constant(false)
+        )
+    }
+    .modelContainer(preview.container)
 }
