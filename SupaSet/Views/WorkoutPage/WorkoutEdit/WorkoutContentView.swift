@@ -11,37 +11,36 @@ import SwiftUI
 struct WorkoutContentView: View {
     @Bindable var workout: Workout
     @Binding var isExpanded: Bool
-    var scrollOffset: CGFloat
     @Binding var scrolledExercise: Int?
     var focused: FocusState<Bool>.Binding
     var progress: CGFloat
     @Binding var showExercisePicker: Bool
-    @State private var moving: Bool = false
+    @State private var dragging: Bool = false
+    let minimizing: Bool
     var body: some View {
         VStack {
             DragIndicator()
                 .opacity(1 - progress)
-            
             WorkoutTopControls(
                 workout: workout,
-                isExpanded: $isExpanded,
-                scrollOffset: scrollOffset
+                isExpanded: $isExpanded
             )
-            
+            .opacity(minimizing ? CGFloat(1 - (progress * 10)) : 1)
             WorkoutScrollContent(
                 workout: workout,
                 scrolledExercise: $scrolledExercise,
                 focused: focused,
-                scrollOffset: scrollOffset,
-                moving: $moving
+                dragging: $dragging,
+                minimizing: minimizing
             )
+            .opacity(minimizing ? CGFloat(1 - (progress * 10)) : 1)
         }
-        .opacity(1 - progress)
-        if !moving {
+        if !dragging {
             AddExerciseButton(showExercisePicker: $showExercisePicker)
                 .opacity(1 - progress)
                 .padding(.horizontal, 50.0)
                 .padding(.vertical)
+                .opacity(minimizing ? CGFloat(1 - (progress * 10)) : 1)
         }
     }
 }
@@ -60,4 +59,19 @@ struct AddExerciseButton: View {
             }
         )
     }
+}
+
+#Preview {
+    let preview = PreviewContainer.preview
+    NavigationView{
+        WorkoutContentView(
+            workout: preview.workout,
+            isExpanded: .constant(false),
+            scrolledExercise: .constant(nil),
+            focused: FocusState<Bool>().projectedValue,
+            progress: 0.0,
+            showExercisePicker: .constant(false), minimizing: false
+        )
+    }
+    .modelContainer(preview.container)
 }
