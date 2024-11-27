@@ -11,26 +11,26 @@ import SwiftData
 struct ExerciseCardView: View {
     let workout: Workout
     let workoutExercise: WorkoutExercise
-    let moving: Bool
     @Environment(\.modelContext) private var modelContext
     @FocusState.Binding var focused : Bool
     @State private var offsets = [CGSize](repeating: CGSize.zero, count: 6)
+    let moving: Bool
     private let columns = [
             GridItem(.fixed(40)), // Smaller column for set number
             GridItem(.flexible()), // Flexible for weight
             GridItem(.flexible()), // Flexible for reps
             GridItem(.fixed(80))  // Smaller column for checkbox
-        ]
+    ]
     var body: some View {
-        if moving {
-            ExerciseListRow(exercise: workoutExercise)
-        }
-        else {
-            VStack(alignment: .leading, spacing: 8) {
+        VStack(alignment: .leading, spacing: 8) {
+            HStack{
                 Text(workoutExercise.exercise.name)
                     .font(.title3)
                     .fontWeight(.semibold)
                     .foregroundColor(.theme.text)
+            }
+            .frame(maxWidth: .infinity)
+            if !moving{
                 VStack(spacing: 8) {
                     ScrollView(.vertical){
                         LazyVGrid(columns: columns) {
@@ -83,25 +83,25 @@ struct ExerciseCardView: View {
                 }
                 Spacer()
             }
-            .padding()
-            .background(
-                RoundedRectangle(cornerRadius: 12)
-                    .fill(Color.theme.background)
-                    .shadow(
-                        color: Color.theme.primary.opacity(0.5),
-                        radius: 5,
-                        x: 0,
-                        y: 2
-                    )
-                    .padding(8)
-            )
-            .overlay(
-                RoundedRectangle(cornerRadius: 12)
-                    .stroke(Color.theme.accent, lineWidth: 1)
-                    .padding(8)
-                
-            )
         }
+        .padding()
+        .background(
+            RoundedRectangle(cornerRadius: 12)
+                .fill(Color.theme.background)
+                .shadow(
+                    color: Color.theme.primary.opacity(0.5),
+                    radius: 5,
+                    x: 0,
+                    y: 2
+                )
+                .padding(8)
+        )
+        .overlay(
+            RoundedRectangle(cornerRadius: 12)
+                .stroke(Color.theme.accent, lineWidth: 1)
+                .padding(8)
+            
+        )
     }
 }
 
@@ -128,7 +128,8 @@ struct ExerciseCardView_Previews: PreviewProvider {
             ExerciseCardView(
                 workout: workout,
                 workoutExercise: workoutExercise,
-                moving: false, focused: FocusState<Bool>().projectedValue
+                focused: FocusState<Bool>().projectedValue,
+                moving: true
             )
             .frame(maxHeight: 400)
             .padding()

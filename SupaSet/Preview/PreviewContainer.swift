@@ -42,6 +42,16 @@ struct PreviewContainer {
         container.mainContext.insert(workout)
         workout.insertExercise(viewModel.exercises.randomElement()!)
         workout.insertExercise(viewModel.exercises.randomElement()!)
+        workout.insertExercise(viewModel.exercises.randomElement()!)
+        workout.insertExercise(viewModel.exercises.randomElement()!)
+        workout.insertExercise(viewModel.exercises.randomElement()!)
+        workout.insertExercise(viewModel.exercises.randomElement()!)
+        workout.insertExercise(viewModel.exercises.randomElement()!)
+        workout.insertExercise(viewModel.exercises.randomElement()!)
+        workout.insertExercise(viewModel.exercises.randomElement()!)
+        workout.insertExercise(viewModel.exercises.randomElement()!)
+        workout.insertExercise(viewModel.exercises.randomElement()!)
+        workout.insertExercise(viewModel.exercises.randomElement()!)
         // Create completed workouts
         completedWorkouts = PreviewContainer.createCompletedWorkouts(
             using: container.mainContext,

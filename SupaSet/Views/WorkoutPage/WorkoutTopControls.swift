@@ -11,7 +11,6 @@ struct WorkoutTopControls: View {
     @Bindable var workout : Workout
     @Environment(\.modelContext) var modelContext
     @Binding var isExpanded : Bool
-    let scrollOffset: CGFloat
     private let titleShowThreshold: CGFloat = 100
     @State var elapsedTime : String = "0s"
     let timer = Timer.publish(every: 1, on: .main, in: .common).autoconnect()
@@ -42,17 +41,15 @@ struct WorkoutTopControls: View {
             .buttonBorderShape(.capsule)
             .font(.headline)
             Spacer()
-            if scrollOffset > titleShowThreshold {
-                Text(workout.name)
-                    .font(.subheadline)
-                    .bold()
-                    .foregroundColor(.theme.text)
-                    .transition(.opacity)
-                Image(systemName: "clock")
-                Text(elapsedTime)
-                
-                Spacer()
-            }
+            Text(workout.name)
+                .font(.subheadline)
+                .bold()
+                .foregroundColor(.theme.text)
+                .transition(.opacity)
+            Image(systemName: "clock")
+            Text(elapsedTime)
+            
+            Spacer()
 
             Button("Finish"){
                 finishWorkout()
@@ -95,7 +92,7 @@ struct WorkoutTopControls: View {
     let previewContainer = PreviewContainer.preview
     
     WorkoutTopControls(
-        workout: previewContainer.workout, isExpanded: .constant(true), scrollOffset: 150
+        workout: previewContainer.workout, isExpanded: .constant(true)
     )
     .modelContainer(previewContainer.container)
     .environment(previewContainer.viewModel)
