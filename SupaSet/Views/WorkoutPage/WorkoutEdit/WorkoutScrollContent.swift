@@ -5,10 +5,10 @@ struct WorkoutScrollContent: View {
     @Bindable var workout: Workout
     @Binding var scrolledExercise: Int?
     var focused: FocusState<Bool>.Binding
-    @State var scrollOffset: CGFloat = 0
-    @Binding var moving : Bool
+    @Binding var dragging : Bool
+    let minimizing: Bool
     var body: some View {
-        ScrollContentView(workout: workout, exercises: $workout.exercises, focused: focused, moving: $moving, scrollOffset: $scrollOffset)
+        ScrollContentView(workout: workout, exercises: $workout.exercises, focused: focused, dragging: $dragging, minimizing: minimizing)
         .background(Color.theme.background)
     }
 }
@@ -18,8 +18,7 @@ struct WorkoutScrollContent: View {
         workout: preview.workout,
         scrolledExercise: .constant(0),
         focused: FocusState<Bool>().projectedValue,
-        scrollOffset: 140,
-        moving: .constant(false)
+        dragging: .constant(false), minimizing: true
     )
     .modelContainer(preview.container)
 }

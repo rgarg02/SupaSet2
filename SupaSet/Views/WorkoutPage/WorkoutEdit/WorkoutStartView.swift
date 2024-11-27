@@ -12,14 +12,14 @@ import ActivityKit
 struct WorkoutStartView: View {
     let namespace: Namespace.ID
     @Binding var isExpanded: Bool
-    @State var offsetY: CGFloat = 0
+    @State private var offsetY: CGFloat = 0
     @Bindable var workout: Workout
     @Environment(ExerciseViewModel.self) var exerciseViewModel
     @Environment(\.modelContext) var modelContext
     @State private var showExercisePicker = false
     @FocusState var focused: Bool
-    @State var scrolledExercise: Int?
-    
+    @State private var scrolledExercise: Int?
+    @State private var minimizing : Bool = false
     // Constants
     private let dismissThreshold: CGFloat = 100
     private let maxDragDistance: CGFloat = 300
@@ -39,7 +39,8 @@ struct WorkoutStartView: View {
                         scrolledExercise: $scrolledExercise,
                         focused: $focused,
                         progress: progress,
-                        showExercisePicker: $showExercisePicker
+                        showExercisePicker: $showExercisePicker,
+                        minimizing: minimizing
                     )
                 }
                 .matchedGeometryEffect(id: "icon", in: namespace)
@@ -104,6 +105,7 @@ struct WorkoutStartView: View {
     private func createDragGesture() -> some Gesture {
         DragGesture()
             .onChanged { value in
+                minimizing = true
                 let startPoint = value.startLocation.y
                 if startPoint < 100 && value.translation.height > 0 {
                     offsetY = value.translation.height
@@ -115,12 +117,16 @@ struct WorkoutStartView: View {
                     if value.translation.height > dismissThreshold {
                         withAnimation(.easeOut(duration: 0.3)) {
                             offsetY = maxDragDistance
+                            
+                        } completion: {
+                            minimizing = false
                         }
                         DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
                             isExpanded = false
                         }
                     } else {
                         withAnimation(.spring()) {
+                            minimizing = false
                             offsetY = 0
                         }
                     }

@@ -15,35 +15,32 @@ struct WorkoutContentView: View {
     var focused: FocusState<Bool>.Binding
     var progress: CGFloat
     @Binding var showExercisePicker: Bool
-    @State private var moving: Bool = false
+    @State private var dragging: Bool = false
+    let minimizing: Bool
     var body: some View {
         VStack {
+            DragIndicator()
+                .opacity(1 - progress)
+            WorkoutTopControls(
+                workout: workout,
+                isExpanded: $isExpanded
+            )
+            .opacity(minimizing ? CGFloat(1 - (progress * 10)) : 1)
             WorkoutScrollContent(
                 workout: workout,
                 scrolledExercise: $scrolledExercise,
                 focused: focused,
-                moving: $moving
+                dragging: $dragging,
+                minimizing: minimizing
             )
+            .opacity(minimizing ? CGFloat(1 - (progress * 10)) : 1)
         }
-        .toolbar(content: {
-            ToolbarItem(placement: .principal) {
-                VStack{
-                    DragIndicator()
-                        .opacity(1 - progress)
-                    WorkoutTopControls(
-                        workout: workout,
-                        isExpanded: $isExpanded
-                    )
-                }
-                .background(Color.theme.background)
-            }
-        })
-        .opacity(1 - progress)
-        if !moving {
+        if !dragging {
             AddExerciseButton(showExercisePicker: $showExercisePicker)
                 .opacity(1 - progress)
                 .padding(.horizontal, 50.0)
                 .padding(.vertical)
+                .opacity(minimizing ? CGFloat(1 - (progress * 10)) : 1)
         }
     }
 }
@@ -73,7 +70,7 @@ struct AddExerciseButton: View {
             scrolledExercise: .constant(nil),
             focused: FocusState<Bool>().projectedValue,
             progress: 0.0,
-            showExercisePicker: .constant(false)
+            showExercisePicker: .constant(false), minimizing: false
         )
     }
     .modelContainer(preview.container)
