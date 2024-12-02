@@ -44,8 +44,8 @@ struct ExerciseCardView: View {
                     .fontWeight(.semibold)
                     .foregroundColor(.theme.text)
             }
-            .gesture(customCombinedGesture)
             .frame(maxWidth: .infinity)
+            .gesture(customCombinedGesture)
             if !moving{
                 VStack(spacing: 8) {
                     ScrollView(.vertical){

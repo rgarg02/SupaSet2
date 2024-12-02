@@ -25,6 +25,7 @@ struct ScrollContentView: View {
     @State private var bottomRegion: CGRect = .zero
     @State private var lastActiveScrollId: UUID?
     @State private var parentFrame: CGRect = .zero
+
     let minimizing: Bool
     var sortedExercises: [WorkoutExercise] {
         exercises.sorted { $0.order < $1.order }
@@ -34,7 +35,7 @@ struct ScrollContentView: View {
             ScrollView {
                 LazyVStack {
                     WorkoutInfoView(workout: workout, focused: focused)
-                        .padding(.top, -50)
+                        .padding(.top, -30)
                     ForEach(sortedExercises) { exercise in
                         ExerciseCardView(
                             workout: workout,
@@ -71,9 +72,22 @@ struct ScrollContentView: View {
             }
             .scrollIndicators(.hidden)
             .scrollPosition(id: $scrolledExercise)
-            .contentMargins(.vertical, 50)
+            .contentMargins(.vertical, 30)
             .scrollTargetBehavior(.viewAligned)
             .padding(.horizontal, 20)
+            .padding(.bottom, 30)
+            .overlay(alignment: .trailing) {
+                if dragging {
+                    if let selectedExercise {
+                        WorkoutProgressDots(totalExercises: exercises.count, currentExerciseIndex: sortedExercises.firstIndex(where: {$0.id == selectedExercise.id}) ?? 0)
+                            .padding(.trailing, 10)
+                    }
+                    
+                }else{
+                    WorkoutProgressDots(totalExercises: exercises.count, currentExerciseIndex: sortedExercises.firstIndex(where: {$0.id == scrolledExercise}) ?? 0)
+                        .padding(.trailing, 10)
+                }
+            }
             .onGeometryChange(for: CGRect.self) {
                 $0.frame(in: .global)
             } action: { newValue in
