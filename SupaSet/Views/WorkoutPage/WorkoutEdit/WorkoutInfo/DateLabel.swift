@@ -10,8 +10,7 @@ import SwiftUI
 
 // MARK: - DateLabel
 struct DateLabel: View {
-    let date: String
-    
+    let date: String    
     var body: some View {
         Label(date, systemImage: "calendar")
     }

@@ -36,10 +36,23 @@ struct ScrollContentView: View {
                     WorkoutInfoView(workout: workout, focused: focused)
                         .padding(.top, -50)
                     ForEach(sortedExercises) { exercise in
-                        ExerciseCardView(workout: workout,
-                                         workoutExercise: exercise,
-                                         focused: focused,
-                                         moving: dragging)
+                        ExerciseCardView(
+                            workout: workout,
+                            workoutExercise: exercise,
+                            focused: focused,
+                            moving: dragging,
+                            selectedExercise: $selectedExercise,
+                            selectedExerciseScale: $selectedExerciseScale,
+                            selectedExerciseFrame: $selectedExerciseFrame,
+                            offset: $offset,
+                            hapticsTrigger: $hapticsTrigger,
+                            initialScrollOffset: $initialScrollOffset,
+                            lastActiveScrollId: $lastActiveScrollId,
+                            dragging: $dragging,
+                            minimizing: minimizing,
+                            onScroll: checkAndScroll,
+                            onSwap: checkAndSwapItems
+                        )
                         .opacity(selectedExercise?.id == exercise.id ? 0 : 1)
                         .onGeometryChange(for: CGRect.self) {
                             $0.frame(in: .global)
@@ -51,7 +64,6 @@ struct ScrollContentView: View {
                                 exercise.frame = Frame(newValue)
                             }
                         }
-                        .gesture(customCombinedGesture(exercise))
                     }
                 }
                 .scrollTargetLayout()
@@ -97,10 +109,23 @@ struct ScrollContentView: View {
                                     height: initialScrollOffset.height
                                 )
                 if let selectedExercise {
-                    ExerciseCardView(workout: workout,
-                                     workoutExercise: selectedExercise,
-                                     focused: focused,
-                                     moving: dragging)
+                    ExerciseCardView(
+                        workout: workout,
+                        workoutExercise: selectedExercise,
+                        focused: focused,
+                        moving: dragging,
+                        selectedExercise: $selectedExercise,
+                        selectedExerciseScale: $selectedExerciseScale,
+                        selectedExerciseFrame: $selectedExerciseFrame,
+                        offset: $offset,
+                        hapticsTrigger: $hapticsTrigger,
+                        initialScrollOffset: $initialScrollOffset,
+                        lastActiveScrollId: $lastActiveScrollId,
+                        dragging: $dragging,
+                        minimizing: minimizing,
+                        onScroll: checkAndScroll,
+                        onSwap: checkAndSwapItems
+                    )
                     .frame(
                         width: selectedExercise.frame.asCGRect().width,
                         height: selectedExercise.frame.asCGRect().height
@@ -118,55 +143,6 @@ struct ScrollContentView: View {
             
     }
     
-    func customCombinedGesture(_ exercise: WorkoutExercise) -> some Gesture {
-        LongPressGesture(minimumDuration: 0.25)
-            .sequenced(before: DragGesture(minimumDistance: 0, coordinateSpace: .global))
-            .onChanged { value in
-                switch value {
-                case .second(let status, let value):
-                    if status {
-                        if selectedExercise == nil {
-                            selectedExercise = exercise
-                            selectedExerciseFrame = exercise.frame.asCGRect()
-                            initialScrollOffset = selectedExerciseFrame
-                            initialScrollOffset = selectedExerciseFrame
-                            lastActiveScrollId = exercise.id
-                            hapticsTrigger.toggle()
-                            
-                            withAnimation(.smooth(duration: 0.2, extraBounce: 0)) {
-                                selectedExerciseScale = 1.1
-                                dragging = true
-                            }
-                        }
-                        
-                        if let value {
-                            offset = value.translation
-                            let location = value.location
-                            checkAndScroll(location)
-                            checkAndSwapItems(location)
-                        }
-                    }
-                default: ()
-                }
-            }
-            .onEnded { _ in
-                withAnimation(.snappy(duration: 0.25, extraBounce: 0),
-                              completionCriteria: .logicallyComplete) {
-                    selectedExercise?.frame = Frame(selectedExerciseFrame)
-                    initialScrollOffset = selectedExerciseFrame
-                    selectedExerciseScale = 1.0
-                    offset = .zero
-                } completion: {
-                    selectedExercise = nil
-                    initialScrollOffset = .zero
-                    selectedExerciseFrame = .zero
-                    lastActiveScrollId = nil
-                    withAnimation(.snappy) {
-                        dragging = false
-                    }
-                }
-            }
-    }
     func checkAndScroll(_ location: CGPoint) {
             let topStatus = topRegion.contains(location)
             let bottomStatus = bottomRegion.contains(location)
