@@ -49,6 +49,7 @@ struct ScrollContentView: View {
                             initialScrollOffset: $initialScrollOffset,
                             lastActiveScrollId: $lastActiveScrollId,
                             dragging: $dragging,
+                            parentBounds: $parentFrame,
                             minimizing: minimizing,
                             onScroll: checkAndScroll,
                             onSwap: checkAndSwapItems
@@ -122,6 +123,7 @@ struct ScrollContentView: View {
                         initialScrollOffset: $initialScrollOffset,
                         lastActiveScrollId: $lastActiveScrollId,
                         dragging: $dragging,
+                        parentBounds: $parentFrame,
                         minimizing: minimizing,
                         onScroll: checkAndScroll,
                         onSwap: checkAndSwapItems
@@ -144,44 +146,71 @@ struct ScrollContentView: View {
     }
     
     func checkAndScroll(_ location: CGPoint) {
-            let topStatus = topRegion.contains(location)
-            let bottomStatus = bottomRegion.contains(location)
+        // Calculate centered x position (middle of the parent frame)
+        let centeredLocation = CGPoint(
+            x: parentFrame.midX,
+            y: location.y
+        )
+        
+        let topStatus = topRegion.contains(centeredLocation)
+        let bottomStatus = bottomRegion.contains(centeredLocation)
+        
+        // Cancel existing timer if we're not in scroll regions
+        if !topStatus && !bottomStatus {
+            scrollTimer?.invalidate()
+            scrollTimer = nil
+            return
+        }
+        
+        // Don't create new timer if one exists
+        guard scrollTimer == nil else { return }
+        
+        // Create new timer with more frequent updates
+        scrollTimer = Timer.scheduledTimer(withTimeInterval: 0.05, repeats: true) { _ in
+            guard let currentIndex = sortedExercises.firstIndex(where: { $0.id == selectedExercise?.id }) else { return }
             
-            if topStatus || bottomStatus {
-                guard scrollTimer == nil else { return }
-                
-                scrollTimer = Timer.scheduledTimer(withTimeInterval: 0.1, repeats: true) { _ in
-                    if let currentIndex = sortedExercises.firstIndex(where: { $0.id == lastActiveScrollId }) {
-                        var nextIndex = currentIndex
-                        
-                        if topStatus {
-                            nextIndex = max(currentIndex - 1, 0)
-                        } else {
-                            nextIndex = min(currentIndex + 1, sortedExercises.count - 1)
-                        }
-                        
-                        lastActiveScrollId = sortedExercises[nextIndex].id
-                        withAnimation {
-                            scrolledExercise = lastActiveScrollId
-                        }
-                    }
-                }
+            var nextIndex = currentIndex
+            
+            if topStatus {
+                nextIndex = max(currentIndex - 1, 0)
             } else {
+                nextIndex = min(currentIndex + 1, sortedExercises.count - 1)
+            }
+            
+            // Only scroll if we can actually move
+            guard nextIndex != currentIndex else {
                 scrollTimer?.invalidate()
                 scrollTimer = nil
+                return
+            }
+            
+            lastActiveScrollId = sortedExercises[nextIndex].id
+            withAnimation(.smooth(duration: 0.1)) {
+                scrolledExercise = lastActiveScrollId
             }
         }
+    }
     private func checkAndSwapItems(_ location: CGPoint) {
-        guard let currentExercise = exercises.first(where: { $0.id == selectedExercise?.id }),
-              let fallingExercise = exercises.first(where: {
-                  $0.id != currentExercise.id &&
-                  $0.frame.asCGRect().contains(location)
-              }) else { return }
-        // Get the current indices
+        guard let currentExercise = exercises.first(where: { $0.id == selectedExercise?.id }) else { return }
+        
+        // Create centered point for checking
+        let centeredLocation = CGPoint(
+            x: parentFrame.midX,
+            y: location.y
+        )
+        
+        // Find exercise that contains the centered y-coordinate
+        let fallingExercise = exercises.first { exercise in
+            guard exercise.id != currentExercise.id else { return false }
+            let frame = exercise.frame.asCGRect()
+            return centeredLocation.y >= frame.minY && centeredLocation.y <= frame.maxY
+        }
+        
+        guard let fallingExercise = fallingExercise else { return }
+        
         let currentIndex = currentExercise.order
         let fallingIndex = fallingExercise.order
         
-        // Only proceed if indices are different
         guard currentIndex != fallingIndex else { return }
         hapticsTrigger.toggle()
         withAnimation(.snappy(duration: 0.25, extraBounce: 0)) {

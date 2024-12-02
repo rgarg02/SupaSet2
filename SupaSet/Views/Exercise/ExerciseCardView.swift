@@ -25,6 +25,7 @@ struct ExerciseCardView: View {
     @Binding var initialScrollOffset: CGRect
     @Binding var lastActiveScrollId: UUID?
     @Binding var dragging: Bool
+    @Binding var parentBounds: CGRect
     let minimizing: Bool
     let onScroll: (CGPoint) -> Void
     let onSwap: (CGPoint) -> Void
@@ -119,55 +120,70 @@ struct ExerciseCardView: View {
         )
     }
     private var customCombinedGesture: some Gesture {
-            LongPressGesture(minimumDuration: 0.25)
-                .sequenced(before: DragGesture(minimumDistance: 0, coordinateSpace: .global))
-                .onChanged { value in
-                    switch value {
-                    case .second(let status, let value):
-                        if status {
-                            if selectedExercise == nil {
-                                selectedExercise = workoutExercise
-                                selectedExerciseFrame = workoutExercise.frame.asCGRect()
-                                initialScrollOffset = selectedExerciseFrame
-                                initialScrollOffset = selectedExerciseFrame
-                                lastActiveScrollId = workoutExercise.id
-                                hapticsTrigger.toggle()
-                                
-                                withAnimation(.smooth(duration: 0.2, extraBounce: 0)) {
-                                    selectedExerciseScale = 1.1
-                                    dragging = true
-                                }
-                            }
+        LongPressGesture(minimumDuration: 0.25)
+            .sequenced(before: DragGesture(minimumDistance: 0, coordinateSpace: .global))
+            .onChanged { value in
+                switch value {
+                case .second(let status, let value):
+                    if status {
+                        if selectedExercise == nil {
+                            selectedExercise = workoutExercise
+                            selectedExerciseFrame = workoutExercise.frame.asCGRect()
+                            initialScrollOffset = selectedExerciseFrame
+                            initialScrollOffset = selectedExerciseFrame
+                            lastActiveScrollId = workoutExercise.id
+                            hapticsTrigger.toggle()
                             
-                            if let value {
-                                offset = value.translation
-                                let location = value.location
-                                onScroll(location)
-                                onSwap(location)
+                            withAnimation(.smooth(duration: 0.2, extraBounce: 0)) {
+                                selectedExerciseScale = 1.1
+                                dragging = true
                             }
                         }
-                    default: ()
-                    }
-                }
-                .onEnded { _ in
-                    withAnimation(.snappy(duration: 0.25, extraBounce: 0),
-                                completionCriteria: .logicallyComplete) {
-                        selectedExercise?.frame = Frame(selectedExerciseFrame)
-                        initialScrollOffset = selectedExerciseFrame
-                        selectedExerciseScale = 1.0
-                        offset = .zero
-                    } completion: {
-                        selectedExercise = nil
-                        initialScrollOffset = .zero
-                        selectedExerciseFrame = .zero
-                        lastActiveScrollId = nil
-                        withAnimation(.snappy) {
-                            dragging = false
+                        
+                        if let value {
+                            // Calculate the new Y position
+                            let newY = initialScrollOffset.minY + value.translation.height
+                            
+                            // Get the available vertical space
+                            let minY = parentBounds.minY + 50 // Add some padding from top
+                            let maxY = parentBounds.maxY - selectedExerciseFrame.height - 50 // Subtract height and padding
+                            
+                            // Clamp the Y position
+                            let clampedY = min(max(newY, minY), maxY)
+                            
+                            // Calculate the clamped offset
+                            let clampedOffset = CGSize(
+                                width: 0,
+                                height: clampedY - initialScrollOffset.minY
+                            )
+                            
+                            offset = clampedOffset
+                            let location = value.location
+                            onScroll(location)
+                            onSwap(location)
                         }
                     }
+                default: ()
                 }
-        }
-}
+            }
+            .onEnded { _ in
+                withAnimation(.snappy(duration: 0.25, extraBounce: 0),
+                             completionCriteria: .logicallyComplete) {
+                    selectedExercise?.frame = Frame(selectedExerciseFrame)
+                    initialScrollOffset = selectedExerciseFrame
+                    selectedExerciseScale = 1.0
+                    offset = .zero
+                } completion: {
+                    selectedExercise = nil
+                    initialScrollOffset = .zero
+                    selectedExerciseFrame = .zero
+                    lastActiveScrollId = nil
+                    withAnimation(.snappy) {
+                        dragging = false
+                    }
+                }
+            }
+    }}
 
 
 //struct ExerciseCardView_Previews: PreviewProvider {
