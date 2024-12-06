@@ -18,7 +18,7 @@ struct WorkoutContentView: View {
     @State private var dragging: Bool = false
     let minimizing: Bool
     var body: some View {
-        VStack {
+        VStack(spacing: 0) {
             DragIndicator()
                 .opacity(1 - progress)
             WorkoutTopControls(
@@ -46,7 +46,7 @@ struct WorkoutContentView: View {
 }
 struct AddExerciseButton: View {
     @Binding var showExercisePicker: Bool
-    
+
     var body: some View {
         CustomButton(
             icon: "plus.circle",
@@ -64,14 +64,16 @@ struct AddExerciseButton: View {
 #Preview {
     let preview = PreviewContainer.preview
     NavigationView{
-        WorkoutContentView(
-            workout: preview.workout,
-            isExpanded: .constant(false),
-            scrolledExercise: .constant(nil),
-            focused: FocusState<Bool>().projectedValue,
-            progress: 0.0,
-            showExercisePicker: .constant(false), minimizing: false
-        )
+        ZStack(alignment: .bottom){
+            WorkoutContentView(
+                workout: preview.workout,
+                isExpanded: .constant(false),
+                scrolledExercise: .constant(nil),
+                focused: FocusState<Bool>().projectedValue,
+                progress: 0.0,
+                showExercisePicker: .constant(false), minimizing: false
+            )
+        }
     }
     .modelContainer(preview.container)
 }

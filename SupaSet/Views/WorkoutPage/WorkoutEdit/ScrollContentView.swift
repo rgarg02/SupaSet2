@@ -41,7 +41,6 @@ struct ScrollContentView: View {
                             workout: workout,
                             workoutExercise: exercise,
                             focused: focused,
-                            moving: dragging,
                             selectedExercise: $selectedExercise,
                             selectedExerciseScale: $selectedExerciseScale,
                             selectedExerciseFrame: $selectedExerciseFrame,
@@ -68,6 +67,7 @@ struct ScrollContentView: View {
                         }
                     }
                 }
+                .padding(.bottom, 50)
                 .scrollTargetLayout()
             }
             .scrollIndicators(.hidden)
@@ -75,7 +75,6 @@ struct ScrollContentView: View {
             .contentMargins(.vertical, 30)
             .scrollTargetBehavior(.viewAligned)
             .padding(.horizontal, 20)
-            .padding(.bottom, 30)
             .overlay(alignment: .trailing) {
                 if dragging {
                     if let selectedExercise {
@@ -128,7 +127,6 @@ struct ScrollContentView: View {
                         workout: workout,
                         workoutExercise: selectedExercise,
                         focused: focused,
-                        moving: dragging,
                         selectedExercise: $selectedExercise,
                         selectedExerciseScale: $selectedExerciseScale,
                         selectedExerciseFrame: $selectedExerciseFrame,

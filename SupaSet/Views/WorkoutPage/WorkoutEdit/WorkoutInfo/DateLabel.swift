@@ -12,6 +12,14 @@ import SwiftUI
 struct DateLabel: View {
     let date: String    
     var body: some View {
+        // Create a label for a date
         Label(date, systemImage: "calendar")
+    }
+}
+
+// Make a preview for DateLabel
+struct DateLabel_Previews: PreviewProvider {
+    static var previews: some View {
+        DateLabel(date: "Today")
     }
 }
