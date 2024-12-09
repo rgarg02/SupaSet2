@@ -141,8 +141,8 @@ struct ScrollContentView: View {
                         onSwap: checkAndSwapItems
                     )
                     .frame(
-                        width: selectedExercise.frame.asCGRect().width,
-                        height: selectedExercise.frame.asCGRect().height
+                        width: selectedExercise.frame?.asCGRect().width ?? .zero,
+                        height: selectedExercise.frame?.asCGRect().height ?? .zero
                     )
                     .scaleEffect(selectedExerciseScale)
                     .offset(x: adjustedInitialOffset.minX,
@@ -214,7 +214,7 @@ struct ScrollContentView: View {
         // Find exercise that contains the centered y-coordinate
         let fallingExercise = exercises.first { exercise in
             guard exercise.id != currentExercise.id else { return false }
-            let frame = exercise.frame.asCGRect()
+            let frame = exercise.frame?.asCGRect() ?? .zero
             return centeredLocation.y >= frame.minY && centeredLocation.y <= frame.maxY
         }
         

@@ -135,7 +135,7 @@ extension SupaSetSchemaV1{
         var exercise: Exercise  // Reference to the exercise from your existing model
         var order: Int  // To maintain exercise order in workout
         var notes: String?
-        var frame: Frame = Frame(.zero)
+        var frame: Frame?
         @Relationship(deleteRule: .cascade) var sets: [ExerciseSet] = []
         @Relationship(inverse: \Workout.exercises) var workout: Workout?
         
