@@ -127,7 +127,7 @@ struct ExerciseCardView: View {
                     if status {
                         if selectedExercise == nil {
                             selectedExercise = workoutExercise
-                            selectedExerciseFrame = workoutExercise.frame.asCGRect()
+                            selectedExerciseFrame = workoutExercise.frame?.asCGRect() ?? .zero
                             initialScrollOffset = selectedExerciseFrame
                             initialScrollOffset = selectedExerciseFrame
                             lastActiveScrollId = workoutExercise.id
