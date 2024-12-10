@@ -20,7 +20,6 @@ struct ExercisePickerOverlay: View {
                         isPresented = false
                     }
                 }
-            
             ExerciseListPickerView(
                 isPresented: $isPresented,
                 workout: workout

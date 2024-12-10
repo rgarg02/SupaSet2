@@ -67,7 +67,6 @@
 				AppIntentMain.swift,
 				CustomComponents/Button.swift,
 				Extensions/Color.swift,
-				Model/DraggableModel.swift,
 				Model/Other/Exercises.swift,
 				Model/SwiftDataModels/ModelSchemas.swift,
 				Model/SwiftDataModels/SchemaV1.swift,
