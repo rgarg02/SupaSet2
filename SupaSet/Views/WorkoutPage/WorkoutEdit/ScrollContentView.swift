@@ -35,7 +35,7 @@ struct ScrollContentView: View {
             ScrollView {
                 LazyVStack {
                     WorkoutInfoView(workout: workout, focused: focused)
-                        .padding(.top, -30)
+                        .padding(.top, -20)
                     ForEach(sortedExercises) { exercise in
                         ExerciseCardView(
                             workout: workout,
