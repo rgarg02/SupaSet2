@@ -25,7 +25,7 @@ struct ScrollContentView: View {
     @State private var bottomRegion: CGRect = .zero
     @State private var lastActiveScrollId: UUID?
     @State private var parentFrame: CGRect = .zero
-
+    @State private var exerciseFrames: [UUID: CGRect] = [:]
     let minimizing: Bool
     var sortedExercises: [WorkoutExercise] {
         exercises.sorted { $0.order < $1.order }
@@ -51,6 +51,7 @@ struct ScrollContentView: View {
                             dragging: $dragging,
                             parentBounds: $parentFrame,
                             minimizing: minimizing,
+                            exerciseFrames: $exerciseFrames,
                             onScroll: checkAndScroll,
                             onSwap: checkAndSwapItems
                         )
@@ -62,7 +63,8 @@ struct ScrollContentView: View {
                                 if selectedExercise?.id == exercise.id {
                                     selectedExerciseFrame = newValue
                                 }
-                                exercise.frame = Frame(newValue)
+                                exerciseFrames[exercise.id] = newValue
+//                                exercise.frame = Frame(newValue)
                             }
                         }
                     }
@@ -137,13 +139,15 @@ struct ScrollContentView: View {
                         dragging: $dragging,
                         parentBounds: $parentFrame,
                         minimizing: minimizing,
+                        exerciseFrames: $exerciseFrames,
                         onScroll: checkAndScroll,
                         onSwap: checkAndSwapItems
                     )
-                    .frame(
-                        width: selectedExercise.frame?.asCGRect().width ?? .zero,
-                        height: selectedExercise.frame?.asCGRect().height ?? .zero
-                    )
+//                    .frame(
+//                        width: selectedExercise.frame?.asCGRect().width ?? .zero,
+//                        height: selectedExercise.frame?.asCGRect().height ?? .zero
+//                    )
+                    .frame(width: exerciseFrames[selectedExercise.id]?.width ?? .zero, height: exerciseFrames[selectedExercise.id]?.height ?? .zero)
                     .scaleEffect(selectedExerciseScale)
                     .offset(x: adjustedInitialOffset.minX,
                             y: adjustedInitialOffset.minY)
@@ -214,7 +218,8 @@ struct ScrollContentView: View {
         // Find exercise that contains the centered y-coordinate
         let fallingExercise = exercises.first { exercise in
             guard exercise.id != currentExercise.id else { return false }
-            let frame = exercise.frame?.asCGRect() ?? .zero
+            let frame = exerciseFrames[exercise.id] ?? .zero
+//            let frame = exercise.frame?.asCGRect() ?? .zero
             return centeredLocation.y >= frame.minY && centeredLocation.y <= frame.maxY
         }
         
