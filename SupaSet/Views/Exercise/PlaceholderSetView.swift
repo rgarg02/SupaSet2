@@ -17,7 +17,7 @@ struct PlaceholderSetRowView: View {
     var body: some View {
         LazyVGrid(columns: columns, alignment: .center) {
             // Set Number
-            Text("-")
+            Text("+")
                 .font(.headline)
             
             // Weight placeholder
