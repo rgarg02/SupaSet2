@@ -14,8 +14,6 @@ struct ExerciseCardView: View {
     @Environment(\.modelContext) private var modelContext
     @FocusState.Binding var focused : Bool
     @State private var offsets = [CGSize](repeating: CGSize.zero, count: 6)
-    let moving: Bool
-    
     // New bindings for gesture handling
     @Binding var selectedExercise: WorkoutExercise?
     @Binding var selectedExerciseScale: CGFloat
@@ -25,6 +23,7 @@ struct ExerciseCardView: View {
     @Binding var initialScrollOffset: CGRect
     @Binding var lastActiveScrollId: UUID?
     @Binding var dragging: Bool
+    @Binding var parentBounds: CGRect
     let minimizing: Bool
     let onScroll: (CGPoint) -> Void
     let onSwap: (CGPoint) -> Void
@@ -43,9 +42,9 @@ struct ExerciseCardView: View {
                     .fontWeight(.semibold)
                     .foregroundColor(.theme.text)
             }
-            .gesture(customCombinedGesture)
             .frame(maxWidth: .infinity)
-            if !moving{
+            .gesture(customCombinedGesture)
+            if !dragging{
                 VStack(spacing: 8) {
                     ScrollView(.vertical){
                         LazyVGrid(columns: columns) {
@@ -90,10 +89,11 @@ struct ExerciseCardView: View {
                                 }
                             }
                         }
-                        CustomButton(icon: "plus", title: "Add Set", size: .small, style: .filled(background: .theme.accent, foreground: .theme.text)) {
-                            workoutExercise.insertSet(reps: workoutExercise.sortedSets.last?.reps ?? 0, weight: workoutExercise.sortedSets.last?.weight ?? 0)
-                            WorkoutActivityManager.shared.updateWorkoutActivity(workout: workout)
-                        }
+                        PlaceholderSetRowView()
+                            .onTapGesture {
+                                workoutExercise.insertSet(reps: workoutExercise.sortedSets.last?.reps ?? 0, weight: workoutExercise.sortedSets.last?.weight ?? 0)
+                                WorkoutActivityManager.shared.updateWorkoutActivity(workout: workout)
+                            }
                     }
                 }
                 Spacer()
@@ -119,88 +119,110 @@ struct ExerciseCardView: View {
         )
     }
     private var customCombinedGesture: some Gesture {
-            LongPressGesture(minimumDuration: 0.25)
-                .sequenced(before: DragGesture(minimumDistance: 0, coordinateSpace: .global))
-                .onChanged { value in
-                    switch value {
-                    case .second(let status, let value):
-                        if status {
-                            if selectedExercise == nil {
-                                selectedExercise = workoutExercise
-                                selectedExerciseFrame = workoutExercise.frame.asCGRect()
-                                initialScrollOffset = selectedExerciseFrame
-                                initialScrollOffset = selectedExerciseFrame
-                                lastActiveScrollId = workoutExercise.id
-                                hapticsTrigger.toggle()
-                                
-                                withAnimation(.smooth(duration: 0.2, extraBounce: 0)) {
-                                    selectedExerciseScale = 1.1
-                                    dragging = true
-                                }
-                            }
+        LongPressGesture(minimumDuration: 0.25)
+            .sequenced(before: DragGesture(minimumDistance: 0, coordinateSpace: .global))
+            .onChanged { value in
+                switch value {
+                case .second(let status, let value):
+                    if status {
+                        if selectedExercise == nil {
+                            selectedExercise = workoutExercise
+                            selectedExerciseFrame = workoutExercise.frame?.asCGRect() ?? .zero
+                            initialScrollOffset = selectedExerciseFrame
+                            initialScrollOffset = selectedExerciseFrame
+                            lastActiveScrollId = workoutExercise.id
+                            hapticsTrigger.toggle()
                             
-                            if let value {
-                                offset = value.translation
-                                let location = value.location
-                                onScroll(location)
-                                onSwap(location)
+                            withAnimation(.smooth(duration: 0.2, extraBounce: 0)) {
+                                selectedExerciseScale = 1.1
+                                dragging = true
                             }
                         }
-                    default: ()
-                    }
-                }
-                .onEnded { _ in
-                    withAnimation(.snappy(duration: 0.25, extraBounce: 0),
-                                completionCriteria: .logicallyComplete) {
-                        selectedExercise?.frame = Frame(selectedExerciseFrame)
-                        initialScrollOffset = selectedExerciseFrame
-                        selectedExerciseScale = 1.0
-                        offset = .zero
-                    } completion: {
-                        selectedExercise = nil
-                        initialScrollOffset = .zero
-                        selectedExerciseFrame = .zero
-                        lastActiveScrollId = nil
-                        withAnimation(.snappy) {
-                            dragging = false
+                        
+                        if let value {
+                            // Calculate the new Y position
+                            let newY = initialScrollOffset.minY + value.translation.height
+                            
+                            // Get the available vertical space
+                            let minY = parentBounds.minY + 50 // Add some padding from top
+                            let maxY = parentBounds.maxY - selectedExerciseFrame.height - 50 // Subtract height and padding
+                            
+                            // Clamp the Y position
+                            let clampedY = min(max(newY, minY), maxY)
+                            
+                            // Calculate the clamped offset
+                            let clampedOffset = CGSize(
+                                width: 0,
+                                height: clampedY - initialScrollOffset.minY
+                            )
+                            
+                            offset = clampedOffset
+                            let location = value.location
+                            onScroll(location)
+                            onSwap(location)
                         }
                     }
+                default: ()
                 }
+            }
+            .onEnded { _ in
+                withAnimation(.snappy(duration: 0.25, extraBounce: 0),
+                             completionCriteria: .logicallyComplete) {
+                    selectedExercise?.frame = Frame(selectedExerciseFrame)
+                    initialScrollOffset = selectedExerciseFrame
+                    selectedExerciseScale = 1.0
+                    offset = .zero
+                } completion: {
+                    selectedExercise = nil
+                    initialScrollOffset = .zero
+                    selectedExerciseFrame = .zero
+                    lastActiveScrollId = nil
+                    withAnimation(.snappy) {
+                        dragging = false
+                    }
+                }
+            }
+    }}
+
+// create preview for card
+struct ExerciseCardView_Preview: PreviewProvider {
+    static var previews: some View {
+        let workout = Workout(name: "New Workout", isFinished: false)
+        let exercise = Exercise(
+            id: "bench-press",
+            name: "Bench Press",
+            force: .push,
+            level: .intermediate,
+            mechanic: .compound,
+            equipment: .barbell,
+            primaryMuscles: [.chest],
+            secondaryMuscles: [.shoulders, .triceps],
+            instructions: ["Bench press instructions"],
+            category: .strength,
+            images: []
+        )
+        let workoutExercise = WorkoutExercise(exercise: exercise)
+        let container = PreviewContainer.preview
+        ExerciseCardView(
+            workout: workout,
+            workoutExercise: workoutExercise,
+            focused: FocusState<Bool>().projectedValue,
+            selectedExercise: .constant(nil),
+            selectedExerciseScale: .constant(1.0),
+            selectedExerciseFrame: .constant(.zero),
+            offset: .constant(.zero),
+            hapticsTrigger: .constant(false),
+            initialScrollOffset: .constant(.zero),
+            lastActiveScrollId: .constant(nil),
+            dragging: .constant(false),
+            parentBounds: .constant(.zero), minimizing: true,
+            onScroll: { _ in },
+            onSwap: { _ in }
+        )
+        .modelContainer(container.container)
+        .environment(container.viewModel)
+        .onAppear {
+            container.container.mainContext.insert(workout)
         }
+    }
 }
-
-
-//struct ExerciseCardView_Previews: PreviewProvider {
-//    static var previews: some View {
-//        let workout = Workout(name: "Workout")
-//        let exercise = Exercise(
-//            id: "bench-press",
-//            name: "Bench Press",
-//            force: .push,
-//            level: .intermediate,
-//            mechanic: .compound,
-//            equipment: .barbell,
-//            primaryMuscles: [.chest],
-//            secondaryMuscles: [.shoulders, .triceps],
-//            instructions: ["Bench press instructions"],
-//            category: .strength,
-//            images: []
-//        )
-//        let workoutExercise = WorkoutExercise(exercise: exercise)
-//        let preview = PreviewContainer.preview
-//        NavigationStack {
-//            ExerciseCardView(
-//                workout: workout,
-//                workoutExercise: workoutExercise,
-//                focused: FocusState<Bool>().projectedValue,
-//                moving: true
-//            )
-//            .frame(maxHeight: 400)
-//            .padding()
-//        }
-//        .modelContainer(preview.container)
-//        .onAppear {
-//            preview.container.mainContext.insert(workoutExercise)
-//        }
-//    }
-//}

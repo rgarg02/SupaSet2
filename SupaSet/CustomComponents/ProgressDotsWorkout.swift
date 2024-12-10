@@ -20,11 +20,10 @@ struct ProgressDot: View {
 struct WorkoutProgressDots: View {
     let totalExercises: Int
     let currentExerciseIndex: Int
-    
     var body: some View {
         VStack(spacing: 12) {
             ForEach(0..<totalExercises, id: \.self) { index in
-                ProgressDot(isActive: index == currentExerciseIndex)
+                ProgressDot(isActive: index == currentExerciseIndex )
             }
         }
         .padding(.vertical, 20)
