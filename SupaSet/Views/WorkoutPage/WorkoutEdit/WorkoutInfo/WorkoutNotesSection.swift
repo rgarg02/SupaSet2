@@ -35,12 +35,6 @@ struct WorkoutNotesSection: View {
                         .allowsHitTesting(false)
                 }
             }
-            .overlay{
-                Color.clear
-                    .onDrop(of: [UTType.exerciseTransfer], isTargeted: nil) { _, _ in
-                                return false // Always reject drops
-                            }
-            }
             .cornerRadius(20)
         }
         .foregroundColor(.theme.text)
