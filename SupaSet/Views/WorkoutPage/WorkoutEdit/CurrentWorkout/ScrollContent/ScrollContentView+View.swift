@@ -1,35 +1,12 @@
 //
-//  ScrollContentView.swift
+//  File.swift
 //  SupaSet
 //
-//  Created by Rishi Garg on 11/24/24.
+//  Created by Rishi Garg on 12/10/24.
 //
 
 import SwiftUI
-
-struct ScrollContentView: View {
-    @Bindable var workout: Workout
-    @Binding var exercises: [WorkoutExercise]
-    var focused: FocusState<Bool>.Binding
-    @Binding var dragging: Bool
-    @State private var selectedExercise: WorkoutExercise?
-    @State private var selectedExerciseScale: CGFloat = 1.0
-    @State private var selectedExerciseFrame: CGRect = .zero
-    @State private var offset: CGSize = .zero
-    @State private var hapticsTrigger: Bool = false
-    @State private var initialScrollOffset: CGRect = .zero
-    @State private var scrolledExercise: WorkoutExercise.ID?
-    @State private var currentScrollId: UUID?
-    @State private var scrollTimer: Timer?
-    @State private var topRegion: CGRect = .zero
-    @State private var bottomRegion: CGRect = .zero
-    @State private var lastActiveScrollId: UUID?
-    @State private var parentFrame: CGRect = .zero
-    @State private var exerciseFrames: [UUID: CGRect] = [:]
-    let minimizing: Bool
-    var sortedExercises: [WorkoutExercise] {
-        exercises.sorted { $0.order < $1.order }
-    }
+extension ScrollContentView {
     var body: some View {
         ZStack {
             ScrollView {
@@ -59,17 +36,16 @@ struct ScrollContentView: View {
                         .onGeometryChange(for: CGRect.self) {
                             $0.frame(in: .global)
                         } action: { newValue in
-                            if !minimizing{
+                            if !minimizing {
                                 if selectedExercise?.id == exercise.id {
                                     selectedExerciseFrame = newValue
                                 }
                                 exerciseFrames[exercise.id] = newValue
-//                                exercise.frame = Frame(newValue)
                             }
                         }
                     }
                 }
-                .padding(.bottom, 50)
+                .padding(.bottom, sortedExercises.last.flatMap { (exerciseFrames[$0.id]?.height ?? 0)/2 } ?? 0)
                 .scrollTargetLayout()
             }
             .scrollIndicators(.hidden)
@@ -143,10 +119,6 @@ struct ScrollContentView: View {
                         onScroll: checkAndScroll,
                         onSwap: checkAndSwapItems
                     )
-//                    .frame(
-//                        width: selectedExercise.frame?.asCGRect().width ?? .zero,
-//                        height: selectedExercise.frame?.asCGRect().height ?? .zero
-//                    )
                     .frame(width: exerciseFrames[selectedExercise.id]?.width ?? .zero, height: exerciseFrames[selectedExercise.id]?.height ?? .zero)
                     .scaleEffect(selectedExerciseScale)
                     .offset(x: adjustedInitialOffset.minX,
@@ -158,87 +130,5 @@ struct ScrollContentView: View {
             }
         }
         .sensoryFeedback(.impact, trigger: hapticsTrigger)
-            
     }
-    
-    func checkAndScroll(_ location: CGPoint) {
-        // Calculate centered x position (middle of the parent frame)
-        let centeredLocation = CGPoint(
-            x: parentFrame.midX,
-            y: location.y
-        )
-        
-        let topStatus = topRegion.contains(centeredLocation)
-        let bottomStatus = bottomRegion.contains(centeredLocation)
-        
-        // Cancel existing timer if we're not in scroll regions
-        if !topStatus && !bottomStatus {
-            scrollTimer?.invalidate()
-            scrollTimer = nil
-            return
-        }
-        
-        // Don't create new timer if one exists
-        guard scrollTimer == nil else { return }
-        
-        // Create new timer with more frequent updates
-        scrollTimer = Timer.scheduledTimer(withTimeInterval: 0.05, repeats: true) { _ in
-            guard let currentIndex = sortedExercises.firstIndex(where: { $0.id == selectedExercise?.id }) else { return }
-            
-            var nextIndex = currentIndex
-            
-            if topStatus {
-                nextIndex = max(currentIndex - 1, 0)
-            } else {
-                nextIndex = min(currentIndex + 1, sortedExercises.count - 1)
-            }
-            
-            // Only scroll if we can actually move
-            guard nextIndex != currentIndex else {
-                scrollTimer?.invalidate()
-                scrollTimer = nil
-                return
-            }
-            
-            lastActiveScrollId = sortedExercises[nextIndex].id
-            withAnimation(.smooth(duration: 0.1)) {
-                scrolledExercise = lastActiveScrollId
-            }
-        }
-    }
-    private func checkAndSwapItems(_ location: CGPoint) {
-        guard let currentExercise = exercises.first(where: { $0.id == selectedExercise?.id }) else { return }
-        
-        // Create centered point for checking
-        let centeredLocation = CGPoint(
-            x: parentFrame.midX,
-            y: location.y
-        )
-        
-        // Find exercise that contains the centered y-coordinate
-        let fallingExercise = exercises.first { exercise in
-            guard exercise.id != currentExercise.id else { return false }
-            let frame = exerciseFrames[exercise.id] ?? .zero
-//            let frame = exercise.frame?.asCGRect() ?? .zero
-            return centeredLocation.y >= frame.minY && centeredLocation.y <= frame.maxY
-        }
-        
-        guard let fallingExercise = fallingExercise else { return }
-        
-        let currentIndex = currentExercise.order
-        let fallingIndex = fallingExercise.order
-        
-        guard currentIndex != fallingIndex else { return }
-        hapticsTrigger.toggle()
-        withAnimation(.snappy(duration: 0.25, extraBounce: 0)) {
-            currentExercise.order = fallingIndex
-            fallingExercise.order = currentIndex
-        }
-    }
-}
-#Preview {
-    let preview = PreviewContainer.preview
-    let workout = preview.workout
-    ScrollContentView(workout: workout, exercises: .constant(workout.exercises), focused: FocusState<Bool>().projectedValue, dragging: .constant(false), minimizing: true)
-        .modelContainer(preview.container)
 }
