@@ -92,11 +92,15 @@ struct ExerciseCardView: View {
                         }
                         PlaceholderSetRowView()
                             .onTapGesture {
-                                workoutExercise.insertSet(reps: workoutExercise.sortedSets.last?.reps ?? 0, weight: workoutExercise.sortedSets.last?.weight ?? 0)
+                                withAnimation(.snappy(duration: 0.25)) {
+                                    workoutExercise.insertSet(reps: workoutExercise.sortedSets.last?.reps ?? 0, weight: workoutExercise.sortedSets.last?.weight ?? 0)
+                                }
+                                
                                 WorkoutActivityManager.shared.updateWorkoutActivity(workout: workout)
                             }
                     }
                 }
+                .frame(minHeight: 240)
                 Spacer()
             }
         }
