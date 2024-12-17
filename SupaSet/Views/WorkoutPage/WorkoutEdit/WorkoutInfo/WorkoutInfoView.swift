@@ -14,7 +14,6 @@ struct WorkoutInfoView: View {
         VStack(spacing: 20) {
             WorkoutNameSection(workout: workout)
                 .padding(.horizontal)
-            
             WorkoutTimeSection(workout: workout)
                 .padding(.horizontal)
             WorkoutNotesSection(workout: workout, focused: focused)

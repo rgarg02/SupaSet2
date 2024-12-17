@@ -38,10 +38,7 @@ struct ExerciseCardView: View {
     var body: some View {
         VStack(alignment: .leading, spacing: 8) {
             HStack{
-                Text(workoutExercise.exercise.name)
-                    .font(.title3)
-                    .fontWeight(.semibold)
-                    .foregroundColor(.theme.text)
+                ExerciseTopControls(workoutExercise: workoutExercise)
             }
             .frame(maxWidth: .infinity)
             .gesture(customCombinedGesture)
@@ -191,45 +188,27 @@ struct ExerciseCardView: View {
             }
     }}
 
-// create preview for card
-//struct ExerciseCardView_Preview: PreviewProvider {
-//    static var previews: some View {
-//        let workout = Workout(name: "New Workout", isFinished: false)
-//        let exercise = Exercise(
-//            id: "bench-press",
-//            name: "Bench Press",
-//            force: .push,
-//            level: .intermediate,
-//            mechanic: .compound,
-//            equipment: .barbell,
-//            primaryMuscles: [.chest],
-//            secondaryMuscles: [.shoulders, .triceps],
-//            instructions: ["Bench press instructions"],
-//            category: .strength,
-//            images: []
-//        )
-//        let workoutExercise = WorkoutExercise(exercise: exercise)
-//        let container = PreviewContainer.preview
-//        ExerciseCardView(
-//            workout: workout,
-//            workoutExercise: workoutExercise,
-//            focused: FocusState<Bool>().projectedValue,
-//            selectedExercise: .constant(nil),
-//            selectedExerciseScale: .constant(1.0),
-//            selectedExerciseFrame: .constant(.zero),
-//            offset: .constant(.zero),
-//            hapticsTrigger: .constant(false),
-//            initialScrollOffset: .constant(.zero),
-//            lastActiveScrollId: .constant(nil),
-//            dragging: .constant(false),
-//            parentBounds: .constant(.zero), minimizing: true,
-//            onScroll: { _ in },
-//            onSwap: { _ in }
-//        )
-//        .modelContainer(container.container)
-//        .environment(container.viewModel)
-//        .onAppear {
-//            container.container.mainContext.insert(workout)
-//        }
-//    }
-//}
+#Preview {
+    let preview = PreviewContainer.preview
+    let workout = preview.workout
+    let exercise = workout.exercises.first!
+    ExerciseCardView(
+        workout: workout,
+        workoutExercise: exercise,
+        focused: FocusState<Bool>().projectedValue,
+        selectedExercise: .constant(nil),
+        selectedExerciseScale: .constant(1.0),
+        selectedExerciseFrame: .constant(.zero),
+        offset: .constant(.zero),
+        hapticsTrigger: .constant(false),
+        initialScrollOffset: .constant(.zero),
+        lastActiveScrollId: .constant(nil),
+        dragging: .constant(false),
+        parentBounds: .constant(.zero),
+        minimizing: false,
+        exerciseFrames: .constant([:]),
+        onScroll: { _ in },
+        onSwap: { _ in }
+    )
+    .modelContainer(preview.container)
+}
