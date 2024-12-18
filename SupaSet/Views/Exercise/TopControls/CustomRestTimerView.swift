@@ -6,30 +6,12 @@
 //
 
 import SwiftUI
-struct CustomRestTimerView: View {
+struct RestTimerView: View {
     @Binding var selectedTime: TimeInterval
-    @Binding var showRestTimer: Bool
     @State private var isAutoRestEnabled = false
     
     var body: some View {
         VStack {
-            HStack {
-                Button {
-                    withAnimation(.easeInOut) {
-                        showRestTimer = false
-                    }
-                } label: {
-                    Image(systemName: "chevron.left")
-                        .foregroundColor(.theme.accent)
-                }
-                .padding(.leading)
-                Text("Rest Timer")
-                    .font(.headline)
-                Spacer()
-            }
-            .padding(.vertical)
-            
-            // Rest of the form content
             Form {
                 Section {
                     Toggle("Auto Rest Timer", isOn: $isAutoRestEnabled)
@@ -73,12 +55,9 @@ struct CustomRestTimerView: View {
             }
             .foregroundColor(.theme.text)
         }
-        .padding(.top)
-        .transition(.move(edge: .trailing))
-        .frame(width: 320, height: 400)
-        .background(Color.theme.primary)
+        
     }
 }
 #Preview("Custom Rest Timer") {
-    CustomRestTimerView(selectedTime: .constant(60), showRestTimer: .constant(true))
+    RestTimerView(selectedTime: .constant(60))
 }

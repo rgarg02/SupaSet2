@@ -9,7 +9,7 @@ import SwiftUI
 struct ExerciseMenu: View {
     let workoutExercise: WorkoutExercise
     @Binding var showRestTimer: Bool
-    
+    @State var restTimerTime: TimeInterval = 30
     var body: some View {
         VStack {
             Button {
@@ -48,10 +48,8 @@ struct ExerciseMenu: View {
                 }
             }
             .padding(.vertical, 5)
-            Button {
-                withAnimation(.easeInOut(duration: 0.3)) {  // Added specific duration
-                    showRestTimer = true
-                }
+            NavigationLink {
+                RestTimerView(selectedTime: $restTimerTime)
             } label: {
                 HStack{
                     Image(systemName: "timer")
@@ -59,21 +57,19 @@ struct ExerciseMenu: View {
                         .bold()
                     Spacer()
                     Image(systemName: "chevron.right")
-                        .foregroundStyle(Color.theme.accent)
+                        .foregroundColor(.theme.accent)
                 }
             }
             .padding(.vertical, 5)
             Spacer()
         }
-        .background(Color.theme.primary)
-        .frame(maxWidth: .infinity)
         .padding()
-        .padding(.top)
-        .frame(width: 320, height: 400)
     }
 }
 #Preview {
     let preview = PreviewContainer.preview
-    ExerciseMenu(workoutExercise: preview.workout.sortedExercises[0], showRestTimer: .constant(false))
-        .modelContainer(preview.container)
+    NavigationView {
+        ExerciseMenu(workoutExercise: preview.workout.sortedExercises[0], showRestTimer: .constant(false))
+            .modelContainer(preview.container)
+    }
 }
