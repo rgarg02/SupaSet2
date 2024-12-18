@@ -12,6 +12,12 @@ import Foundation
 class WorkoutActivityManager {
     static let shared = WorkoutActivityManager()
     private var currentActivity: Activity<WorkoutAttributes>?
+    private let exerciseViewModel: ExerciseViewModel
+    
+    init(exerciseViewModel: ExerciseViewModel = ExerciseViewModel()) {
+        self.exerciseViewModel = exerciseViewModel
+    }
+    
     
     func startWorkoutActivity(workout: Workout) {
         guard ActivityAuthorizationInfo().areActivitiesEnabled else { return }
@@ -29,7 +35,7 @@ class WorkoutActivityManager {
         
         let contentState = WorkoutAttributes.ContentState(
             workoutName: workout.name,
-            currentExerciseName: currentExercise?.exercise.name ?? "",
+            currentExerciseName: currentExercise.map { exerciseViewModel.getExerciseName(for: $0.exerciseID) } ?? "",
             currentSetNumber: workout.currentSetOrder + 1,
             totalSets: currentExercise?.sets.count ?? 0,
             weight: currentSet?.weight ?? 0,
@@ -80,7 +86,7 @@ class WorkoutActivityManager {
         
         let contentState = WorkoutAttributes.ContentState(
             workoutName: workout.name,
-            currentExerciseName: currentExercise.exercise.name,
+            currentExerciseName: exerciseViewModel.getExerciseName(for: currentExercise.exerciseID),
             currentSetNumber: workout.currentSetOrder + 1,
             totalSets: currentExercise.sets.count,
             weight: currentSet.weight,

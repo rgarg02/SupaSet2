@@ -40,18 +40,14 @@ struct PreviewContainer {
         // Create sample active workout
         workout = Workout(name: "Preview Workout", isFinished: false)
         container.mainContext.insert(workout)
-        workout.insertExercise(viewModel.exercises.randomElement()!)
-        workout.insertExercise(viewModel.exercises.randomElement()!)
-        workout.insertExercise(viewModel.exercises.randomElement()!)
-        workout.insertExercise(viewModel.exercises.randomElement()!)
-        workout.insertExercise(viewModel.exercises.randomElement()!)
-        workout.insertExercise(viewModel.exercises.randomElement()!)
-        workout.insertExercise(viewModel.exercises.randomElement()!)
-        workout.insertExercise(viewModel.exercises.randomElement()!)
-        workout.insertExercise(viewModel.exercises.randomElement()!)
-        workout.insertExercise(viewModel.exercises.randomElement()!)
-        workout.insertExercise(viewModel.exercises.randomElement()!)
-        workout.insertExercise(viewModel.exercises.randomElement()!)
+        workout.insertExercise(viewModel.exercises.randomElement()!.id)
+        workout.insertExercise(viewModel.exercises.randomElement()!.id)
+        workout.insertExercise(viewModel.exercises.randomElement()!.id)
+        workout.insertExercise(viewModel.exercises.randomElement()!.id)
+        workout.insertExercise(viewModel.exercises.randomElement()!.id)
+        workout.insertExercise(viewModel.exercises.randomElement()!.id)
+        workout.insertExercise(viewModel.exercises.randomElement()!.id)
+        workout.insertExercise(viewModel.exercises.randomElement()!.id)
         // Create completed workouts
         completedWorkouts = PreviewContainer.createCompletedWorkouts(
             using: container.mainContext,
@@ -145,7 +141,7 @@ struct PreviewContainer {
         // Add exercises with realistic sets
         exercises.enumerated().forEach { index, exercise in
             let workoutExercise = WorkoutExercise(
-                exercise: exercise,
+                exerciseID: exercise.id,
                 order: index,
                 notes: exercise.category == .cardio ? "Keeping heart rate steady" : nil
             )

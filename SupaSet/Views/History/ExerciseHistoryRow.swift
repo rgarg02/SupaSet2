@@ -7,10 +7,10 @@
 import SwiftUI
 struct ExerciseHistoryRow: View {
     let exercise: WorkoutExercise
-    
+    @Environment(ExerciseViewModel.self) var viewModel
     var body: some View {
         VStack(alignment: .leading, spacing: 8) {
-            Text(exercise.exercise.name)
+            Text(viewModel.getExerciseName(for: exercise.exerciseID))
                 .font(.headline)
             
             VStack(alignment: .leading, spacing: 4) {

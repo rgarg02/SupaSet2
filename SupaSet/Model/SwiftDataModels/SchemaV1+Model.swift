@@ -132,15 +132,15 @@ extension SupaSetSchemaV1{
     @Model
     final class WorkoutExercise: Hashable {
         var id: UUID
-        var exercise: Exercise  // Reference to the exercise from your existing model
+        var exerciseID: String  // Reference to the exercise from your existing model
         var order: Int  // To maintain exercise order in workout
         var notes: String?
         @Relationship(deleteRule: .cascade) var sets: [ExerciseSet] = []
         @Relationship(inverse: \Workout.exercises) var workout: Workout?
         
-        init(exercise: Exercise, order: Int = 0, notes: String? = nil) {
+        init(exerciseID: String, order: Int = 0, notes: String? = nil) {
             self.id = UUID()
-            self.exercise = exercise
+            self.exerciseID = exerciseID
             self.order = order
             self.notes = notes
             self.sets = [ExerciseSet(reps: 0, weight: 0)]

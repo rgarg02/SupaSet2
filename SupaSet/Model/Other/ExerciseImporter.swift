@@ -23,7 +23,10 @@ class ExerciseViewModel {
     var cardioExercises: [Exercise] {
         exercises.filter { $0.category == .cardio }
     }
-    
+    func getExerciseName(for exerciseId: String) -> String {
+        // Find the exercise in the view model by ID and return its name
+        exercises.first(where: { $0.id == exerciseId })?.name ?? ""
+    }
     // Search and filter
     func exercises(matching query: String) -> [Exercise] {
         guard !query.isEmpty else { return exercises }
