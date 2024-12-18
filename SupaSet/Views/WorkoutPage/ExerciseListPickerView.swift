@@ -123,7 +123,7 @@ struct ExerciseListPickerView: View {
                     ToolbarItem(placement: .topBarTrailing) {
                         Button("Add") {
                             for exercise in selectedExercises {
-                                workout.insertExercise(exercise)
+                                workout.insertExercise(exercise.id)
                             }
                             selectedExercises = []
                             withAnimation{

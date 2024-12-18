@@ -8,7 +8,7 @@ import SwiftUI
 
 struct ExerciseListRow: View {
     let exercise: WorkoutExercise
-    
+    @Environment(ExerciseViewModel.self) var viewModel
     var body: some View {
         HStack(spacing: 12) {
             VStack(alignment: .leading, spacing: 6) {
@@ -17,7 +17,7 @@ struct ExerciseListRow: View {
                     Text("\(exercise.order + 1). ")
                         .font(.title3)
                         .foregroundColor(.theme.accent)
-                    Text(exercise.exercise.name)
+                    Text(viewModel.getExerciseName(for: exercise.exerciseID))
                         .font(.title3.bold())
                         .foregroundColor(.theme.primary)
                     

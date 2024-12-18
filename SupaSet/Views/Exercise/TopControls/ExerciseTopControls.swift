@@ -2,6 +2,7 @@ import SwiftUI
 
 struct ExerciseTopControls: View {
     let workoutExercise: WorkoutExercise
+    @Environment(ExerciseViewModel.self) var viewModel
     @State private var showMenuOptions = false
     @State private var showRestTimer = false
     @State private var restTimerTime: TimeInterval = .zero
@@ -9,7 +10,7 @@ struct ExerciseTopControls: View {
     var body: some View {
         VStack {
             HStack {
-                Text(workoutExercise.exercise.name)
+                Text(viewModel.getExerciseName(for: workoutExercise.exerciseID))
                     .font(.title3)
                     .fontWeight(.semibold)
                     .foregroundColor(.theme.text)

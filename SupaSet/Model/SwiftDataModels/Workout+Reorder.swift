@@ -62,8 +62,8 @@ extension Workout {
     /// - Parameters:
     ///   - exercise: The Exercise to add to the workout
     ///   - position: The desired position for the new exercise
-    func insertExercise(_ exercise: Exercise) {
-        let workoutExercise = WorkoutExercise(exercise: exercise, order: exercises.count)
+    func insertExercise(_ exerciseID: String) {
+        let workoutExercise = WorkoutExercise(exerciseID: exerciseID, order: exercises.count)
         exercises.append(workoutExercise)
         reorderExercises()
         updateCurrentOrder()
@@ -75,15 +75,15 @@ extension Workout {
     /// to maintain sequential ordering without gaps.
     ///
     /// - Parameter exercise: The Exercise to remove from the workout
-    func deleteExercise(exercise: Exercise) {
-        exercises.removeAll(where: { $0.exercise.id == exercise.id })
+    func deleteExercise(exerciseID: String) {
+        exercises.removeAll(where: { $0.exerciseID == exerciseID })
         reorderExercises()
         updateCurrentOrder()
     }
     func deleteExercise(at indexSet: IndexSet){
         let exerciseArray = sortedExercises
         if let exercise = exerciseArray.first(where: { $0.order == indexSet.first! }) {
-            deleteExercise(exercise: exercise.exercise)
+            deleteExercise(exerciseID: exercise.exerciseID)
             reorderExercises()
             updateCurrentOrder()
         }
@@ -108,14 +108,14 @@ extension Workout {
     /// Returns the WorkoutExercise instance for a given Exercise if it exists in the workout.
     /// - Parameter exercise: The Exercise to look for
     /// - Returns: The corresponding WorkoutExercise if found, nil otherwise
-    func getWorkoutExercise(for exercise: Exercise) -> WorkoutExercise? {
-        exercises.first { $0.exercise.id == exercise.id }
+    func getWorkoutExercise(for exerciseID: String) -> WorkoutExercise? {
+        exercises.first { $0.exerciseID == exerciseID }
     }
     
     /// Checks if a given exercise is already in the workout
     /// - Parameter exercise: The Exercise to check
     /// - Returns: True if the exercise is in the workout, false otherwise
-    func containsExercise(_ exercise: Exercise) -> Bool {
-        exercises.contains { $0.exercise.id == exercise.id }
+    func containsExercise(_ exerciseID: String) -> Bool {
+        exercises.contains { $0.exerciseID == exerciseID }
     }
 }
