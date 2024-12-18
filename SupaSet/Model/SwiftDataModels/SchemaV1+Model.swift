@@ -9,6 +9,30 @@ import Foundation
 import SwiftData
 
 extension SupaSetSchemaV1{
+    // MARK: - ExerciseDetail Model
+    @Model
+    final class ExerciseDetail: Hashable {
+        var id: UUID
+        var exerciseID: String
+        var autoRestTimer: TimeInterval
+        var notes: String?
+
+        init(exerciseID: String, autoRestTimer: TimeInterval = 0, notes: String? = nil) {
+            self.id = UUID()
+            self.exerciseID = exerciseID
+            self.autoRestTimer = autoRestTimer
+            self.notes = notes
+        }
+
+        static func == (lhs: ExerciseDetail, rhs: ExerciseDetail) -> Bool {
+            lhs.id == rhs.id
+        }
+
+        func hash(into hasher: inout Hasher) {
+            hasher.combine(id)
+        }
+    }
+    
     @Model
     final class Workout: Hashable {
         var id: UUID
