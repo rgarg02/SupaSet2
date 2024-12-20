@@ -15,7 +15,8 @@ struct SupaSetApp: App {
         let schema = Schema([
             Workout.self,
             WorkoutExercise.self,
-            ExerciseSet.self
+            ExerciseSet.self,
+            ExerciseDetail.self
         ])
            do {
                let storeURL = URL.documentsDirectory.appending(path: "SupaSet.sqlite")

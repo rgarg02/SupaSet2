@@ -10,7 +10,7 @@ import SwiftUI
 struct SetRowView: View {
     let setNumber: Int
     @Bindable var set: ExerciseSet
-    @FocusState.Binding var focused: Bool
+    @FocusState private var focused: Bool
     private let columns = [
             GridItem(.fixed(40)), // Smaller column for set number
             GridItem(.flexible()), // Flexible for weight
@@ -27,21 +27,14 @@ struct SetRowView: View {
             HStack(spacing: 4) {
                 TextField("0", value: $set.weight, format: .number)
                     .keyboardType(.decimalPad)
-                    .focused($focused)
                     .multilineTextAlignment(.trailing)
+                    .focused($focused)
                     .onReceive(NotificationCenter.default.publisher(for: UITextField.textDidBeginEditingNotification)) { obj in
                             // Click to select all the text.
                             if let textField = obj.object as? UITextField {
                                 textField.selectAll(nil)
                             }
                         }
-                    .onChange(of: focused, {
-                        if focused {
-                            DispatchQueue.main.async {
-                                UIApplication.shared.sendAction(#selector(UIResponder.selectAll(_:)), to: nil, from: nil, for: nil)
-                            }
-                        }
-                    })
                     .frame(maxWidth: .infinity)
                 
                 Text("lbs")
@@ -52,21 +45,14 @@ struct SetRowView: View {
             HStack(spacing: 4) {
                 TextField("0", value: $set.reps, format: .number)
                     .keyboardType(.numberPad)
-                    .focused($focused)
                     .multilineTextAlignment(.trailing)
+                    .focused($focused)
                     .onReceive(NotificationCenter.default.publisher(for: UITextField.textDidBeginEditingNotification)) { obj in
                             // Click to select all the text.
                             if let textField = obj.object as? UITextField {
                                 textField.selectAll(nil)
                             }
                         }
-                    .onChange(of: focused, {
-                        if focused {
-                            DispatchQueue.main.async {
-                                UIApplication.shared.sendAction(#selector(UIResponder.selectAll(_:)), to: nil, from: nil, for: nil)
-                            }
-                        }
-                    })
                     .frame(maxWidth: .infinity)
                 Text("reps")
                     .font(.caption)
@@ -86,6 +72,17 @@ struct SetRowView: View {
         .foregroundStyle(set.isDone ? Color.theme.textOpposite : Color.theme.text)
         .padding(.horizontal, 16)
         .padding(.vertical, 12)
+        .toolbar {
+            if focused{
+                ToolbarItemGroup(placement: .keyboard) {
+                    Spacer()
+                    Button("Done") {
+                        focused = false
+                    }
+                }
+            }
+        }
+        .sensoryFeedback(.success, trigger: set.isDone)
         .background(
             RoundedRectangle(cornerRadius: 8)
                 .fill(set.isDone ? Color.theme.primary : Color.theme.background)
@@ -106,15 +103,13 @@ struct SetRowView: View {
 
 // Preview Container to manage FocusState
 struct SetRowPreviewContainer: View {
-    @FocusState private var focused: Bool
     let set: ExerciseSet
     let setNumber: Int
     
     var body: some View {
         SetRowView(
             setNumber: setNumber,
-            set: set,
-            focused: $focused
+            set: set
         )
     }
 }

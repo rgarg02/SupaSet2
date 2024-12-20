@@ -10,15 +10,13 @@ import SwiftUI
 struct WorkoutNameSection: View {
     @Bindable var workout: Workout
     @State private var isEditingName: Bool = false
-    @FocusState private var isFocused: Bool
     
     var body: some View {
         HStack {
             if isEditingName {
                 WorkoutNameEditor(
                     workout: workout,
-                    isEditingName: $isEditingName,
-                    isFocused: _isFocused
+                    isEditingName: $isEditingName
                 )
             } else {
                 Text(workout.name)

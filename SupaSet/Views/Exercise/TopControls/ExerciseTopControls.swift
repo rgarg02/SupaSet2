@@ -6,37 +6,39 @@ struct ExerciseTopControls: View {
     @State private var showMenuOptions = false
     @State private var showRestTimer = false
     @State private var restTimerTime: TimeInterval = .zero
-    @Namespace private var animationNamespace
     
     var body: some View {
-        HStack {
-            Text(viewModel.getExerciseName(for: workoutExercise.exerciseID))
-                .font(.title3)
-                .fontWeight(.semibold)
-                .foregroundColor(.theme.text)
-            Spacer()
-            Button(action: {
-                withAnimation(.snappy) {
-                    showMenuOptions.toggle()
+        VStack{
+            HStack {
+                Text(viewModel.getExerciseName(for: workoutExercise.exerciseID))
+                    .font(.title3)
+                    .fontWeight(.semibold)
+                    .foregroundColor(.theme.text)
+                Spacer()
+                Button(action: {
+                    withAnimation(.snappy) {
+                        showMenuOptions.toggle()
+                    }
+                }) {
+                    Image(systemName: "ellipsis")
+                        .foregroundColor(.theme.accent)
                 }
-            }) {
-                Image(systemName: "ellipsis")
-                    .foregroundColor(.theme.accent)
-                    .matchedGeometryEffect(id: "menuIcon", in: animationNamespace)
+                .sheet(isPresented: $showMenuOptions) {
+                    MenuSheetView(
+                        workoutExercise: workoutExercise,
+                        showRestTimer: $showRestTimer,
+                        restTimerTime: $restTimerTime,
+                        showMenuOptions: $showMenuOptions
+                    )
+                    .ignoresSafeArea()
+                    .presentationDetents(
+                        [.fraction(0.5)]
+                    )
+                    .presentationDragIndicator(.visible)
+                }
             }
-            .sheet(isPresented: $showMenuOptions) {
-                MenuSheetView(
-                    workoutExercise: workoutExercise,
-                    showRestTimer: $showRestTimer,
-                    restTimerTime: $restTimerTime,
-                    showMenuOptions: $showMenuOptions
-                )
-                .ignoresSafeArea()
-                .presentationDetents(
-                    [.fraction(0.5)]
-                )
-                .presentationDragIndicator(.visible)
-            }
+            ExerciseNotesView(exerciseID: workoutExercise.exerciseID)
+                
         }
     }
 }

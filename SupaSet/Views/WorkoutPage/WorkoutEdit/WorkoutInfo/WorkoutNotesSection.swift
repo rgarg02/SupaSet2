@@ -12,8 +12,7 @@ import UniformTypeIdentifiers
 struct WorkoutNotesSection: View {
     @Bindable var workout: Workout
     @State private var isEditingNotes: Bool = false
-    var focused: FocusState<Bool>.Binding
-    
+    @FocusState var focused: Bool
     var body: some View {
         VStack(alignment: .leading, spacing: 8) {
             HStack {
@@ -24,10 +23,9 @@ struct WorkoutNotesSection: View {
             }
             ZStack(alignment: .topLeading) {
                 TextEditor(text: $workout.notes)
-                    .focused(focused)
                     .frame(minHeight: 50, maxHeight: 150)
-                    
-                if !focused.wrappedValue && workout.notes.isEmpty {
+                    .focused($focused)
+                if workout.notes.isEmpty {
                     Text("Add a note")
                         .foregroundColor(Color(uiColor: .placeholderText))
                         .padding(.top, 10)
@@ -37,12 +35,22 @@ struct WorkoutNotesSection: View {
             }
             .cornerRadius(20)
         }
+        .toolbar {
+            if focused{
+                ToolbarItemGroup(placement: .keyboard) {
+                    Spacer()
+                    Button("Done") {
+                        focused = false
+                    }
+                }
+            }
+        }
         .foregroundColor(.theme.text)
     }
 }
 
 #Preview {
     let preview = PreviewContainer.preview
-    WorkoutNotesSection(workout: preview.workout, focused: FocusState<Bool>().projectedValue)
+    WorkoutNotesSection(workout: preview.workout)
         .modelContainer(preview.container)
 }

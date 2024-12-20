@@ -10,15 +10,12 @@ import SwiftUI
 struct WorkoutNameEditor: View {
     @Bindable var workout: Workout
     @Binding var isEditingName: Bool
-    @FocusState var isFocused: Bool
     
     var body: some View {
         TextField("Workout Name", text: $workout.name)
             .font(.title2.bold())
             .multilineTextAlignment(.center)
-            .focused($isFocused)
             .onAppear {
-                isFocused = true
                 selectAllTextOnAppear()
             }
             .onSubmit {

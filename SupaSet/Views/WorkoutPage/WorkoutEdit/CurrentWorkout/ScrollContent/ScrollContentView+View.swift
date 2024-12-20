@@ -11,13 +11,12 @@ extension ScrollContentView {
         ZStack {
             ScrollView {
                 LazyVStack {
-                    WorkoutInfoView(workout: workout, focused: focused)
+                    WorkoutInfoView(workout: workout)
                         .padding(.top, -20)
                     ForEach(sortedExercises) { exercise in
                         ExerciseCardView(
                             workout: workout,
                             workoutExercise: exercise,
-                            focused: focused,
                             selectedExercise: $selectedExercise,
                             selectedExerciseScale: $selectedExerciseScale,
                             selectedExerciseFrame: $selectedExerciseFrame,
@@ -104,7 +103,6 @@ extension ScrollContentView {
                     ExerciseCardView(
                         workout: workout,
                         workoutExercise: selectedExercise,
-                        focused: focused,
                         selectedExercise: $selectedExercise,
                         selectedExerciseScale: $selectedExerciseScale,
                         selectedExerciseFrame: $selectedExerciseFrame,

@@ -29,18 +29,6 @@ struct ExerciseMenu: View {
                 }
             } label: {
                 HStack{
-                    Image(systemName: "note")
-                    Text("Add a Note")
-                        .bold()
-                    Spacer()
-                }
-            }
-            .padding(.vertical, 5)
-            Button {
-                withAnimation(.easeInOut(duration: 0.3)) {  // Added specific duration
-                }
-            } label: {
-                HStack{
                     Image(systemName: "scalemass")
                     Text("Change Units")
                         .bold()

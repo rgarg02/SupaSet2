@@ -15,9 +15,9 @@ extension SupaSetSchemaV1{
         var id: UUID
         var exerciseID: String
         var autoRestTimer: TimeInterval
-        var notes: String?
+        var notes: String
 
-        init(exerciseID: String, autoRestTimer: TimeInterval = 0, notes: String? = nil) {
+        init(exerciseID: String, autoRestTimer: TimeInterval = 0, notes: String = "Add a new note") {
             self.id = UUID()
             self.exerciseID = exerciseID
             self.autoRestTimer = autoRestTimer
