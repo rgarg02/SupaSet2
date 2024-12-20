@@ -27,3 +27,26 @@ extension View {
         }
     }
 }
+struct KeyboardDismissModifier: ViewModifier {
+    @FocusState private var focusedField: Bool
+    
+    func body(content: Content) -> some View {
+        content
+            .focused($focusedField)
+            .toolbar {
+                ToolbarItemGroup(placement: .keyboard) {
+                    Spacer()
+                    Button("Done") {
+                        focusedField = false
+                    }
+                }
+            }
+    }
+}
+
+// Extension to make it easier to use
+extension View {
+    func dismissibleKeyboard() -> some View {
+        modifier(KeyboardDismissModifier())
+    }
+}

@@ -12,7 +12,6 @@ struct ExerciseCardView: View {
     let workout: Workout
     let workoutExercise: WorkoutExercise
     @Environment(\.modelContext) private var modelContext
-    @FocusState.Binding var focused : Bool
     @State private var offsets = [CGSize](repeating: CGSize.zero, count: 6)
     // New bindings for gesture handling
     @Binding var selectedExercise: WorkoutExercise?
@@ -71,8 +70,8 @@ struct ExerciseCardView: View {
                                 SwipeAction(cornerRadius: 8, direction: .trailing){
                                     SetRowView(
                                         setNumber: set.order + 1,
-                                        set: set,
-                                        focused: $focused
+                                        set: set
+                                        
                                     )
                                 } actions:{
                                     Action(tint: .red, icon: "trash.fill") {
@@ -192,7 +191,6 @@ struct ExerciseCardView: View {
     ExerciseCardView(
         workout: workout,
         workoutExercise: exercise,
-        focused: FocusState<Bool>().projectedValue,
         selectedExercise: .constant(nil),
         selectedExerciseScale: .constant(1.0),
         selectedExerciseFrame: .constant(.zero),

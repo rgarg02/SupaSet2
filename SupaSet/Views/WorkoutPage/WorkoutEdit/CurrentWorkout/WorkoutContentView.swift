@@ -12,7 +12,6 @@ struct WorkoutContentView: View {
     @Bindable var workout: Workout
     @Binding var isExpanded: Bool
     @Binding var scrolledExercise: Int?
-    var focused: FocusState<Bool>.Binding
     var progress: CGFloat
     @State private var dragging: Bool = false
     let minimizing: Bool
@@ -28,7 +27,6 @@ struct WorkoutContentView: View {
             WorkoutScrollContent(
                 workout: workout,
                 scrolledExercise: $scrolledExercise,
-                focused: focused,
                 dragging: $dragging,
                 minimizing: minimizing
             )
@@ -71,7 +69,6 @@ struct WorkoutContentView: View {
                 workout: preview.workout,
                 isExpanded: .constant(false),
                 scrolledExercise: .constant(nil),
-                focused: FocusState<Bool>().projectedValue,
                 progress: 0.0,
                 minimizing: false
             )

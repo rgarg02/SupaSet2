@@ -16,7 +16,6 @@ struct WorkoutStartView: View {
     @Bindable var workout: Workout
     @Environment(ExerciseViewModel.self) var exerciseViewModel
     @Environment(\.modelContext) var modelContext
-    @FocusState var focused: Bool
     @State private var scrolledExercise: Int?
     @State private var minimizing : Bool = false
     // Constants
@@ -36,23 +35,12 @@ struct WorkoutStartView: View {
                         workout: workout,
                         isExpanded: $isExpanded,
                         scrolledExercise: $scrolledExercise,
-                        focused: $focused,
                         progress: progress,
                         minimizing: minimizing
                     )
                 }
                 .matchedGeometryEffect(id: "icon", in: namespace)
                 .ignoresSafeArea(.keyboard)
-                .toolbar {
-                    if focused {
-                        ToolbarItemGroup(placement: .keyboard) {
-                            Spacer()
-                            Button("Done") {
-                                focused = false
-                            }
-                        }
-                    }
-                }
             }
             .workoutActivityHandling(workout: workout)
             .frame(width: metrics.width, height: metrics.height)

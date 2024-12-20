@@ -5,7 +5,7 @@ struct ExerciseNotesView: View {
     let exerciseID: String
     @Environment(\.modelContext) private var modelContext
     @Query private var exerciseDetails: [ExerciseDetail]
-
+    @FocusState private var focused: Bool
     init(exerciseID: String) {
         self.exerciseID = exerciseID
         _exerciseDetails = Query(filter: #Predicate { $0.exerciseID == exerciseID })
@@ -17,6 +17,7 @@ struct ExerciseNotesView: View {
                 @Bindable var exerciseDetail = exerciseDetail
                 TextEditor(text: $exerciseDetail.notes)
                     .frame(minHeight: 50)
+                    .focused($focused)
                 if exerciseDetail.notes.isEmpty {
                     Text("Add a note")
                         .foregroundColor(Color(uiColor: .placeholderText))
@@ -29,6 +30,16 @@ struct ExerciseNotesView: View {
                     .onAppear {
                         loadExerciseDetail()
                     }
+            }
+        }
+        .toolbar {
+            if focused{
+                ToolbarItemGroup(placement: .keyboard) {
+                    Spacer()
+                    Button("Done") {
+                        focused = false
+                    }
+                }
             }
         }
     }

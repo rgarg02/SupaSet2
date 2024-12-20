@@ -9,7 +9,6 @@ import SwiftUI
 struct ScrollContentView: View {
     @Bindable var workout: Workout
     @Binding var exercises: [WorkoutExercise]
-    var focused: FocusState<Bool>.Binding
     @Binding var dragging: Bool
     
     // State properties
@@ -36,6 +35,6 @@ struct ScrollContentView: View {
 #Preview {
     let preview = PreviewContainer.preview
     let workout = preview.workout
-    ScrollContentView(workout: workout, exercises: .constant(workout.exercises), focused: FocusState<Bool>().projectedValue, dragging: .constant(false), minimizing: true)
+    ScrollContentView(workout: workout, exercises: .constant(workout.exercises), dragging: .constant(false), minimizing: true)
         .modelContainer(preview.container)
 }
