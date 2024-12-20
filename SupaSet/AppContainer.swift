@@ -17,7 +17,8 @@ class AppContainer {
             let schema = Schema([
                 Workout.self,
                 WorkoutExercise.self,
-                ExerciseSet.self
+                ExerciseSet.self,
+                ExerciseDetail.self
             ])
             let storeURL = URL.documentsDirectory.appending(path: "SupaSet.sqlite")
             let config = ModelConfiguration(url: storeURL)

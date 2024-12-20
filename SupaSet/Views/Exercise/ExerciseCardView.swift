@@ -36,9 +36,7 @@ struct ExerciseCardView: View {
     ]
     var body: some View {
             VStack(alignment: .leading, spacing: 8) {
-                HStack{
-                    ExerciseTopControls(workoutExercise: workoutExercise)
-                }
+                ExerciseTopControls(workoutExercise: workoutExercise)
                 .frame(maxWidth: .infinity)
                 .gesture(customCombinedGesture)
                 if !dragging{

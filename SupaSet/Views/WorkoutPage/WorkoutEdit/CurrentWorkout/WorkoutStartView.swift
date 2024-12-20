@@ -16,7 +16,6 @@ struct WorkoutStartView: View {
     @Bindable var workout: Workout
     @Environment(ExerciseViewModel.self) var exerciseViewModel
     @Environment(\.modelContext) var modelContext
-    @State private var showExercisePicker = false
     @FocusState var focused: Bool
     @State private var scrolledExercise: Int?
     @State private var minimizing : Bool = false
@@ -30,7 +29,7 @@ struct WorkoutStartView: View {
             let progress = min(max(offsetY / maxDragDistance, 0), 1)
             let metrics = calculateViewMetrics(geometry: geometry, progress: progress)
             
-            NavigationView {
+            NavigationStack {
                 ZStack(alignment: .bottom) {
                     backgroundLayer(progress: progress)
                     WorkoutContentView(
@@ -39,7 +38,6 @@ struct WorkoutStartView: View {
                         scrolledExercise: $scrolledExercise,
                         focused: $focused,
                         progress: progress,
-                        showExercisePicker: $showExercisePicker,
                         minimizing: minimizing
                     )
                 }
@@ -54,17 +52,6 @@ struct WorkoutStartView: View {
                             }
                         }
                     }
-                }
-            }
-            .overlay {
-                if showExercisePicker {
-                    ExercisePickerOverlay(
-                        isPresented: $showExercisePicker,
-                        workout: workout,
-                        width: metrics.width,
-                        height: metrics.height
-                    )
-                    .transition(.move(edge: .trailing))
                 }
             }
             .workoutActivityHandling(workout: workout)

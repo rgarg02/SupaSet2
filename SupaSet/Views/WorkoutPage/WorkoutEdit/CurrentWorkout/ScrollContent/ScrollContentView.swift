@@ -27,7 +27,6 @@ struct ScrollContentView: View {
     @State internal var lastActiveScrollId: UUID?
     @State internal var parentFrame: CGRect = .zero
     @State internal var exerciseFrames: [UUID: CGRect] = [:]
-    
     let minimizing: Bool
     
     var sortedExercises: [WorkoutExercise] {

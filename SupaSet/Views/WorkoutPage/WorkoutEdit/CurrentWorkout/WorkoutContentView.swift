@@ -14,7 +14,6 @@ struct WorkoutContentView: View {
     @Binding var scrolledExercise: Int?
     var focused: FocusState<Bool>.Binding
     var progress: CGFloat
-    @Binding var showExercisePicker: Bool
     @State private var dragging: Bool = false
     let minimizing: Bool
     var body: some View {
@@ -36,28 +35,31 @@ struct WorkoutContentView: View {
             .opacity(minimizing ? CGFloat(1 - (progress * 10)) : 1)
         }
         if !dragging {
-            AddExerciseButton(showExercisePicker: $showExercisePicker)
-                .opacity(1 - progress)
-                .padding(.horizontal, 50.0)
-                .padding(.vertical)
-                .opacity(minimizing ? CGFloat(1 - (progress * 10)) : 1)
-        }
-    }
-}
-struct AddExerciseButton: View {
-    @Binding var showExercisePicker: Bool
+            NavigationLink{
+                ExerciseListPickerView(
+                    workout: workout
+                )
+            } label:{
+                HStack(spacing: 8) {
+                    Image(systemName: "plus")
+                        .foregroundColor(.theme.text)
+                        .font(.title3)
 
-    var body: some View {
-        CustomButton(
-            icon: "plus.circle",
-            title: "Add Exercises",
-            style: .filled(),
-            action: {
-                withAnimation {
-                    showExercisePicker = true
+                    Text("Add Exercises")
+                        .foregroundColor(.theme.text)
+                        .font(.title3)
                 }
+                .padding()
+                .background(
+                    RoundedRectangle(cornerRadius: 30)
+                        .fill(Color.theme.accent)
+                )
             }
-        )
+            .opacity(1 - progress)
+            .padding(.horizontal, 50.0)
+            .padding(.vertical)
+            .opacity(minimizing ? CGFloat(1 - (progress * 10)) : 1)
+        }
     }
 }
 
@@ -71,9 +73,10 @@ struct AddExerciseButton: View {
                 scrolledExercise: .constant(nil),
                 focused: FocusState<Bool>().projectedValue,
                 progress: 0.0,
-                showExercisePicker: .constant(false), minimizing: false
+                minimizing: false
             )
         }
     }
     .modelContainer(preview.container)
+    .environment(preview.viewModel)
 }
