@@ -11,7 +11,6 @@ import SwiftUI
 struct WorkoutContentView: View {
     @Bindable var workout: Workout
     @Binding var isExpanded: Bool
-    @Binding var scrolledExercise: Int?
     var progress: CGFloat
     @State private var dragging: Bool = false
     let minimizing: Bool
@@ -26,7 +25,6 @@ struct WorkoutContentView: View {
             .opacity(minimizing ? CGFloat(1 - (progress * 10)) : 1)
             WorkoutScrollContent(
                 workout: workout,
-                scrolledExercise: $scrolledExercise,
                 dragging: $dragging,
                 minimizing: minimizing
             )
@@ -68,7 +66,6 @@ struct WorkoutContentView: View {
             WorkoutContentView(
                 workout: preview.workout,
                 isExpanded: .constant(false),
-                scrolledExercise: .constant(nil),
                 progress: 0.0,
                 minimizing: false
             )
