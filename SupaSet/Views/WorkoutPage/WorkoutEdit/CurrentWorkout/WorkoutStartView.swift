@@ -16,7 +16,6 @@ struct WorkoutStartView: View {
     @Bindable var workout: Workout
     @Environment(ExerciseViewModel.self) var exerciseViewModel
     @Environment(\.modelContext) var modelContext
-    @State private var scrolledExercise: Int?
     @State private var minimizing : Bool = false
     // Constants
     private let dismissThreshold: CGFloat = 100
@@ -34,8 +33,7 @@ struct WorkoutStartView: View {
                     WorkoutContentView(
                         workout: workout,
                         isExpanded: $isExpanded,
-                        scrolledExercise: $scrolledExercise,
-                        progress: progress,
+                            progress: progress,
                         minimizing: minimizing
                     )
                 }
