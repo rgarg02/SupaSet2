@@ -6,58 +6,34 @@
 //
 
 import SwiftUI
+import SwiftData
 struct ExerciseMenu: View {
     let workoutExercise: WorkoutExercise
-    @Binding var showRestTimer: Bool
-    @State var restTimerTime: TimeInterval = 30
+    @State private var changeExercise: Bool = false
+    @Environment(\.dismiss) private var dismiss
     var body: some View {
-        VStack {
-            Button {
-                withAnimation(.easeInOut(duration: 0.3)) {  // Added specific duration
-                }
-            } label: {
-                HStack{
-                    Image(systemName: "arrow.2.squarepath")
-                    Text("Replace Exercise")
-                        .bold()
-                    Spacer()
-                }
-            }
-            .padding(.vertical, 5)
-            Button {
-                withAnimation(.easeInOut(duration: 0.3)) {  // Added specific duration
-                }
-            } label: {
-                HStack{
-                    Image(systemName: "scalemass")
-                    Text("Change Units")
-                        .bold()
-                    Spacer()
-                }
-            }
-            .padding(.vertical, 5)
-            NavigationLink {
-                RestTimerView(selectedTime: $restTimerTime)
-            } label: {
-                HStack{
-                    Image(systemName: "timer")
-                    Text("Auto Rest Timer")
-                        .bold()
-                    Spacer()
-                    Image(systemName: "chevron.right")
-                        .foregroundColor(.theme.accent)
-                }
-            }
-            .padding(.vertical, 5)
-            Spacer()
-        }
+        MenuButtons(exerciseID: workoutExercise.exerciseID, changeExercise: $changeExercise)
         .padding()
+        .fullScreenCover(isPresented: $changeExercise) {
+            NavigationView{
+                ExerciseListPickerView(workoutExercise: workoutExercise)
+                    .toolbar{
+                        ToolbarItem(placement: .cancellationAction) {
+                            Button("Cancel") {
+                                changeExercise = false
+                            }
+                            .foregroundColor(.theme.accent)
+                        }
+                    }
+            }
+        }
     }
 }
 #Preview {
     let preview = PreviewContainer.preview
     NavigationView {
-        ExerciseMenu(workoutExercise: preview.workout.sortedExercises[0], showRestTimer: .constant(false))
+        ExerciseMenu(workoutExercise: preview.workout.sortedExercises[0])
             .modelContainer(preview.container)
+            .environment(preview.viewModel)
     }
 }

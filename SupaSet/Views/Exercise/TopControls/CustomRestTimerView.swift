@@ -6,9 +6,12 @@
 //
 
 import SwiftUI
+import SwiftData
 struct RestTimerView: View {
-    @Binding var selectedTime: TimeInterval
-    @State private var isAutoRestEnabled = false
+    @Bindable var exerciseDetail: ExerciseDetail
+    @State private var isAutoRestEnabled: Bool = false
+    @State private var minutes: Int = 0
+    @State private var seconds: Int = 0
     
     var body: some View {
         VStack {
@@ -16,13 +19,10 @@ struct RestTimerView: View {
                 Section {
                     Toggle("Auto Rest Timer", isOn: $isAutoRestEnabled)
                 }
-                if isAutoRestEnabled{
+                if isAutoRestEnabled {
                     Section("Rest Duration") {
                         HStack(spacing: 0) {
-                            Picker("Minutes", selection: .init(
-                                get: { Int(selectedTime) / 60 },
-                                set: { selectedTime = TimeInterval($0 * 60 + Int(selectedTime.truncatingRemainder(dividingBy: 60))) }
-                            )) {
+                            Picker("Minutes", selection: $minutes) {
                                 ForEach(0..<11) { minute in
                                     Text("\(minute)")
                                         .tag(minute)
@@ -34,10 +34,7 @@ struct RestTimerView: View {
                             Text("min")
                                 .font(.body)
                             
-                            Picker("Seconds", selection: .init(
-                                get: { Int(selectedTime.truncatingRemainder(dividingBy: 60)) },
-                                set: { selectedTime = TimeInterval(Int(selectedTime / 60) * 60 + $0) }
-                            )) {
+                            Picker("Seconds", selection: $seconds) {
                                 ForEach(0..<60) { second in
                                     Text(String(format: "%02d", second))
                                         .tag(second)
@@ -49,15 +46,34 @@ struct RestTimerView: View {
                             Text("sec")
                                 .font(.body)
                         }
-                        .sensoryFeedback(.impact, trigger: selectedTime)
                     }
                 }
             }
             .foregroundColor(.theme.text)
         }
-        
+        .onChange(of: isAutoRestEnabled) { _, newValue in
+            updateExerciseDetail(enabled: newValue)
+        }
+        .onChange(of: minutes) { _, _ in
+            updateTimer()
+        }
+        .onChange(of: seconds) { _, _ in
+            updateTimer()
+        }
     }
-}
-#Preview("Custom Rest Timer") {
-    RestTimerView(selectedTime: .constant(60))
+    
+    
+    private func updateExerciseDetail(enabled: Bool) {
+        if enabled {
+            exerciseDetail.autoRestTimer = TimeInterval(minutes * 60 + seconds)
+        } else {
+            exerciseDetail.autoRestTimer = 0
+            minutes = 0
+            seconds = 0
+        }
+    }
+    
+    private func updateTimer() {
+        exerciseDetail.autoRestTimer = TimeInterval(minutes * 60 + seconds)
+    }
 }

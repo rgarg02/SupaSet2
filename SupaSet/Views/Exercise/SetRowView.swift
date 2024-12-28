@@ -6,11 +6,19 @@
 //
 
 import SwiftUI
-
+import SwiftData
 struct SetRowView: View {
     let setNumber: Int
     @Bindable var set: ExerciseSet
     @FocusState private var focused: Bool
+    let exerciseID: String
+    @Query var exerciseDetails: [ExerciseDetail]
+    init(setNumber: Int, set: ExerciseSet, exerciseID: String) {
+        self.setNumber = setNumber
+        self._set = Bindable(set)
+        self.exerciseID = exerciseID
+        _exerciseDetails = Query(filter: #Predicate { $0.exerciseID == exerciseID })
+    }
     private let columns = [
             GridItem(.fixed(40)), // Smaller column for set number
             GridItem(.flexible()), // Flexible for weight
@@ -37,7 +45,7 @@ struct SetRowView: View {
                         }
                     .frame(maxWidth: .infinity)
                 
-                Text("lbs")
+                Text(exerciseDetails.first?.unit.rawValue ?? "lbs")
                     .font(.caption)
             }
             
@@ -109,7 +117,7 @@ struct SetRowPreviewContainer: View {
     var body: some View {
         SetRowView(
             setNumber: setNumber,
-            set: set
+            set: set, exerciseID: ""
         )
     }
 }

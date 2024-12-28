@@ -9,14 +9,39 @@ import SwiftUI
 struct ExerciseListPickerView: View {
     @Environment(ExerciseViewModel.self) var viewModel
     @Environment(\.modelContext) var modelContext
-    @Bindable var workout : Workout
+    @Environment(\.dismiss) private var dismiss
+    
+    enum Mode {
+        case add(workout: Workout)
+        case replace(workoutExercise: WorkoutExercise)
+    }
+    
+    let mode: Mode
     @State private var searchText = ""
     @State private var selectedCategory: Category?
     @State private var selectedMuscleGroup: MuscleGroup?
     @State private var selectedEquipment: Equipment?
     @State private var selectedLevel: Level?
     @State private var selectedExercises: [Exercise] = []
-    @Environment(\.dismiss) private var dismiss
+    
+    // Initialize for adding exercises
+    init(workout: Workout) {
+        self.mode = .add(workout: workout)
+    }
+    
+    // Initialize for replacing an exercise
+    init(workoutExercise: WorkoutExercise) {
+        self.mode = .replace(workoutExercise: workoutExercise)
+    }
+    
+    private var isReplacing: Bool {
+        switch mode {
+        case .add:
+            return false
+        case .replace:
+            return true
+        }
+    }
     
     var filteredExercises: [Exercise] {
         var exercises = viewModel.exercises(matching: searchText)
@@ -41,10 +66,11 @@ struct ExerciseListPickerView: View {
         
         return exercises
     }
+    
     var body: some View {
         VStack(spacing: 0) {
-            NavigationView{
-                VStack{
+            NavigationView {
+                VStack {
                     ScrollView(.horizontal, showsIndicators: false) {
                         HStack(spacing: 8) {
                             CustomFilterPicker(
@@ -91,15 +117,7 @@ struct ExerciseListPickerView: View {
                                 .background(selectedExercises.contains(exercise) ? Color.theme.secondary : Color.theme.background)
                                 .contentShape(Rectangle())
                                 .onTapGesture {
-                                    withAnimation(.easeIn(duration: 0.2)) {
-                                        if let existingExerciseIndex = selectedExercises.firstIndex(where: { $0.id == exercise.id }) {
-                                            selectedExercises.remove(at: existingExerciseIndex)
-                                        }
-                                        else {
-                                            // Add new exercise at the end
-                                            selectedExercises.append(exercise)
-                                        }
-                                    }
+                                    handleExerciseSelection(exercise)
                                 }
                         }
                     }
@@ -108,18 +126,16 @@ struct ExerciseListPickerView: View {
                 .searchable(text: $searchText, prompt: "Search exercises")
             }
         }
-        .navigationTitle("Add Exercises")
+        .navigationTitle(isReplacing ? "Replace Exercise" : "Add Exercises")
         .navigationBarTitleDisplayMode(.inline)
         .toolbar {
             if !selectedExercises.isEmpty {
                 ToolbarItem(placement: .navigationBarTrailing) {
-                    Button("Add") {
-                        for exercise in selectedExercises {
-                            workout.insertExercise(exercise.id)
-                        }
-                        selectedExercises = []
+                    Button(isReplacing ? "Replace" : "Add (\(selectedExercises.count))") {
+                        handleAction()
                         dismiss()
                     }
+                    .foregroundColor(.theme.accent)
                 }
             }
         }
@@ -127,18 +143,49 @@ struct ExerciseListPickerView: View {
             viewModel.loadExercises()
         }
     }
+    
+    private func handleExerciseSelection(_ exercise: Exercise) {
+        withAnimation(.easeIn(duration: 0.2)) {
+            if isReplacing {
+                // In replace mode, only allow one selection
+                selectedExercises = [exercise]
+            } else {
+                // In add mode, allow multiple selections
+                if let existingExerciseIndex = selectedExercises.firstIndex(where: { $0.id == exercise.id }) {
+                    selectedExercises.remove(at: existingExerciseIndex)
+                } else {
+                    selectedExercises.append(exercise)
+                }
+            }
+        }
+    }
+    
+    private func handleAction() {
+        switch mode {
+        case .add(let workout):
+            for exercise in selectedExercises {
+                workout.insertExercise(exercise.id)
+            }
+        case .replace(let workoutExercise):
+            if let exercise = selectedExercises.first {
+                workoutExercise.exerciseID = exercise.id
+                workoutExercise.sets.removeAll()
+                workoutExercise.notes = ""
+            }
+        }
+        selectedExercises = []
+    }
 }
 
-// Preview
-struct ExerciseListPickerView_Preview: PreviewProvider {
-    static var previews: some View {
-        let workout = Workout(name: "New Workout", isFinished: false)
-        let container = PreviewContainer.preview
-        ExerciseListPickerView(workout: workout)
-            .modelContainer(container.container)
-            .environment(container.viewModel)
-            .onAppear {
-                container.container.mainContext.insert(workout)
-            }
-    }
+#Preview("Exercise List Picker") {
+    let preview = PreviewContainer.preview
+    ExerciseListPickerView(workout: preview.workout)
+        .environment(preview.viewModel)
+        .modelContainer(preview.container)
+}
+#Preview("Exercise List Picker - Replace Mode") {
+    let preview = PreviewContainer.preview
+    ExerciseListPickerView(workoutExercise: preview.workout.sortedExercises[0])
+        .environment(preview.viewModel)
+        .modelContainer(preview.container)
 }

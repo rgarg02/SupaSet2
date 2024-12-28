@@ -101,3 +101,9 @@ struct Exercise: Codable, Identifiable, Equatable, Hashable {
         return lhs.id == rhs.id
     }
 }
+
+enum Unit: String, Codable, CaseIterable {
+    case lbs
+    case kgs
+    // return string representation of the unit
+}

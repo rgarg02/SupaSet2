@@ -70,7 +70,8 @@ struct ExerciseCardView: View {
                                 SwipeAction(cornerRadius: 8, direction: .trailing){
                                     SetRowView(
                                         setNumber: set.order + 1,
-                                        set: set
+                                        set: set,
+                                        exerciseID: workoutExercise.exerciseID
                                         
                                     )
                                 } actions:{
