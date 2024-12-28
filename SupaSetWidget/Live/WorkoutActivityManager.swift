@@ -63,7 +63,6 @@ class WorkoutActivityManager {
             // Update the current activity reference
             currentActivity = activity
             
-            print("Started new workout activity: \(workout.name)")
         } catch {
             print("Error starting workout activity: \(error.localizedDescription)")
         }
@@ -73,14 +72,12 @@ class WorkoutActivityManager {
     func updateWorkoutActivity(workout: Workout) {
         // Only proceed if we have an active activity
         guard currentActivity != nil else {
-            print("No active workout activity to update")
             return
         }
         
         workout.updateCurrentOrder()
         guard let currentExercise = workout.currentExercise,
               let currentSet = workout.currentSet else {
-            print("No current exercise or set to update")
             return
         }
         
@@ -104,14 +101,12 @@ class WorkoutActivityManager {
     // End specific activity
     func endWorkoutActivity() {
         guard let activity = currentActivity else {
-            print("No active workout activity to end")
             return
         }
         
         Task {
             await activity.end(activity.content, dismissalPolicy: .immediate)
             currentActivity = nil
-            print("Ended workout activity")
         }
     }
     
@@ -129,7 +124,6 @@ class WorkoutActivityManager {
                 await activity.end(nil, dismissalPolicy: .immediate)
             }
             
-            print("Ended all workout activities")
         }
     }
     

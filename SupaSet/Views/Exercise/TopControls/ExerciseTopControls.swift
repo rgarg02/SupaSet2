@@ -4,9 +4,6 @@ struct ExerciseTopControls: View {
     let workoutExercise: WorkoutExercise
     @Environment(ExerciseViewModel.self) var viewModel
     @State private var showMenuOptions = false
-    @State private var showRestTimer = false
-    @State private var restTimerTime: TimeInterval = .zero
-    
     var body: some View {
         VStack{
             HStack {
@@ -24,35 +21,16 @@ struct ExerciseTopControls: View {
                         .foregroundColor(.theme.accent)
                 }
                 .sheet(isPresented: $showMenuOptions) {
-                    MenuSheetView(
-                        workoutExercise: workoutExercise,
-                        showRestTimer: $showRestTimer,
-                        restTimerTime: $restTimerTime,
-                        showMenuOptions: $showMenuOptions
-                    )
+                    NavigationView{
+                        ExerciseMenu(workoutExercise: workoutExercise)
+                            .foregroundColor(.theme.text)
+                    }
+                    .presentationDetents([.fraction(0.5)])
                     .ignoresSafeArea()
-                    .presentationDetents(
-                        [.fraction(0.5)]
-                    )
-                    .presentationDragIndicator(.visible)
+                    .presentationDragIndicator(.hidden)
                 }
             }
             ExerciseNotesView(exerciseID: workoutExercise.exerciseID)
-                
-        }
-    }
-}
-
-struct MenuSheetView: View {
-    let workoutExercise: WorkoutExercise
-    @Binding var showRestTimer: Bool
-    @Binding var restTimerTime: TimeInterval
-    @Binding var showMenuOptions: Bool
-    
-    var body: some View {
-        NavigationView {
-            ExerciseMenu(workoutExercise: workoutExercise, showRestTimer: $showRestTimer)
-                .foregroundColor(.theme.text)
         }
     }
 }
