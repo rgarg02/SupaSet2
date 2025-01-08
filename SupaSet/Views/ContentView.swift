@@ -21,7 +21,6 @@ struct ContentView: View {
         }
     }
 }
-
 #Preview {
     let previewContainer = PreviewContainer.preview
     ContentView()

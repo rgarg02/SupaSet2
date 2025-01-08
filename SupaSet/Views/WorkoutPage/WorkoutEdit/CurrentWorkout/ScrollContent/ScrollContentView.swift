@@ -9,7 +9,7 @@ import SwiftUI
 struct ScrollContentView: View {
     @Bindable var workout: Workout
     @Binding var exercises: [WorkoutExercise]
-    @Binding var dragging: Bool
+    @State var dragging: Bool = false
     
     // State properties
     @State internal var selectedExercise: WorkoutExercise?
@@ -26,7 +26,6 @@ struct ScrollContentView: View {
     @State internal var lastActiveScrollId: UUID?
     @State internal var parentFrame: CGRect = .zero
     @State internal var exerciseFrames: [UUID: CGRect] = [:]
-    let minimizing: Bool
     
     var sortedExercises: [WorkoutExercise] {
         exercises.sorted { $0.order < $1.order }
@@ -35,6 +34,6 @@ struct ScrollContentView: View {
 #Preview {
     let preview = PreviewContainer.preview
     let workout = preview.workout
-    ScrollContentView(workout: workout, exercises: .constant(workout.exercises), dragging: .constant(false), minimizing: true)
+    ScrollContentView(workout: workout, exercises: .constant(workout.exercises))
         .modelContainer(preview.container)
 }

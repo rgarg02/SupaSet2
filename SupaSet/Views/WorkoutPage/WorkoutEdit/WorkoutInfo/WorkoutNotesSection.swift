@@ -42,6 +42,7 @@ struct WorkoutNotesSection: View {
                     Button("Done") {
                         focused = false
                     }
+                    .foregroundStyle(Color.theme.accent)
                 }
             }
         }

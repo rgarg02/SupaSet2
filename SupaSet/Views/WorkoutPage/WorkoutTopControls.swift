@@ -10,56 +10,59 @@ import SwiftUI
 struct WorkoutTopControls: View {
     @Bindable var workout : Workout
     @Environment(\.modelContext) var modelContext
-    @Binding var isExpanded : Bool
+    @Binding var show : Bool
+    @Binding var offset: CGFloat
     private let titleShowThreshold: CGFloat = 100
     @State var elapsedTime : String = "0s"
     let timer = Timer.publish(every: 1, on: .main, in: .common).autoconnect()
-    func formattedDate() {
-        let seconds = Int(Date().timeIntervalSince(workout.date))
-        if seconds < 60 {
-            elapsedTime = "\(seconds)s"
-            return
-        }
-        let hours = seconds / 3600
-        let minutes = (seconds % 3600) / 60
-        let remainingSeconds = seconds % 60
-        
-        if hours > 0 {
-            elapsedTime = String(format: "%d:%02d:%02d", hours, minutes, remainingSeconds)
-        } else {
-            elapsedTime = String(format: "%d:%02d", minutes, remainingSeconds)
-        }
-    }
+    let maxOffsetHide: CGFloat = 100
     var body: some View {
-        HStack{
-            // Make the button border red and a capsule
-            Button("Cancel"){
-                cancelWorkout()
-            }
-            .foregroundStyle(.red)
-            .background(.clear)
-            .buttonBorderShape(.capsule)
-            .font(.headline)
-            Spacer()
-            Text(workout.name)
-                .font(.subheadline)
-                .bold()
-                .foregroundColor(.theme.text)
-                .transition(.opacity)
-            Image(systemName: "clock")
-            Text(elapsedTime)
-            
-            Spacer()
-
-            Button("Finish"){
-                finishWorkout()
-            }
-            .foregroundStyle(Color.theme.secondary)
-            .font(.headline)
-        }
-        .onReceive(timer) { _ in
-            formattedDate()
+        VStack{
+            HStack{
+                // Make the button border red and a capsule
+                if show {
+                    Button("Cancel"){
+                        cancelWorkout()
+                    }
+                    .foregroundStyle(.red)
+                    .background(.clear)
+                    .buttonBorderShape(.capsule)
+                    .font(.headline)
+                    .opacity(max(0, CGFloat(1 - offset / maxOffsetHide)))
                 }
+                Spacer()
+                Text(workout.name)
+                    .font(.subheadline)
+                    .bold()
+                    .foregroundColor(.theme.text)
+                    .transition(.opacity)
+                Spacer()
+                
+                if show{
+                    Button("Finish"){
+                        finishWorkout()
+                    }
+                    .foregroundStyle(Color.theme.secondary)
+                    .background(.clear)
+                    .buttonBorderShape(.capsule)
+                    .font(.headline)
+                    .opacity(max(0, CGFloat(1 - offset / maxOffsetHide)))
+                }
+            }
+            .allowsHitTesting(show)
+            WorkoutTimer(workout: workout)
+            Spacer()
+            Divider()
+        }
+        .onTapGesture {
+            if !show{
+                withAnimation(.spring()){
+                    show = true
+                    offset = 0
+                }
+            }
+        }
+        .frame(height: 50)
         .padding(.horizontal)
     }
     private func finishWorkout() {
@@ -70,7 +73,7 @@ struct WorkoutTopControls: View {
         do {
             try modelContext.save()
             withAnimation {
-                isExpanded = false
+                show = false
             }
             WorkoutActivityManager.shared.endAllActivities()
         } catch {
@@ -81,7 +84,7 @@ struct WorkoutTopControls: View {
     private func cancelWorkout() {
         modelContext.delete(workout)
         withAnimation {
-            isExpanded = false
+            show = false
         }
         WorkoutActivityManager.shared.endAllActivities()
     }
@@ -92,7 +95,7 @@ struct WorkoutTopControls: View {
     let previewContainer = PreviewContainer.preview
     
     WorkoutTopControls(
-        workout: previewContainer.workout, isExpanded: .constant(true)
+        workout: previewContainer.workout, show: .constant(true), offset: .constant(0)
     )
     .modelContainer(previewContainer.container)
     .environment(previewContainer.viewModel)

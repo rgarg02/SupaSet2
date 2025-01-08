@@ -9,7 +9,7 @@ import SwiftUI
 import SwiftData
 import ActivityKit
 struct WorkoutPageView: View {
-    @State private var isExpanded = false
+    @State private var show = false
     @Namespace private var namespace
     @Query(filter: #Predicate<Workout> { !$0.isFinished }) private var ongoingWorkouts: [Workout]
     @Environment(\.modelContext) private var modelContext
@@ -20,26 +20,19 @@ struct WorkoutPageView: View {
     
     var body: some View {
         ZStack {
-            if isExpanded && hasOngoingWorkout {
-                WorkoutStartView(
-                    namespace: namespace, isExpanded: $isExpanded,
-                    workout: ongoingWorkouts[0]
-                )
-                .ignoresSafeArea()
-                .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .bottomTrailing)
+            if hasOngoingWorkout {
+                NavigationStack {
+                    WorkoutContentView(workout: ongoingWorkouts[0], show: $show)
+                }
             }
-            
-            if !isExpanded {
+            if !hasOngoingWorkout {
                 FloatingActionButton(
                     namespace: namespace,
                     hasOngoingWorkout: hasOngoingWorkout,
                     action: {
                         withAnimation(.spring(duration: 0.5)) {
-                            if hasOngoingWorkout {
-                                isExpanded = true
-                            } else {
+                                show = true
                                 startNewWorkout()
-                            }
                         }
                     }
                 )
@@ -47,13 +40,15 @@ struct WorkoutPageView: View {
                 .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .bottomTrailing)
             }
         }
+        .toolbarBackground(.visible, for: .tabBar)
+        .toolbarBackground(.ultraThickMaterial, for: .tabBar)
     }
     
     private func startNewWorkout() {
         let workout = Workout(name: "New Workout")
         modelContext.insert(workout)
         WorkoutActivityManager.shared.startWorkoutActivity(workout: workout)
-        isExpanded = true
+        show = true
     }
 }
 
