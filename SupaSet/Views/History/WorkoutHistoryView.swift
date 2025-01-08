@@ -34,6 +34,8 @@ struct WorkoutHistoryView: View {
                 }
             }
         }
+        .toolbarBackground(.visible, for: .tabBar)
+        .toolbarBackground(.ultraThickMaterial, for: .tabBar)
     }
 }
 

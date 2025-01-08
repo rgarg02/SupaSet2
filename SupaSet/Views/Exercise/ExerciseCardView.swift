@@ -23,7 +23,6 @@ struct ExerciseCardView: View {
     @Binding var lastActiveScrollId: UUID?
     @Binding var dragging: Bool
     @Binding var parentBounds: CGRect
-    let minimizing: Bool
     @Binding var exerciseFrames: [UUID: CGRect]
     let onScroll: (CGPoint) -> Void
     let onSwap: (CGPoint) -> Void
@@ -35,7 +34,7 @@ struct ExerciseCardView: View {
     ]
     var body: some View {
             VStack(alignment: .leading, spacing: 8) {
-                ExerciseTopControls(workoutExercise: workoutExercise)
+                ExerciseTopControls(workoutExercise: workoutExercise, dragging: $dragging)
                 .frame(maxWidth: .infinity)
                 .gesture(customCombinedGesture)
                 if !dragging{
@@ -201,7 +200,6 @@ struct ExerciseCardView: View {
         lastActiveScrollId: .constant(nil),
         dragging: .constant(false),
         parentBounds: .constant(.zero),
-        minimizing: false,
         exerciseFrames: .constant([:]),
         onScroll: { _ in },
         onSwap: { _ in }

@@ -12,7 +12,6 @@ extension ScrollContentView {
             ScrollView {
                 LazyVStack {
                     WorkoutInfoView(workout: workout)
-                        .padding(.top, -20)
                     ForEach(sortedExercises) { exercise in
                         ExerciseCardView(
                             workout: workout,
@@ -26,7 +25,6 @@ extension ScrollContentView {
                             lastActiveScrollId: $lastActiveScrollId,
                             dragging: $dragging,
                             parentBounds: $parentFrame,
-                            minimizing: minimizing,
                             exerciseFrames: $exerciseFrames,
                             onScroll: checkAndScroll,
                             onSwap: checkAndSwapItems
@@ -35,12 +33,10 @@ extension ScrollContentView {
                         .onGeometryChange(for: CGRect.self) {
                             $0.frame(in: .global)
                         } action: { newValue in
-                            if !minimizing {
-                                if selectedExercise?.id == exercise.id {
-                                    selectedExerciseFrame = newValue
-                                }
-                                exerciseFrames[exercise.id] = newValue
+                            if selectedExercise?.id == exercise.id {
+                                selectedExerciseFrame = newValue
                             }
+                            exerciseFrames[exercise.id] = newValue
                         }
                     }
                 }
@@ -112,7 +108,6 @@ extension ScrollContentView {
                         lastActiveScrollId: $lastActiveScrollId,
                         dragging: $dragging,
                         parentBounds: $parentFrame,
-                        minimizing: minimizing,
                         exerciseFrames: $exerciseFrames,
                         onScroll: checkAndScroll,
                         onSwap: checkAndSwapItems

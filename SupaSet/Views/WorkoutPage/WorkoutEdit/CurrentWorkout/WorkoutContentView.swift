@@ -10,64 +10,104 @@ import SwiftUI
 
 struct WorkoutContentView: View {
     @Bindable var workout: Workout
-    @Binding var isExpanded: Bool
-    var progress: CGFloat
-    @State private var dragging: Bool = false
-    let minimizing: Bool
+    @Binding var show: Bool
+    
+    // Add state variables to track the drag
+    @State private var offset: CGFloat = 0
+    @State private var isDragging = false
+    @State private var draggingViewDown : Bool = false
+    // Add a constant for the minimum height when collapsed
+    private let minHeight: CGFloat = 50 // Adjust this value based on your WorkoutTopControls height
+    
     var body: some View {
-        VStack(spacing: 0) {
-            DragIndicator()
-                .opacity(1 - progress)
-            WorkoutTopControls(
-                workout: workout,
-                isExpanded: $isExpanded
-            )
-            .opacity(minimizing ? CGFloat(1 - (progress * 10)) : 1)
-            WorkoutScrollContent(
-                workout: workout,
-                dragging: $dragging,
-                minimizing: minimizing
-            )
-            .opacity(minimizing ? CGFloat(1 - (progress * 10)) : 1)
-        }
-        if !dragging {
-            NavigationLink{
-                ExerciseListPickerView(
-                    workout: workout
-                )
-            } label:{
-                HStack(spacing: 8) {
-                    Image(systemName: "plus")
-                        .foregroundColor(.theme.text)
-                        .font(.title3)
-
-                    Text("Add Exercises")
-                        .foregroundColor(.theme.text)
-                        .font(.title3)
+        GeometryReader { geometry in
+            VStack {
+                ZStack(alignment: .bottom) {
+                    VStack(spacing: 0) {
+                        DragIndicator()
+                            .opacity(show ? 1 : 0)
+                        WorkoutTopControls(
+                            workout: workout,
+                            show: $show,
+                            offset: $offset
+                        )
+                        ScrollContentView(workout: workout, exercises: $workout.exercises)
+                        .opacity(show ? 1 : 0)
+                    }
+                    .background(Color.theme.background)
+                    if show {
+                        NavigationLink {
+                            ExerciseListPickerView(
+                                workout: workout
+                            )
+                        } label: {
+                            HStack(spacing: 8) {
+                                Image(systemName: "plus")
+                                    .foregroundColor(.theme.text)
+                                    .font(.title3)
+                                
+                                Text("Add Exercises")
+                                    .foregroundColor(.theme.text)
+                                    .font(.title3)
+                            }
+                            .padding()
+                            .background(
+                                RoundedRectangle(cornerRadius: 30)
+                                    .fill(Color.theme.accent)
+                            )
+                        }
+                        .padding(.horizontal, 50.0)
+                        .padding(.vertical)
+                    }
                 }
-                .padding()
-                .background(
-                    RoundedRectangle(cornerRadius: 30)
-                        .fill(Color.theme.accent)
-                )
             }
-            .opacity(1 - progress)
-            .padding(.horizontal, 50.0)
-            .padding(.vertical)
-            .opacity(minimizing ? CGFloat(1 - (progress * 10)) : 1)
+            .ignoresSafeArea(.keyboard, edges: .bottom)
+            .dismissKeyboardOnTap()
+            .background(Color.theme.background)
+            .offset(y: show ? max(offset, 0) : geometry.size.height - minHeight) // Prevent dragging up beyond original position
+            .gesture(
+                DragGesture()
+                    .onChanged { value in
+                        isDragging = true
+                        let dragAmount = value.translation.height
+                        offset = min(dragAmount, geometry.size.height - minHeight)
+                        draggingViewDown = true
+                    }
+                    .onEnded { value in
+                        isDragging = false
+                        let dragAmount = value.translation.height
+                        withAnimation(.spring()) {
+                            if dragAmount > geometry.size.height * 0.5 || value.velocity.height > 200 {
+                                show = false
+                            } else {
+                                // Reset to original position
+                                offset = 0
+                                show = true
+                            }
+                        }
+                        draggingViewDown = false
+                    }
+            )
+            .animation(.spring(), value: isDragging)
         }
     }
 }
-
+// MARK: - Supporting Views
+struct DragIndicator: View {
+    var body: some View {
+        RoundedRectangle(cornerRadius: 2.5)
+            .fill(.gray)
+            .frame(width: 40, height: 5)
+    }
+}
 #Preview {
+    @Previewable @State var show = true
     let preview = PreviewContainer.preview
     NavigationView{
         ZStack(alignment: .bottom){
             WorkoutContentView(
                 workout: preview.workout,
-                isExpanded: .constant(false),
-                progress: 0.0,
-                minimizing: false
+                show: $show
             )
         }
     }
