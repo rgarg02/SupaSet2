@@ -7,7 +7,8 @@
 import SwiftUI
 struct ExerciseRowView: View {
     let exercise: Exercise
-    
+    @Binding var selectedExercise: Exercise?
+    @Binding var isShowingDetail: Bool
     var body: some View {
         VStack(alignment: .leading, spacing: 8) {
             // Exercise Name and Level
@@ -16,12 +17,19 @@ struct ExerciseRowView: View {
                     .font(.headline)
                 Spacer()
                 Badge(for: exercise.level)
+                Button {
+                    selectedExercise = exercise
+                    isShowingDetail = true
+                } label: {
+                    Image(systemName: "info.circle")
+                }
+                .buttonStyle(.plain)
             }
             
             // Equipment
             if let equipment = exercise.equipment {
                 HStack {
-                    Image(systemName: "dumbbell.fill")
+                    equipment.image
                         .imageScale(.small)
                     Text(equipment.rawValue.capitalized)
                         .font(.subheadline)
@@ -78,7 +86,7 @@ struct Badge<T: RawRepresentable>: View where T.RawValue == String {
 
 // Preview Provider
 #Preview {
-    ExerciseRowView(exercise: Exercise(
+    @Previewable @State var exercise : Exercise? = Exercise(
         id: "1",
         name: "Bench Press",
         force: .push,
@@ -90,6 +98,14 @@ struct Badge<T: RawRepresentable>: View where T.RawValue == String {
         instructions: ["Sample instruction"],
         category: .strength,
         images: []
-    ))
-    .padding()
+    )
+    if let exercise{
+        NavigationView{
+            List{
+                ExerciseRowView(exercise: exercise, selectedExercise: $exercise,
+                                isShowingDetail: .constant(false))
+                .padding()
+            }
+        }
+    }
 }

@@ -23,7 +23,8 @@ struct ExerciseListPickerView: View {
     @State private var selectedEquipment: Equipment?
     @State private var selectedLevel: Level?
     @State private var selectedExercises: [Exercise] = []
-    
+    @State private var selectedExercise: Exercise?
+    @State private var isShowingDetail = false
     // Initialize for adding exercises
     init(workout: Workout) {
         self.mode = .add(workout: workout)
@@ -44,28 +45,39 @@ struct ExerciseListPickerView: View {
     }
     
     var filteredExercises: [Exercise] {
-        var exercises = viewModel.exercises(matching: searchText)
+        let searchTokens = searchText.lowercased().split(separator: " ").map(String.init)
         
-        if let category = selectedCategory {
-            exercises = exercises.filter { $0.category == category }
-        }
-        
-        if let muscleGroup = selectedMuscleGroup {
-            exercises = exercises.filter {
-                $0.primaryMuscles.contains(muscleGroup) ||
-                $0.secondaryMuscles.contains(muscleGroup)
+        return viewModel.exercises
+            .lazy
+            .filter { exercise in
+                // Tokenized search: All search tokens must be present in the exercise name
+                searchText.isEmpty || searchTokens.allSatisfy { token in
+                    exercise.name.lowercased().contains(token)
+                }
             }
-        }
-        
-        if let equipment = selectedEquipment {
-            exercises = exercises.filter { $0.equipment == equipment }
-        }
-        if let level = selectedLevel {
-            exercises = exercises.filter { $0.level == level }
-        }
-        
-        return exercises
+            .filter { exercise in
+                // Category filter
+                selectedCategory == nil || exercise.category == selectedCategory
+            }
+            .filter { exercise in
+                // Muscle group filter
+                selectedMuscleGroup == nil ||
+                exercise.primaryMuscles.contains(selectedMuscleGroup!) ||
+                exercise.secondaryMuscles.contains(selectedMuscleGroup!)
+            }
+            .filter { exercise in
+                // Equipment filter
+                selectedEquipment == nil || exercise.equipment == selectedEquipment
+            }
+            .filter { exercise in
+                // Level filter
+                selectedLevel == nil || exercise.level == selectedLevel
+            }
+            .sorted { $0.name < $1.name } // Optional: Sort alphabetically
+            .prefix(50) // Optional: Limit to top 50 results for performance
+            .map { $0 } // Convert lazy sequence back to array
     }
+
     
     var body: some View {
         VStack(spacing: 0) {
@@ -106,7 +118,7 @@ struct ExerciseListPickerView: View {
                     
                     List {
                         ForEach(filteredExercises) { exercise in
-                            ExerciseRowView(exercise: exercise)
+                            ExerciseRowView(exercise: exercise, selectedExercise: $selectedExercise, isShowingDetail: $isShowingDetail)
                                 .listRowInsets(EdgeInsets(
                                     top: 4,
                                     leading: 16,
@@ -122,6 +134,14 @@ struct ExerciseListPickerView: View {
                         }
                     }
                     .listStyle(.plain)
+                    .navigationDestination(
+                                isPresented: $isShowingDetail,
+                                destination: {
+                                    if let exercise = selectedExercise {
+                                        ExerciseDetailView(exercise: exercise)
+                                    }
+                                }
+                            )
                 }
                 .searchable(text: $searchText, prompt: "Search exercises")
             }
