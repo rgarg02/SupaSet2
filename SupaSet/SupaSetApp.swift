@@ -7,10 +7,13 @@
 
 import SwiftUI
 import SwiftData
+import Firebase
 
 @main
 struct SupaSetApp: App {
+    @UIApplicationDelegateAdaptor(AppDelegate.self) var delegate
     let container: ModelContainer
+    @State private var authenticationViewModel = AuthenticationViewModel()
     init() {
         let schema = Schema([
             Workout.self,
@@ -29,13 +32,22 @@ struct SupaSetApp: App {
     
     var body: some Scene {
         WindowGroup {
-            ContentView()
+            RootView()
                 .modelContainer(container)
                 .onAppear {
+                    authenticationViewModel.listenToAuthChanges()
                     AppContainer.shared.container = container
                     WorkoutActivityManager.shared.endAllActivities()
                 }
+                .environment(authenticationViewModel)
         }
     }
 }
 
+class AppDelegate: NSObject, UIApplicationDelegate {
+  func application(_ application: UIApplication,
+                   didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey : Any]? = nil) -> Bool {
+    FirebaseApp.configure()
+    return true
+  }
+}

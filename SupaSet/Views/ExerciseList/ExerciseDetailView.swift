@@ -31,14 +31,12 @@ struct ExerciseDetailView: View {
                     }
                 }
                 .padding(.horizontal)
-                
                 // Images carousel
                 if !exercise.images.isEmpty {
                     TabView(selection: $selectedImageIndex) {
                         ForEach(Array(exercise.images.enumerated()), id: \.element) { index, imageUrl in
-                            Image(imageUrl.hasSuffix(".jpg") ? String(imageUrl.dropLast(4)) : imageUrl)
-                                .resizable()
-                                .scaledToFit()
+                            ExerciseImageView(imagePath: imageUrl)
+                                .tag(index)
                         }
                     }
                     .frame(height: 250)
@@ -105,8 +103,34 @@ struct ExerciseDetailView: View {
             }
         }
     }
+    
 }
+struct ExerciseImageView: View {
+    let imagePath: String
 
+    var body: some View {
+        if let image = loadImage(from: imagePath) {
+            Image(uiImage: image)
+                .resizable()
+                .scaledToFit()
+        } else {
+            Text("Image not found")
+                .foregroundColor(.red)
+        }
+    }
+    
+    func loadImage(from path: String) -> UIImage? {
+        // Get the bundle
+        guard let bundlePath = Bundle.main.path(forResource: "exerciseImages", ofType: "bundle"),
+              let bundle = Bundle(path: bundlePath) else {
+            print("Bundle not found")
+            return nil
+        }
+        
+        // Load the image
+        return UIImage(named: path, in: bundle, compatibleWith: nil)
+    }
+}
 // Helper Views
 struct DetailRow: View {
     let title: String
