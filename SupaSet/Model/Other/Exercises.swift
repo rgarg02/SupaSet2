@@ -60,7 +60,39 @@ enum Equipment: String, Codable, CaseIterable, Hashable {
     case exerciseBall = "exercise ball"
     case ezCurlBar = "e-z curl bar"
     case other
+    var image: Image {
+        switch self {
+        case .none:
+            return Image(systemName: "questionmark")
+        case .medicineBall:
+            return Image(systemName: "circle.fill")
+        case .dumbbell:
+            return Image(systemName: "dumbbell.fill")
+        case .bodyOnly:
+            return Image(systemName: "figure.stand")
+        case .bands:
+            return Image("band") // Custom image in Assets
+        case .kettlebells:
+            return Image("kettlebell") // Custom image in Assets
+        case .foamRoll:
+            return Image(systemName: "cylinder.fill")
+        case .cable:
+            return Image(systemName: "arrow.up.and.down")
+        case .machine:
+            return Image(systemName: "gearshape.fill")
+        case .barbell:
+            return Image("barbell")
+        case .exerciseBall:
+            return Image(systemName: "circle")
+        case .ezCurlBar:
+            return Image("ez-bar")
+        case .other:
+            return Image(systemName: "questionmark.circle")
+        }
+        
+    }
 }
+
 
 enum MuscleGroup: String, Codable, CaseIterable, Hashable {
     case abdominals
