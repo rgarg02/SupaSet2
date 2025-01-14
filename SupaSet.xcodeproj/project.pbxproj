@@ -67,7 +67,6 @@
 			membershipExceptions = (
 				CustomComponents/Button.swift,
 				Extensions/Color.swift,
-				"GoogleService-Info.plist",
 				Model/AppContainer.swift,
 				Model/Other/ExerciseImporter.swift,
 				Model/Other/Exercises.swift,
