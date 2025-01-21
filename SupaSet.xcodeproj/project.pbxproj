@@ -73,6 +73,7 @@
 				Model/SwiftDataModels/ModelSchemas.swift,
 				Model/SwiftDataModels/SchemaV1.swift,
 				"Model/SwiftDataModels/SchemaV1+Model.swift",
+				"Model/SwiftDataModels/SchemaV1+Template.swift",
 				"Model/SwiftDataModels/Workout+Reorder.swift",
 				"Model/SwiftDataModels/WorkoutExercise+Reorder.swift",
 			);

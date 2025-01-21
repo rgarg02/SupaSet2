@@ -19,7 +19,9 @@ struct SupaSetApp: App {
             Workout.self,
             WorkoutExercise.self,
             ExerciseSet.self,
-            ExerciseDetail.self
+            ExerciseDetail.self,
+            Template.self,
+            TemplateExercise.self
         ])
            do {
                let storeURL = URL.documentsDirectory.appending(path: "SupaSet.sqlite")
@@ -29,7 +31,7 @@ struct SupaSetApp: App {
                fatalError("Failed to configure SwiftData container.")
            }
        }
-    
+    let previewContainer = PreviewContainer.preview
     var body: some Scene {
         WindowGroup {
             RootView()

@@ -40,6 +40,7 @@ struct WorkoutPageView: View {
                 .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .bottomTrailing)
             }
         }
+        .navigationTitle("Workouts")
         .toolbarBackground(.visible, for: .tabBar)
         .toolbarBackground(.ultraThickMaterial, for: .tabBar)
     }
@@ -48,14 +49,15 @@ struct WorkoutPageView: View {
         let workout = Workout(name: "New Workout")
         modelContext.insert(workout)
         WorkoutActivityManager.shared.startWorkoutActivity(workout: workout)
-        show = true
     }
 }
 
 #Preview {
     let container = PreviewContainer.preview
-    WorkoutPageView()
-        .environment(container.viewModel)
-        .modelContainer(container.container)
+    TabView {
+        WorkoutPageView()
+            .environment(container.viewModel)
+            .modelContainer(container.container)
+    }
 }
 
