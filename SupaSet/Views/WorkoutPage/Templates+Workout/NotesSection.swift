@@ -23,6 +23,7 @@ struct NotesSection<T: Nameable>: View {
             }
             ZStack(alignment: .topLeading) {
                 TextEditor(text: $item.notes)
+                    .scrollContentBackground(.hidden)
                     .frame(minHeight: 50, maxHeight: 150)
                     .focused($focused)
                 if item.notes.isEmpty {
@@ -33,7 +34,8 @@ struct NotesSection<T: Nameable>: View {
                         .allowsHitTesting(false)
                 }
             }
-            .cornerRadius(20)
+            .background(Color.theme.primarySecond)
+            .cornerRadius(8)
         }
         .toolbar {
             if focused{

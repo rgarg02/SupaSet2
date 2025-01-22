@@ -35,9 +35,9 @@ struct DraggableScrollContainer<Content: View, Item: ExerciseItem>: View {
     var body: some View {
         ZStack(alignment: .topLeading) {
             ScrollView {
-                    content
-                        .padding(.bottom, items.last.flatMap { (itemFrames[$0.id]?.height ?? 0)/2 } ?? 0)
-                        .scrollTargetLayout()
+                content
+                    .padding(.bottom, items.last.flatMap { (itemFrames[$0.id]?.height ?? 0)/2 } ?? 0)
+                
             }
             .scrollIndicators(.hidden)
             .scrollPosition(id: $scrolledItem) // Add anchor parameter
@@ -97,9 +97,10 @@ struct DraggableScrollContainer<Content: View, Item: ExerciseItem>: View {
                             .font(.title3)
                             .fontWeight(.semibold)
                             .foregroundColor(.theme.text)
+                        Spacer()
                     }
                     .frame(maxWidth: .infinity)
-                    .modifier(ExerciseCardStyle())
+                    .padding()
                     .frame(width: itemFrames[selectedItem.id]?.width ?? .zero, height: itemFrames[selectedItem.id]?.height ?? .zero)
                     .scaleEffect(selectedItemScale)
                     .offset(x: adjustedInitialOffset.minX,
@@ -113,36 +114,13 @@ struct DraggableScrollContainer<Content: View, Item: ExerciseItem>: View {
         .sensoryFeedback(.impact, trigger: hapticsTrigger)
     }
     
+    
 }
 // Protocol to define common requirements for exercise types
 protocol ExerciseItem: Identifiable {
     var id: UUID { get }
     var order: Int { get set }
     var exerciseID: String { get }
-}
-
-// Base view modifier for common card styling
-struct ExerciseCardStyle: ViewModifier {
-    func body(content: Content) -> some View {
-        content
-            .padding()
-            .background(
-                RoundedRectangle(cornerRadius: 12)
-                    .fill(Color.theme.background)
-                    .shadow(
-                        color: Color.theme.primary.opacity(0.5),
-                        radius: 5,
-                        x: 0,
-                        y: 2
-                    )
-                    .padding(8)
-            )
-            .overlay(
-                RoundedRectangle(cornerRadius: 12)
-                    .stroke(Color.theme.accent, lineWidth: 1)
-                    .padding(8)
-            )
-    }
 }
 
 struct DraggableGestureHandler<T: ExerciseItem> {

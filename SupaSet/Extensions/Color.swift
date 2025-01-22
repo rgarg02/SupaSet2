@@ -6,11 +6,12 @@
 //
 
 import SwiftUI
-///https://www.realtimecolors.com/?colors=f7f1ed-0b0704-d2b593-677a33-bd7328&fonts=Albert%20Sans-Albert%20Sans
+///https://www.realtimecolors.com/?colors=000000-ffffff-7c4d18-86b011-cf852a&fonts=Albert%20Sans-Albert%20Sans
 struct Theme {
     // MARK: - Main Colors
     let accent = Color("AccentColor")
     let background = Color("BackgroundColor")
+    let backgroundOpposite = Color("BackgroundColorOpposite")
     let text = Color("TextColor")
     let textOpposite = Color("TextColorOpposite")
     let primary = Color("PrimaryThemeColor")

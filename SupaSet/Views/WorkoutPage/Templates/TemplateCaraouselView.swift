@@ -72,14 +72,17 @@ struct TemplateCarouselView: View {
                     )
                 }
                 // Add Template Card
-                NavigationLink(destination: EditOrCreateTemplateView(template: Template(order: templates.count), isNew: true)) {
+                NavigationLink(destination: createNewTemplateView()) {
                     AddTemplateCard()
                 }
             }
             .padding()
         }
     }
-    
+    private func createNewTemplateView() -> some View {
+        let newTemplate = Template(order: templates.count)
+        return EditOrCreateTemplateView(template: newTemplate, isNew: true)
+    }
     // You may not need this moveTemplate function anymore if your drop delegate
     // handles reordering by updating the `Template.order` directly.
     func moveTemplate(from source: Template, to destination: Template) {
@@ -94,15 +97,17 @@ struct TemplateCard: View {
     let template: Template
     @Environment(ExerciseViewModel.self) var exerciseViewModel
     var body: some View {
-        VStack(alignment: .leading, spacing: 12) {
+        VStack(alignment: .leading, spacing: 0) {
             // Template Name
             Text(template.name)
                 .font(.headline)
                 .foregroundStyle(.primary)
+                .padding(.vertical, 3)
             
             // Creation Date
             Text("Created: \(formattedDate(template.createdAt))")
                 .font(.caption)
+                .padding(.vertical, 3)
             
             // Exercises Preview
             VStack(alignment: .leading, spacing: 4) {
@@ -120,15 +125,11 @@ struct TemplateCard: View {
                 if template.exercises.count > 4 {
                     Text("+ \(template.exercises.count - 4) more")
                         .font(.subheadline)
-                } else {
-                    // add placeholder for spacing based on exercise limit
-                    ForEach(0 ..< (4 - template.exercises.count + 1)) { _ in
-                        Text(" ")
-                            .font(.subheadline)
-                    }
                 }
             }
+            Spacer()
         }
+        .frame(height: 170)
         .foregroundStyle(Color.theme.text)
         .frame(maxWidth: .infinity, alignment: .leading)
         .padding()
@@ -153,8 +154,9 @@ struct AddTemplateCard: View {
             Text("Create Template")
                 .font(.headline)
         }
+        .frame(height: 170)
         .frame(maxWidth: .infinity)
-        .frame(height: 160)
+        .padding()
         .background(Color.theme.secondary)
         .clipShape(RoundedRectangle(cornerRadius: 12))
         .shadow(color: .black.opacity(0.1), radius: 5, x: 0, y: 2)

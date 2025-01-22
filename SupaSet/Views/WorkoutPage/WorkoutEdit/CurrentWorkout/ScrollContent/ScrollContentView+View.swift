@@ -29,6 +29,7 @@ extension ScrollContentView {
                                 onScroll: checkAndScroll,
                                 onSwap: checkAndSwapItems
                             )
+                            .id(exercise.id)
                             .opacity(selectedExercise?.id == exercise.id ? 0 : 1)
                             .onGeometryChange(for: CGRect.self) {
                                 $0.frame(in: .global)
@@ -39,7 +40,9 @@ extension ScrollContentView {
                                 exerciseFrames[exercise.id] = newValue
                             }
                         }
+                        CancelFinishAddView(item: workout, show: $show, isNew: !workout.isFinished)
                     }
+                    .scrollTargetLayout()
                 },
                 items: sortedExercises,
                 selectedItem: $selectedExercise,

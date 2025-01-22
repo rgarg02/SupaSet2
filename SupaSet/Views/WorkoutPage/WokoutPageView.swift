@@ -45,7 +45,6 @@ struct WorkoutPageView: View {
                     .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .bottomTrailing)
                 }
             }
-            .navigationTitle("Workouts")
             .toolbarBackground(.visible, for: .tabBar)
             .toolbarBackground(.ultraThickMaterial, for: .tabBar)
         }
