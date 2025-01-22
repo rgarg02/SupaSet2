@@ -9,8 +9,8 @@ import SwiftUI
 import UniformTypeIdentifiers
 
 // MARK: - WorkoutNotesSection
-struct WorkoutNotesSection: View {
-    @Bindable var workout: Workout
+struct NotesSection<T: Nameable>: View {
+    @Bindable var item: T
     @State private var isEditingNotes: Bool = false
     @FocusState var focused: Bool
     var body: some View {
@@ -22,10 +22,10 @@ struct WorkoutNotesSection: View {
                 Spacer()
             }
             ZStack(alignment: .topLeading) {
-                TextEditor(text: $workout.notes)
+                TextEditor(text: $item.notes)
                     .frame(minHeight: 50, maxHeight: 150)
                     .focused($focused)
-                if workout.notes.isEmpty {
+                if item.notes.isEmpty {
                     Text("Add a note")
                         .foregroundColor(Color(uiColor: .placeholderText))
                         .padding(.top, 10)
@@ -52,6 +52,6 @@ struct WorkoutNotesSection: View {
 
 #Preview {
     let preview = PreviewContainer.preview
-    WorkoutNotesSection(workout: preview.workout)
+    NotesSection(item: preview.workout)
         .modelContainer(preview.container)
 }

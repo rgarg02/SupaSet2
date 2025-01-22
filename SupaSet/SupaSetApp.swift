@@ -14,6 +14,7 @@ struct SupaSetApp: App {
     @UIApplicationDelegateAdaptor(AppDelegate.self) var delegate
     let container: ModelContainer
     @State private var authenticationViewModel = AuthenticationViewModel()
+    @State private var exerciseViewModel = ExerciseViewModel()
     init() {
         let schema = Schema([
             Workout.self,
@@ -31,7 +32,6 @@ struct SupaSetApp: App {
                fatalError("Failed to configure SwiftData container.")
            }
        }
-    let previewContainer = PreviewContainer.preview
     var body: some Scene {
         WindowGroup {
             RootView()
@@ -41,6 +41,7 @@ struct SupaSetApp: App {
                     AppContainer.shared.container = container
                     WorkoutActivityManager.shared.endAllActivities()
                 }
+                .environment(exerciseViewModel)
                 .environment(authenticationViewModel)
         }
     }

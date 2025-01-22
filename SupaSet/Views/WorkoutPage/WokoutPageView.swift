@@ -19,30 +19,36 @@ struct WorkoutPageView: View {
     }
     
     var body: some View {
-        ZStack {
-            if hasOngoingWorkout {
-                NavigationStack {
-                    WorkoutContentView(workout: ongoingWorkouts[0], show: $show)
+        NavigationStack {
+            ZStack {
+                VStack{
+                    // Create new tempalte button
+                    TemplateCarouselView()
                 }
-            }
-            if !hasOngoingWorkout {
-                FloatingActionButton(
-                    namespace: namespace,
-                    hasOngoingWorkout: hasOngoingWorkout,
-                    action: {
-                        withAnimation(.spring(duration: 0.5)) {
+                if hasOngoingWorkout {
+                    NavigationStack {
+                        WorkoutContentView(workout: ongoingWorkouts[0], show: $show)
+                    }
+                }
+                if !hasOngoingWorkout {
+                    FloatingActionButton(
+                        namespace: namespace,
+                        hasOngoingWorkout: hasOngoingWorkout,
+                        action: {
+                            withAnimation(.spring(duration: 0.5)) {
                                 show = true
                                 startNewWorkout()
+                            }
                         }
-                    }
-                )
-                .ignoresSafeArea()
-                .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .bottomTrailing)
+                    )
+                    .ignoresSafeArea()
+                    .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .bottomTrailing)
+                }
             }
+            .navigationTitle("Workouts")
+            .toolbarBackground(.visible, for: .tabBar)
+            .toolbarBackground(.ultraThickMaterial, for: .tabBar)
         }
-        .navigationTitle("Workouts")
-        .toolbarBackground(.visible, for: .tabBar)
-        .toolbarBackground(.ultraThickMaterial, for: .tabBar)
     }
     
     private func startNewWorkout() {

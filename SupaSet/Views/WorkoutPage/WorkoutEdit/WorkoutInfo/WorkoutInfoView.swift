@@ -11,11 +11,11 @@ struct WorkoutInfoView: View {
     @Bindable var workout: Workout
     var body: some View {
         VStack(spacing: 20) {
-            WorkoutNameSection(workout: workout)
+            NameSection(item: workout)
                 .padding(.horizontal)
             WorkoutTimeSection(workout: workout)
                 .padding(.horizontal)
-            WorkoutNotesSection(workout: workout)
+            NotesSection(item: workout)
                 .padding(.horizontal)
         }
     }

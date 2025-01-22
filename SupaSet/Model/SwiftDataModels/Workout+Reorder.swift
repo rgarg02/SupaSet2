@@ -20,17 +20,6 @@ extension Workout {
         }
     }
     
-    /// Moves an exercise from one position to another, updating the order values of affected exercises.
-    ///
-    /// This method only updates the `order` properties of affected exercises without modifying
-    /// the array structure itself.
-    ///
-    /// - Parameters:
-    ///   - source: The current index of the exercise to move
-    ///   - destination: The desired index for the exercise
-    ///
-    /// - Note: If either index is out of bounds or if source equals destination, the method will return without making changes
-
     
     /// Moves an exercise using SwiftUI's IndexSet format to a new position.
     ///

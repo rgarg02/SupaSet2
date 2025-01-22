@@ -1,7 +1,6 @@
 import SwiftUI
 
 struct ContentView: View {
-    @State private var exerciseViewModel = ExerciseViewModel()
     @Environment(\.modelContext) var modelContext
     var body: some View {
         ZStack {
@@ -17,7 +16,6 @@ struct ContentView: View {
                 ProfilePageView()
                     .tabItem { Image(systemName: "person") }
             }
-            .environment(exerciseViewModel)
         }
     }
 }

@@ -14,6 +14,8 @@ struct ExerciseListPickerView: View {
     enum Mode {
         case add(workout: Workout)
         case replace(workoutExercise: WorkoutExercise)
+        case addToTemplate(template: Template)
+        case replaceTemplateExercise(templateExercise: TemplateExercise)
     }
     
     let mode: Mode
@@ -35,11 +37,25 @@ struct ExerciseListPickerView: View {
         self.mode = .replace(workoutExercise: workoutExercise)
     }
     
+    // Initialize for adding a template
+    init(template: Template) {
+        self.mode = .addToTemplate(template: template)
+    }
+    
+    // Initialize for replacing a template exercise
+    init(templateExercise: TemplateExercise) {
+        self.mode = .replaceTemplateExercise(templateExercise: templateExercise)
+    }
+    
     private var isReplacing: Bool {
         switch mode {
         case .add:
             return false
         case .replace:
+            return true
+        case .addToTemplate:
+            return false
+        case .replaceTemplateExercise:
             return true
         }
     }
@@ -191,6 +207,16 @@ struct ExerciseListPickerView: View {
                 workoutExercise.exerciseID = exercise.id
                 workoutExercise.sets.removeAll()
                 workoutExercise.notes = ""
+            }
+        case .addToTemplate(template: let template):
+            for exercise in selectedExercises {
+                template.insertExercise(exercise.id)
+            }
+        case .replaceTemplateExercise(templateExercise: let templateExercise):
+            if let exercise = selectedExercises.first {
+                templateExercise.exerciseID = exercise.id
+                templateExercise.sets.removeAll()
+                templateExercise.notes = ""
             }
         }
         selectedExercises = []
