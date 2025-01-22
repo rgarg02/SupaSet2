@@ -40,6 +40,26 @@ struct WorkoutContentView: View {
                         .opacity(show ? 1 : 0)
                     }
                     .background(Color.theme.background)
+                    NavigationLink {
+                        ExerciseListPickerView(workout: workout)
+                    } label: {
+                        HStack(spacing: 8) {
+                            Image(systemName: "plus")
+                                .foregroundColor(.theme.text)
+                                .font(.title3)
+                            
+                            Text("Add Exercises")
+                                .foregroundColor(.theme.text)
+                                .font(.title3)
+                        }
+                        .padding()
+                        .background(
+                            RoundedRectangle(cornerRadius: 30)
+                                .fill(Color.theme.accent)
+                        )
+                    }
+                    .padding(.horizontal, 50.0)
+                    .padding(.vertical)
                 }
             .ignoresSafeArea(.keyboard, edges: .bottom)
             .dismissKeyboardOnTap()

@@ -33,7 +33,7 @@ struct ExerciseCardView: View {
     ]
     var body: some View {
         VStack(alignment: .leading, spacing: 8) {
-            ExerciseTopControls(workoutExercise: workoutExercise, dragging: $dragging)
+            ExerciseTopControls(exercise: workoutExercise, dragging: $dragging)
                 .frame(maxWidth: .infinity)
                 .gesture(
                     DraggableGestureHandler(item: workoutExercise, selectedExercise: $selectedExercise, selectedExerciseScale: $selectedExerciseScale, selectedExerciseFrame: $selectedExerciseFrame, offset: $offset, hapticsTrigger: $hapticsTrigger, initialScrollOffset: $initialScrollOffset, lastActiveScrollId: $lastActiveScrollId, dragging: $dragging, parentBounds: $parentBounds, exerciseFrames: $exerciseFrames, onScroll: onScroll, onSwap: onSwap)

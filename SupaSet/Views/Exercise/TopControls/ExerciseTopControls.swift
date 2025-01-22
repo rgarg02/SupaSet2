@@ -1,19 +1,29 @@
 import SwiftUI
 
-struct ExerciseTopControls: View {
-    let workoutExercise: WorkoutExercise
+// First, create a protocol that both exercise types will conform to
+protocol ExerciseMenuType {
+    var exerciseID: String { get }
+    // Add any other common properties needed
+}
+
+// Make both types conform to the protocol
+extension WorkoutExercise: ExerciseMenuType {}
+extension TemplateExercise: ExerciseMenuType {}
+
+struct ExerciseTopControls<T: ExerciseMenuType>: View {
+    let exercise: T
     @Environment(ExerciseViewModel.self) var viewModel
     @State private var showMenuOptions = false
     @Binding var dragging: Bool
     var body: some View {
         VStack{
             HStack {
-                Text(viewModel.getExerciseName(for: workoutExercise.exerciseID))
+                Text(viewModel.getExerciseName(for: exercise.exerciseID))
                     .font(.title3)
                     .fontWeight(.semibold)
                     .foregroundColor(.theme.text)
                 Spacer()
-                if !dragging {
+                if !dragging{
                     Button(action: {
                         withAnimation(.snappy) {
                             showMenuOptions.toggle()
@@ -24,7 +34,7 @@ struct ExerciseTopControls: View {
                     }
                     .sheet(isPresented: $showMenuOptions) {
                         NavigationView{
-                            ExerciseMenu(workoutExercise: workoutExercise)
+                            ExerciseMenu(exercise: exercise)
                                 .foregroundColor(.theme.text)
                         }
                         .presentationDetents([.fraction(0.5)])
@@ -33,8 +43,8 @@ struct ExerciseTopControls: View {
                     }
                 }
             }
-            if !dragging {
-                ExerciseNotesView(exerciseID: workoutExercise.exerciseID)
+            if !dragging{
+                ExerciseNotesView(exerciseID: exercise.exerciseID)
             }
         }
     }
@@ -43,7 +53,7 @@ struct ExerciseTopControls: View {
 // Preview Providers
 #Preview("Exercise Top Controls") {
     let preview = PreviewContainer.preview
-    ExerciseTopControls(workoutExercise: preview.workout.sortedExercises[0], dragging: .constant(false))
+    ExerciseTopControls(exercise: preview.workout.sortedExercises[0], dragging: .constant(false))
         .padding()
         .modelContainer(preview.container)
         .environment(preview.viewModel)

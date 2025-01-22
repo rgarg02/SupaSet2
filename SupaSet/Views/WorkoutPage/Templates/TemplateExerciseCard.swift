@@ -30,12 +30,7 @@ struct TemplateExerciseCard: View {
     ]
     var body: some View {
         VStack(alignment: .leading, spacing: 8) {
-            HStack {
-                Text(viewModel.getExerciseName(for: templateExericse.exerciseID))
-                    .font(.title3)
-                    .fontWeight(.semibold)
-                    .foregroundColor(.theme.text)
-            }
+            ExerciseTopControls(exercise: templateExericse, dragging: $dragging)
             .frame(maxWidth: .infinity)
             .gesture(
                 DraggableGestureHandler(item: templateExericse, selectedExercise: $selectedExercise, selectedExerciseScale: $selectedExerciseScale, selectedExerciseFrame: $selectedExerciseFrame, offset: $offset, hapticsTrigger: $hapticsTrigger, initialScrollOffset: $initialScrollOffset, lastActiveScrollId: $lastActiveScrollId, dragging: $dragging, parentBounds: $parentBounds, exerciseFrames: $exerciseFrames, onScroll: onScroll, onSwap: onSwap)
@@ -50,12 +45,6 @@ struct TemplateExerciseCard: View {
                                 .foregroundColor(.theme.text)
                                 .frame(maxWidth: .infinity, alignment: .trailing)
                             //                    .frame(width: 20)
-                            
-                            Text("WEIGHT")
-                                .font(.caption)
-                                .foregroundColor(.theme.text)
-                                .frame(maxWidth: .infinity, alignment: .trailing)
-                            //                    .frame(width: 100)
                             
                             Text("REPS")
                                 .font(.caption)

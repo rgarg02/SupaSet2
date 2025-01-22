@@ -44,6 +44,7 @@ struct EditOrCreateTemplateView: View {
                                 NotesSection(item: template)
                                 ForEach(sortedExercises) { exercise in
                                     TemplateExerciseCard(templateExericse: exercise, selectedExercise: $selectedExercise, selectedExerciseScale: $selectedExerciseScale, selectedExerciseFrame: $selectedExerciseFrame, offset: $offset, hapticsTrigger: $hapticsTrigger, initialScrollOffset: $initialScrollOffset, lastActiveScrollId: $lastActiveScrollId, dragging: $dragging, parentBounds: $parentFrame, exerciseFrames: $exerciseFrames, onScroll: checkAndScroll, onSwap: checkAndSwapItems)
+                                        .id(exercise.id)
                                         .opacity(selectedExercise?.id == exercise.id ? 0 : 1)
                                         .onGeometryChange(for: CGRect.self) {
                                             $0.frame(in: .global)
@@ -55,6 +56,7 @@ struct EditOrCreateTemplateView: View {
                                         }
                                 }
                             }
+                            .scrollTargetLayout()
                         },
                         items: sortedExercises,
                         selectedItem: $selectedExercise,
@@ -73,25 +75,6 @@ struct EditOrCreateTemplateView: View {
                         onScroll: checkAndScroll,
                         onSwap: checkAndSwapItems
                     )
-                    //                .overlay(alignment: .topLeading) {
-                    //                    let adjustedInitialOffset = CGRect(
-                    //                        x: initialScrollOffset.minX,
-                    //                        y: initialScrollOffset.minY - parentFrame.minY,
-                    //                        width: initialScrollOffset.width,
-                    //                        height: initialScrollOffset.height
-                    //                    )
-                    //                    if let selectedExercise {
-                    //
-                    //                        TemplateExerciseCard(templateExericse: $selectedExercise, selectedExercise: $selectedExercise, selectedExerciseScale: $selectedExerciseScale, selectedExerciseFrame: $selectedExerciseFrame, offset: $offset, hapticsTrigger: $hapticsTrigger, initialScrollOffset: $initialScrollOffset, lastActiveScrollId: $lastActiveScrollId, dragging: $dragging, parentBounds: $parentFrame, exerciseFrames: $exerciseFrames, onScroll: checkAndScroll, onSwap: checkAndSwapItems)
-                    //                            .frame(width: exerciseFrames[selectedExercise.id]?.width ?? .zero, height: exerciseFrames[selectedExercise.id]?.height ?? .zero)
-                    //                            .scaleEffect(selectedExerciseScale)
-                    //                            .offset(x: adjustedInitialOffset.minX,
-                    //                                    y: adjustedInitialOffset.minY)
-                    //                            .offset(offset)
-                    //                            .ignoresSafeArea()
-                    //                            .transition(.identity)
-                    //                    }
-                    //                }
                     .sensoryFeedback(.impact, trigger: hapticsTrigger)
                 }
                 NavigationLink {

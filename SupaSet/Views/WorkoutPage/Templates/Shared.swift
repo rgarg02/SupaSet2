@@ -37,7 +37,6 @@ struct DraggableScrollContainer<Content: View, Item: ExerciseItem>: View {
             ScrollView {
                     content
                         .padding(.bottom, items.last.flatMap { (itemFrames[$0.id]?.height ?? 0)/2 } ?? 0)
-                        .scrollTargetLayout()
             }
             .scrollIndicators(.hidden)
             .scrollPosition(id: $scrolledItem) // Add anchor parameter
@@ -97,6 +96,7 @@ struct DraggableScrollContainer<Content: View, Item: ExerciseItem>: View {
                             .font(.title3)
                             .fontWeight(.semibold)
                             .foregroundColor(.theme.text)
+                        Spacer()
                     }
                     .frame(maxWidth: .infinity)
                     .modifier(ExerciseCardStyle())
