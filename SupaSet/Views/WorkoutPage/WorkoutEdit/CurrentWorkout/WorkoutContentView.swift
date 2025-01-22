@@ -17,58 +17,41 @@ struct WorkoutContentView: View {
     @State private var isDragging = false
     @State private var draggingViewDown : Bool = false
     // Add a constant for the minimum height when collapsed
-    private let minHeight: CGFloat = 50 // Adjust this value based on your WorkoutTopControls height
+    private let minHeight: CGFloat = 60 // Adjust this value based on your WorkoutTopControls height
     
     var body: some View {
         GeometryReader { geometry in
                 ZStack(alignment: .bottom) {
                     VStack(spacing: 0) {
-                        DragIndicator()
-                            .opacity(show ? 1 : 0)
-                        TopControls(
-                            workout: workout,
-                            show: $show,
-                            offset: $offset
-                        )
+                        VStack(spacing: 0) {
+                            DragIndicator()
+                                .opacity(show ? 1 : 0)
+                            TopControls(
+                                workout: workout,
+                                show: $show,
+                                offset: $offset
+                            )
+                            Spacer()
+                            Divider()
+                        }
+                        .frame(maxHeight: minHeight)
+                        .frame(height: minHeight)
                         ScrollContentView(workout: workout, exercises: $workout.exercises)
                         .opacity(show ? 1 : 0)
                     }
                     .background(Color.theme.background)
-//                    if show {
-//                        NavigationLink {
-//                            ExerciseListPickerView(
-//                                workout: workout
-//                            )
-//                        } label: {
-//                            HStack(spacing: 8) {
-//                                Image(systemName: "plus")
-//                                    .foregroundColor(.theme.text)
-//                                    .font(.title3)
-//                                
-//                                Text("Add Exercises")
-//                                    .foregroundColor(.theme.text)
-//                                    .font(.title3)
-//                            }
-//                            .padding()
-//                            .background(
-//                                RoundedRectangle(cornerRadius: 30)
-//                                    .fill(Color.theme.accent)
-//                            )
-//                        }
-//                        .padding(.horizontal, 50.0)
-//                        .padding(.vertical)
-//                    }
                 }
             .ignoresSafeArea(.keyboard, edges: .bottom)
             .dismissKeyboardOnTap()
             .background(Color.theme.background)
-            .offset(y: show ? max(offset, 0) : geometry.size.height - minHeight) // Prevent dragging up beyond original position
+            .offset(y: show ? max(min(offset, geometry.size.height - minHeight), 0) : geometry.size.height - minHeight)
             .gesture(
                 DragGesture()
                     .onChanged { value in
                         isDragging = true
                         let dragAmount = value.translation.height
                         offset = min(dragAmount, geometry.size.height - minHeight)
+                        print(offset)
                         draggingViewDown = true
                     }
                     .onEnded { value in
@@ -96,6 +79,7 @@ struct DragIndicator: View {
         RoundedRectangle(cornerRadius: 2.5)
             .fill(.gray)
             .frame(width: 40, height: 5)
+            .padding(.top, 5)
     }
 }
 #Preview {

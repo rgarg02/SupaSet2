@@ -72,14 +72,17 @@ struct TemplateCarouselView: View {
                     )
                 }
                 // Add Template Card
-                NavigationLink(destination: EditOrCreateTemplateView(template: Template(order: templates.count), isNew: true)) {
+                NavigationLink(destination: createNewTemplateView()) {
                     AddTemplateCard()
                 }
             }
             .padding()
         }
     }
-    
+    private func createNewTemplateView() -> some View {
+        let newTemplate = Template(order: templates.count)
+        return EditOrCreateTemplateView(template: newTemplate, isNew: true)
+    }
     // You may not need this moveTemplate function anymore if your drop delegate
     // handles reordering by updating the `Template.order` directly.
     func moveTemplate(from source: Template, to destination: Template) {

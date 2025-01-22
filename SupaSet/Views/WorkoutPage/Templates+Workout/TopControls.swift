@@ -41,7 +41,7 @@ struct TopControls: View {
         self.mode = .workout(workout: workout)
         self._show = show
         self._offset = offset
-        self.isNew = false
+        self.isNew = true
     }
     
     init(template: Template, isNew: Bool) {
@@ -55,7 +55,7 @@ struct TopControls: View {
         VStack {
             HStack {
                 if show {
-                    Button("Cancle") {
+                    Button(isNew ? "Cancel" : "Back") {
                         cancel()
                     }
                     .foregroundStyle(.red)
@@ -91,9 +91,6 @@ struct TopControls: View {
             if case .workout(let workout) = mode {
                 WorkoutTimer(workout: workout)
             }
-            
-            Spacer()
-            Divider()
         }
         .onTapGesture {
             if !show {
@@ -103,7 +100,6 @@ struct TopControls: View {
                 }
             }
         }
-        .frame(height: 50)
         .padding(.horizontal)
     }
     
@@ -148,9 +144,11 @@ struct TopControls: View {
     private func cancel() {
         switch mode {
         case .workout(let workout):
-            modelContext.delete(workout)
-            WorkoutActivityManager.shared.endAllActivities()
-        case .template(let _):
+            if isNew {
+                modelContext.delete(workout)
+                WorkoutActivityManager.shared.endAllActivities()
+            }
+        case .template:
             dismiss()
         }
         withAnimation {
