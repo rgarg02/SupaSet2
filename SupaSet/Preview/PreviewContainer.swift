@@ -1,16 +1,11 @@
 import SwiftData
 import Foundation
 
-/// Creates a ModelContainer for preview purposes.
-let previewContainer: ModelContainer = {
-    let container = try! ModelContainer(for: Workout.self)
-    return container
-}()
-
 @MainActor
 struct PreviewContainer {
     let container: ModelContainer
     let workout: Workout
+    let template: Template
     let completedWorkouts: [Workout]
     let viewModel: ExerciseViewModel
     
@@ -19,7 +14,10 @@ struct PreviewContainer {
         let schema = Schema([
             Workout.self,
             WorkoutExercise.self,
-            ExerciseSet.self
+            ExerciseSet.self,
+            Template.self,
+            TemplateExercise.self,
+            ExerciseDetail.self
         ])
         
         let config = ModelConfiguration(
@@ -40,6 +38,20 @@ struct PreviewContainer {
         // Create sample active workout
         workout = Workout(name: "Preview Workout", isFinished: false)
         container.mainContext.insert(workout)
+        template = Template(name: "Preview Template", order: 0)
+        container.mainContext.insert(template)
+        template.insertExercise(viewModel.exercises.randomElement()!.id)
+        template.insertExercise(viewModel.exercises.randomElement()!.id)
+        for index in 0..<5 {
+            let randomTemplate = Template(name: "Template \(index)", order: index)
+            container.mainContext.insert(randomTemplate)
+            randomTemplate.insertExercise(viewModel.exercises.randomElement()!.id)
+            randomTemplate.insertExercise(viewModel.exercises.randomElement()!.id)
+            randomTemplate.insertExercise(viewModel.exercises.randomElement()!.id)
+            randomTemplate.insertExercise(viewModel.exercises.randomElement()!.id)
+            randomTemplate.insertExercise(viewModel.exercises.randomElement()!.id)
+            randomTemplate.insertExercise(viewModel.exercises.randomElement()!.id)
+        }
         workout.insertExercise(viewModel.exercises.randomElement()!.id)
         workout.insertExercise(viewModel.exercises.randomElement()!.id)
         // Create completed workouts
