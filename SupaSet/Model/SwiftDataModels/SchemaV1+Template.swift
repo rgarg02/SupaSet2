@@ -39,30 +39,50 @@ extension SupaSetSchemaV1 {
         var id: UUID
         var exerciseID: String
         var order: Int
-        var sets: [TemplateExerciseSets]
+        var sets: [TemplateExerciseSet]
         var notes: String?
         
-        init(exerciseID: String, order: Int = 0, sets: [TemplateExerciseSets] = [TemplateExerciseSets(order: 0)], notes: String? = nil) {
+        init(exerciseID: String, order: Int, sets: [TemplateExerciseSet] = [TemplateExerciseSet(order: 0)], notes: String? = nil) {
             self.id = UUID()
             self.exerciseID = exerciseID
             self.order = order
             self.sets = sets
             self.notes = notes
         }
-        var sortedSets: [TemplateExerciseSets] {
+        var sortedSets: [TemplateExerciseSet] {
             sets.sorted { $0.order < $1.order }
+        }
+        func insertSet(reps: Int) {
+            let newSet = TemplateExerciseSet(
+                reps: reps,
+                order: sets.count
+            )
+            sets.append(newSet)
+            reorderSets()
+        }
+        func reorderSets() {
+            let sortedSets = sets.sorted { $0.order < $1.order }
+            for (index, set) in sortedSets.enumerated() {
+                set.order = index
+            }
+        }
+        func deleteSet(_ set: TemplateExerciseSet) {
+            sets.removeAll(where: { $0.id == set.id })
+            reorderSets()
         }
     }
     
     @Model
-    final class TemplateExerciseSets: Hashable {
+    final class TemplateExerciseSet: Hashable {
         var id: UUID
         var reps: Int
+        var weight: Double
         var order: Int
-        init(reps: Int = 1, order: Int) {
+        init(reps: Int = 1, order: Int, weight: Double = 0) {
             self.id = UUID()
             self.reps = reps
             self.order = order
+            self.weight = weight
         }
     }
     

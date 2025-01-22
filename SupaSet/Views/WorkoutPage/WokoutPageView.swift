@@ -21,8 +21,11 @@ struct WorkoutPageView: View {
     var body: some View {
         NavigationStack {
             ZStack {
-                VStack{
-                    // Create new tempalte button
+                VStack(alignment: .leading){
+                    Text("Workouts")
+                        .font(.largeTitle)
+                        .fontWeight(.bold)
+                        .padding()
                     TemplateCarouselView()
                 }
                 if hasOngoingWorkout {

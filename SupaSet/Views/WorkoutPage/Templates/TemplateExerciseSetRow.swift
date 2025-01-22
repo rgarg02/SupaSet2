@@ -1,35 +1,31 @@
 //
-//  SetRowView.swift
+//  TemplateExerciseSetRow.swift
 //  SupaSet
 //
-//  Created by Rishi Garg on 11/7/24.
+//  Created by Rishi Garg on 1/22/25.
 //
 
 import SwiftUI
 import SwiftData
-struct SetRowView: View {
-    let setNumber: Int
-    @Bindable var set: ExerciseSet
-    @FocusState private var focused: Bool
-    let exerciseID: String
+struct TemplateExerciseSetRow: View {
+    @Bindable var set: TemplateExerciseSet
+    @FocusState var focused: Bool
+    let columns = [
+        GridItem(.fixed(40)), // Smaller column for set number
+        GridItem(.flexible()),
+        GridItem(.flexible())
+    ]
     @Query var exerciseDetails: [ExerciseDetail]
-    init(setNumber: Int, set: ExerciseSet, exerciseID: String) {
-        self.setNumber = setNumber
+    init(set: TemplateExerciseSet, exerciseID: String) {
         self._set = Bindable(set)
-        self.exerciseID = exerciseID
         _exerciseDetails = Query(filter: #Predicate { $0.exerciseID == exerciseID })
     }
-    private let columns = [
-            GridItem(.fixed(40)), // Smaller column for set number
-            GridItem(.flexible()), // Flexible for weight
-            GridItem(.flexible()), // Flexible for reps
-            GridItem(.fixed(80))  // Smaller column for checkbox
-        ]
     var body: some View {
         LazyVGrid(columns: columns, alignment: .center) {
             // Set Number
-            Text("\(setNumber)")
+            Text("\(set.order+1)")
                 .font(.headline)
+                .frame(maxWidth: .infinity, alignment: .leading)
             
             // Weight Input
             HStack(spacing: 4) {
@@ -43,11 +39,11 @@ struct SetRowView: View {
                                 textField.selectAll(nil)
                             }
                         }
-                    .frame(maxWidth: .infinity)
                 
                 Text(exerciseDetails.first?.unit.rawValue ?? "lbs")
                     .font(.caption)
             }
+            .frame(maxWidth: .infinity, alignment: .trailing)
             
             // Reps Input
             HStack(spacing: 4) {
@@ -61,23 +57,12 @@ struct SetRowView: View {
                                 textField.selectAll(nil)
                             }
                         }
-                    .frame(maxWidth: .infinity)
                 Text("reps")
                     .font(.caption)
             }
-            
-            // Done Checkbox
-            Button(action: {
-                set.isDone.toggle()
-            }) {
-                Image(systemName: set.isDone ? "checkmark.circle.fill" : "circle")
-                    .resizable()
-                    .frame(width: 24, height: 24)
-                    .foregroundColor(set.isDone ? .theme.secondary : .gray)
-            }
             .frame(maxWidth: .infinity, alignment: .trailing)
+            
         }
-        .foregroundStyle(set.isDone ? Color.theme.textOpposite : Color.theme.text)
         .padding(.horizontal, 16)
         .padding(.vertical, 12)
         .toolbar {
@@ -90,10 +75,9 @@ struct SetRowView: View {
                 }
             }
         }
-        .sensoryFeedback(.success, trigger: set.isDone)
         .background(
             RoundedRectangle(cornerRadius: 8)
-                .fill(set.isDone ? Color.theme.primary : Color.theme.background)
+                .fill(Color.theme.background)
                 .shadow(
                     color: Color.black.opacity(0.05),
                     radius: 2,
@@ -107,37 +91,3 @@ struct SetRowView: View {
         )
     }
 }
-
-// Preview Container to manage FocusState
-struct SetRowPreviewContainer: View {
-    let set: ExerciseSet
-    let setNumber: Int
-    
-    var body: some View {
-        SetRowView(
-            setNumber: setNumber,
-            set: set, exerciseID: ""
-        )
-    }
-}
-
-#Preview("Default Set") {
-    VStack(spacing: 16) {
-        SetRowPreviewContainer(
-            set: ExerciseSet(reps: 10, weight: 20),
-            setNumber: 1
-        )
-        
-        SetRowPreviewContainer(
-            set: ExerciseSet(reps: 8, weight: 25, isDone: true),
-            setNumber: 2
-        )
-        
-        SetRowPreviewContainer(
-            set: ExerciseSet(reps: 12, weight: 15, isWarmupSet: true),
-            setNumber: 3
-        )
-    }
-    .padding()
-}
-

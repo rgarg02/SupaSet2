@@ -7,12 +7,14 @@
 import SwiftUI
 
 struct PlaceholderSetRowView: View {
+    let templateSet: Bool
     private let columns = [
         GridItem(.fixed(40)), // Set number
         GridItem(.flexible()), // Weight
         GridItem(.flexible()), // Reps
         GridItem(.fixed(80))  // Checkbox
     ]
+
     
     var body: some View {
         LazyVGrid(columns: columns, alignment: .center) {
@@ -35,12 +37,12 @@ struct PlaceholderSetRowView: View {
                 Text("reps")
                     .font(.caption)
             }
-            
-            // Checkbox placeholder
+                // Checkbox placeholder
             Image(systemName: "circle")
                 .resizable()
                 .frame(width: 24, height: 24)
                 .frame(maxWidth: .infinity, alignment: .trailing)
+                .opacity(templateSet ? 0 : 1)
         }
         .foregroundStyle(Color.theme.textOpposite)
         .padding(.horizontal, 16)
@@ -56,9 +58,10 @@ struct PlaceholderSetRowView: View {
 
 #Preview("Placeholder Set") {
     VStack(spacing: 16) {
-        PlaceholderSetRowView()
-        PlaceholderSetRowView()
-        PlaceholderSetRowView()
+        PlaceholderSetRowView(templateSet: true)
+        PlaceholderSetRowView(templateSet: false)
+        PlaceholderSetRowView(templateSet: true)
+
     }
     .padding()
 }

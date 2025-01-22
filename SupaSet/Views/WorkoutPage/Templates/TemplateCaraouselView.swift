@@ -44,39 +44,45 @@ struct TemplateCarouselView: View {
     @State private var draggingTemplate: Template?
     @Environment(ExerciseViewModel.self) var exerciseViewModel
     var body: some View {
-        ScrollView {
-            LazyVGrid(columns: columns, spacing: 16) {
-                // Template Cards
-                ForEach(templates) { template in
-                    NavigationLink(destination: EditOrCreateTemplateView(template: template, isNew: false)) {
-                        TemplateCard(template: template)
-                            .onDrag {
-                                // Start dragging the selected template:
-//                                draggingTemplate = template
-                                return NSItemProvider(object: String(template.id.uuidString) as NSString)
-                            } preview: {
-                                TemplateCard(template: template)
-                                    .environment(exerciseViewModel)
-                                    .onAppear{
-                                        draggingTemplate = template
-                                    }
-                            }
-                            .opacity(draggingTemplate?.id == template.id ? 0 : 1)
-                    }
-                    .onDrop(
-                        of: [.text],
-                        delegate: DragRelocateDelegate(
-                            item: template,
-                            current: $draggingTemplate
+        VStack(alignment: .leading){
+            Text("Templates")
+                .font(.title)
+                .fontWeight(.bold)
+                .padding(.horizontal)
+            ScrollView {
+                LazyVGrid(columns: columns, spacing: 16) {
+                    // Template Cards
+                    ForEach(templates) { template in
+                        NavigationLink(destination: EditOrCreateTemplateView(template: template, isNew: false)) {
+                            TemplateCard(template: template)
+                                .onDrag {
+                                    // Start dragging the selected template:
+                                    //                                draggingTemplate = template
+                                    return NSItemProvider(object: String(template.id.uuidString) as NSString)
+                                } preview: {
+                                    TemplateCard(template: template)
+                                        .environment(exerciseViewModel)
+                                        .onAppear{
+                                            draggingTemplate = template
+                                        }
+                                }
+                                .opacity(draggingTemplate?.id == template.id ? 0 : 1)
+                        }
+                        .onDrop(
+                            of: [.text],
+                            delegate: DragRelocateDelegate(
+                                item: template,
+                                current: $draggingTemplate
+                            )
                         )
-                    )
+                    }
+                    // Add Template Card
+                    NavigationLink(destination: createNewTemplateView()) {
+                        AddTemplateCard()
+                    }
                 }
-                // Add Template Card
-                NavigationLink(destination: createNewTemplateView()) {
-                    AddTemplateCard()
-                }
+                .padding()
             }
-            .padding()
         }
     }
     private func createNewTemplateView() -> some View {
@@ -129,7 +135,7 @@ struct TemplateCard: View {
             }
             Spacer()
         }
-        .frame(height: 170)
+        .frame(height: 150)
         .foregroundStyle(Color.theme.text)
         .frame(maxWidth: .infinity, alignment: .leading)
         .padding()
@@ -154,7 +160,7 @@ struct AddTemplateCard: View {
             Text("Create Template")
                 .font(.headline)
         }
-        .frame(height: 170)
+        .frame(height: 150)
         .frame(maxWidth: .infinity)
         .padding()
         .background(Color.theme.secondary)

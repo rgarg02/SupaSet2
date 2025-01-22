@@ -58,13 +58,15 @@ struct ExerciseCardView: View {
                             Text("REPS")
                                 .font(.caption)
                                 .foregroundColor(.theme.text)
-                                .frame(maxWidth: .infinity, alignment: .center)
+                                .frame(maxWidth: .infinity, alignment: .trailing)
+                                .padding(.trailing)
                             //                    .frame(width: 100)
                             
                             Text("DONE")
                                 .font(.caption)
                                 .foregroundColor(.theme.text)
-                                .frame(maxWidth: .infinity, alignment: .center)
+                                .frame(maxWidth: .infinity, alignment: .trailing)
+                                .padding(.trailing)
                             //                    .frame(width: 40)
                         }
                         ForEach(workoutExercise.sortedSets, id: \.self) { set in
@@ -73,7 +75,6 @@ struct ExerciseCardView: View {
                                     setNumber: set.order + 1,
                                     set: set,
                                     exerciseID: workoutExercise.exerciseID
-                                    
                                 )
                             } actions:{
                                 Action(tint: .red, icon: "trash.fill") {
@@ -84,7 +85,7 @@ struct ExerciseCardView: View {
                                 }
                             }
                         }
-                        PlaceholderSetRowView()
+                        PlaceholderSetRowView(templateSet: false)
                             .onTapGesture {
                                 withAnimation(.snappy(duration: 0.25)) {
                                     workoutExercise.insertSet(reps: workoutExercise.sortedSets.last?.reps ?? 0, weight: workoutExercise.sortedSets.last?.weight ?? 0)
@@ -96,74 +97,7 @@ struct ExerciseCardView: View {
                 Spacer()
             }
         }
-        .padding()
-    }
-    private var customCombinedGesture: some Gesture {
-        LongPressGesture(minimumDuration: 0.25)
-            .sequenced(before: DragGesture(minimumDistance: 0, coordinateSpace: .global))
-            .onChanged { value in
-                switch value {
-                case .second(let status, let value):
-                    if status {
-                        if selectedExercise == nil {
-                            selectedExercise = workoutExercise
-                            selectedExerciseFrame = exerciseFrames[workoutExercise.id] ?? .zero
-                            initialScrollOffset = selectedExerciseFrame
-                            initialScrollOffset = selectedExerciseFrame
-                            lastActiveScrollId = workoutExercise.id
-                            hapticsTrigger.toggle()
-                            
-                            withAnimation(.smooth(duration: 0.2, extraBounce: 0)) {
-                                selectedExerciseScale = 1.1
-                                dragging = true
-                            }
-                        }
-                        
-                        if let value {
-                            // Calculate the new Y position
-                            let newY = initialScrollOffset.minY + value.translation.height
-                            
-                            // Get the available vertical space
-                            let minY = parentBounds.minY + 50 // Add some padding from top
-                            let maxY = parentBounds.maxY - selectedExerciseFrame.height - 50 // Subtract height and padding
-                            
-                            // Clamp the Y position
-                            let clampedY = min(max(newY, minY), maxY)
-                            
-                            // Calculate the clamped offset
-                            let clampedOffset = CGSize(
-                                width: 0,
-                                height: clampedY - initialScrollOffset.minY
-                            )
-                            
-                            offset = clampedOffset
-                            let location = value.location
-                            onScroll(location)
-                            onSwap(location)
-                        }
-                    }
-                default: ()
-                }
-            }
-            .onEnded { _ in
-                withAnimation(.snappy(duration: 0.25, extraBounce: 0),
-                              completionCriteria: .logicallyComplete) {
-                    if let selectedExercise = selectedExercise {
-                        exerciseFrames[selectedExercise.id] = selectedExerciseFrame
-                    }
-                    initialScrollOffset = selectedExerciseFrame
-                    selectedExerciseScale = 1.0
-                    offset = .zero
-                } completion: {
-                    selectedExercise = nil
-                    initialScrollOffset = .zero
-                    selectedExerciseFrame = .zero
-                    lastActiveScrollId = nil
-                    withAnimation(.snappy) {
-                        dragging = false
-                    }
-                }
-            }
+        .padding(.vertical)
     }
 }
 

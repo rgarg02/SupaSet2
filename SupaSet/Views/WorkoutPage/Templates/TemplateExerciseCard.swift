@@ -10,6 +10,7 @@ import SwiftUI
 struct TemplateExerciseCard: View {
     @Bindable var templateExericse: TemplateExercise
     @Environment(ExerciseViewModel.self) var viewModel
+    @Environment(\.modelContext) var modelContext
     // New bindings for gesture handling
     @Binding var selectedExercise: TemplateExercise?
     @Binding var selectedExerciseScale: CGFloat
@@ -25,8 +26,8 @@ struct TemplateExerciseCard: View {
     let onSwap: (CGPoint) -> Void
     private let columns = [
             GridItem(.fixed(40)), // Smaller column for set number
-            GridItem(.flexible()), // Flexible for reps
-            GridItem(.fixed(80))  // Smaller column for checkbox
+            GridItem(.flexible()), // Flexible for weight
+            GridItem(.flexible()) // Flexible for reps
     ]
     var body: some View {
         VStack(alignment: .leading, spacing: 8) {
@@ -43,71 +44,46 @@ struct TemplateExerciseCard: View {
                             Text("SET")
                                 .font(.caption)
                                 .foregroundColor(.theme.text)
-                                .frame(maxWidth: .infinity, alignment: .trailing)
                             //                    .frame(width: 20)
-                            
+                            Text("WEIGHT")
+                                .font(.caption)
+                                .foregroundColor(.theme.text)
+                                .frame(maxWidth: .infinity, alignment: .trailing)
+                            //                    .frame(width: 100)
                             Text("REPS")
                                 .font(.caption)
                                 .foregroundColor(.theme.text)
-                                .frame(maxWidth: .infinity, alignment: .center)
+                                .frame(maxWidth: .infinity, alignment: .trailing)
+                                .padding(.trailing)
                             //                    .frame(width: 100)
                             
-                            Text("DONE")
-                                .font(.caption)
-                                .foregroundColor(.theme.text)
-                                .frame(maxWidth: .infinity, alignment: .center)
-                            //                    .frame(width: 40)
                         }
                         ForEach(templateExericse.sortedSets, id: \.self) { set in
                             SwipeAction(cornerRadius: 8, direction: .trailing){
-                                LazyVGrid(columns: columns) {
-                                    Text("SET")
-                                        .font(.caption)
-                                        .foregroundColor(.theme.text)
-                                        .frame(maxWidth: .infinity, alignment: .trailing)
-                                    //                    .frame(width: 20)
-                                    
-                                    Text("WEIGHT")
-                                        .font(.caption)
-                                        .foregroundColor(.theme.text)
-                                        .frame(maxWidth: .infinity, alignment: .trailing)
-                                    //                    .frame(width: 100)
-                                    
-                                    Text("REPS")
-                                        .font(.caption)
-                                        .foregroundColor(.theme.text)
-                                        .frame(maxWidth: .infinity, alignment: .center)
-                                    //                    .frame(width: 100)
-                                    
-                                    Text("DONE")
-                                        .font(.caption)
-                                        .foregroundColor(.theme.text)
-                                        .frame(maxWidth: .infinity, alignment: .center)
-                                    //                    .frame(width: 40)
-                                }
+                                TemplateExerciseSetRow(set: set, exerciseID: templateExericse.exerciseID)
 
                             } actions:{
-//                                Action(tint: .red, icon: "trash.fill") {
-//                                    withAnimation(.easeInOut){
-//                                        workoutExercise.deleteSet(set)
-//                                        modelContext.delete(set)
-//                                    }
-//                                }
+                                Action(tint: .red, icon: "trash.fill") {
+                                    withAnimation(.easeInOut){
+                                        templateExericse.deleteSet(set)
+                                        modelContext.delete(set)
+                                    }
+                                }
                             }
                         }
-                        PlaceholderSetRowView()
-//                            .onTapGesture {
-//                                withAnimation(.snappy(duration: 0.25)) {
-//                                    workoutExercise.insertSet(reps: workoutExercise.sortedSets.last?.reps ?? 0, weight: workoutExercise.sortedSets.last?.weight ?? 0)
-//                                }
-//                            }
+                        PlaceholderSetRowView(templateSet: true)
+                            .onTapGesture {
+                                withAnimation(.snappy(duration: 0.25)) {
+                                    templateExericse.insertSet(reps: templateExericse.sortedSets.last?.reps ?? 0)
+                                }
+                            }
                     }
                 }
                 .frame(minHeight: 240)
                 Spacer()
             }
         }
-        .padding()
+        .padding(.vertical)
     }
 }
 
