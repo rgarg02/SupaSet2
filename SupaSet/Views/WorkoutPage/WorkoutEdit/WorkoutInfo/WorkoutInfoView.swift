@@ -12,11 +12,8 @@ struct WorkoutInfoView: View {
     var body: some View {
         VStack(spacing: 20) {
             NameSection(item: workout)
-                .padding(.horizontal)
             WorkoutTimeSection(workout: workout)
-                .padding(.horizontal)
             NotesSection(item: workout)
-                .padding(.horizontal)
         }
     }
 }

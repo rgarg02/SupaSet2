@@ -43,17 +43,17 @@ struct DraggableScrollContainer<Content: View, Item: ExerciseItem>: View {
             .scrollPosition(id: $scrolledItem) // Add anchor parameter
             .contentMargins(.vertical, 30)
             .scrollTargetBehavior(.viewAligned)
-            .padding(.horizontal, 20)
+            .padding(.horizontal)
             .overlay(alignment: .trailing) {
                 if dragging {
                     if let selectedItem {
                         WorkoutProgressDots(totalExercises: items.count, currentExerciseIndex: items.firstIndex(where: { $0.id == selectedItem.id }) ?? 0)
-                            .padding(.trailing, 10)
+                            .padding(.trailing, 3)
                     }
                     
                 }else{
                     WorkoutProgressDots(totalExercises: items.count, currentExerciseIndex: items.firstIndex(where: {$0.id == scrolledItem}) ?? 0)
-                        .padding(.trailing, 10)
+                        .padding(.trailing, 3)
                 }
             }
             .onGeometryChange(for: CGRect.self) {
