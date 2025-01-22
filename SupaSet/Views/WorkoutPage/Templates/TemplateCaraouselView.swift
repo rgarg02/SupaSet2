@@ -123,15 +123,10 @@ struct TemplateCard: View {
                 if template.exercises.count > 4 {
                     Text("+ \(template.exercises.count - 4) more")
                         .font(.subheadline)
-                } else {
-                    // add placeholder for spacing based on exercise limit
-                    ForEach(0 ..< (4 - template.exercises.count + 1)) { _ in
-                        Text(" ")
-                            .font(.subheadline)
-                    }
                 }
             }
         }
+        .frame(height: 160)
         .foregroundStyle(Color.theme.text)
         .frame(maxWidth: .infinity, alignment: .leading)
         .padding()
@@ -156,8 +151,9 @@ struct AddTemplateCard: View {
             Text("Create Template")
                 .font(.headline)
         }
-        .frame(maxWidth: .infinity)
         .frame(height: 160)
+        .frame(maxWidth: .infinity)
+        .padding()
         .background(Color.theme.secondary)
         .clipShape(RoundedRectangle(cornerRadius: 12))
         .shadow(color: .black.opacity(0.1), radius: 5, x: 0, y: 2)
