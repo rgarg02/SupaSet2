@@ -43,6 +43,7 @@ struct SupaSetApp: App {
                 }
                 .environment(exerciseViewModel)
                 .environment(authenticationViewModel)
+                .usesAlertController()
         }
     }
 }

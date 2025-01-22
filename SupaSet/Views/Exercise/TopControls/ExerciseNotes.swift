@@ -17,6 +17,7 @@ struct ExerciseNotesView: View {
                 @Bindable var exerciseDetail = exerciseDetail
                 TextEditor(text: $exerciseDetail.notes)
                     .frame(minHeight: 50)
+                    .scrollContentBackground(.hidden) // Add this line
                     .focused($focused)
                 if exerciseDetail.notes.isEmpty {
                     Text("Add a note")
@@ -32,6 +33,8 @@ struct ExerciseNotesView: View {
                     }
             }
         }
+        .background(Color.theme.primarySecond)
+        .cornerRadius(8)
         .toolbar {
             if focused{
                 ToolbarItemGroup(placement: .keyboard) {

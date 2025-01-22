@@ -20,8 +20,8 @@ struct ExerciseTopControls<T: ExerciseMenuType>: View {
             HStack {
                 Text(viewModel.getExerciseName(for: exercise.exerciseID))
                     .font(.title3)
-                    .fontWeight(.semibold)
-                    .foregroundColor(.theme.text)
+                    .fontWeight(.bold)
+                    .foregroundColor(.theme.accent)
                 Spacer()
                 if !dragging{
                     Button(action: {

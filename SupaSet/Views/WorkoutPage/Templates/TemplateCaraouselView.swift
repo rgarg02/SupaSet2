@@ -97,15 +97,17 @@ struct TemplateCard: View {
     let template: Template
     @Environment(ExerciseViewModel.self) var exerciseViewModel
     var body: some View {
-        VStack(alignment: .leading, spacing: 12) {
+        VStack(alignment: .leading, spacing: 0) {
             // Template Name
             Text(template.name)
                 .font(.headline)
                 .foregroundStyle(.primary)
+                .padding(.vertical, 3)
             
             // Creation Date
             Text("Created: \(formattedDate(template.createdAt))")
                 .font(.caption)
+                .padding(.vertical, 3)
             
             // Exercises Preview
             VStack(alignment: .leading, spacing: 4) {
@@ -125,8 +127,9 @@ struct TemplateCard: View {
                         .font(.subheadline)
                 }
             }
+            Spacer()
         }
-        .frame(height: 160)
+        .frame(height: 170)
         .foregroundStyle(Color.theme.text)
         .frame(maxWidth: .infinity, alignment: .leading)
         .padding()
@@ -151,7 +154,7 @@ struct AddTemplateCard: View {
             Text("Create Template")
                 .font(.headline)
         }
-        .frame(height: 160)
+        .frame(height: 170)
         .frame(maxWidth: .infinity)
         .padding()
         .background(Color.theme.secondary)

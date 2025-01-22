@@ -37,6 +37,8 @@ struct EditOrCreateTemplateView: View {
             ZStack(alignment: .bottom) {
                 VStack(spacing: 0) {
                     TopControls(template: template, isNew: isNew)
+                        .frame(height: 60)
+                        .background(Color.theme.primarySecond)
                     DraggableScrollContainer(
                         content: VStack(spacing: 0) {
                             LazyVStack{
@@ -55,6 +57,8 @@ struct EditOrCreateTemplateView: View {
                                             exerciseFrames[exercise.id] = newValue
                                         }
                                 }
+                                CancelFinishAddView(item: template, show: .constant(true), isNew: isNew)
+
                             }
                             .scrollTargetLayout()
                         },
@@ -77,27 +81,8 @@ struct EditOrCreateTemplateView: View {
                     )
                     .sensoryFeedback(.impact, trigger: hapticsTrigger)
                 }
-                NavigationLink {
-                    ExerciseListPickerView(template: template)
-                } label: {
-                    HStack(spacing: 8) {
-                        Image(systemName: "plus")
-                            .foregroundColor(.theme.text)
-                            .font(.title3)
-                        
-                        Text("Add Exercises")
-                            .foregroundColor(.theme.text)
-                            .font(.title3)
-                    }
-                    .padding()
-                    .background(
-                        RoundedRectangle(cornerRadius: 30)
-                            .fill(Color.theme.accent)
-                    )
-                }
-                .padding(.horizontal, 50.0)
-                .padding(.vertical)
             }
+            .cornerRadius(8)
             .navigationBarBackButtonHidden(true)
             .ignoresSafeArea(.keyboard, edges: .bottom)
             .dismissKeyboardOnTap()

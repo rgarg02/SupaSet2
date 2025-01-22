@@ -40,6 +40,7 @@ extension ScrollContentView {
                                 exerciseFrames[exercise.id] = newValue
                             }
                         }
+                        CancelFinishAddView(item: workout, show: $show, isNew: !workout.isFinished)
                     }
                     .scrollTargetLayout()
                 },

@@ -14,11 +14,9 @@ struct WorkoutTimer: View {
         HStack {
             if #available(iOS 18.0, *){
                 Image(systemName: "clock")
-                    .foregroundStyle(Color.theme.accent)
                     .symbolEffect(.breathe)
             }else{
                 Image(systemName: "clock")
-                    .foregroundStyle(Color.theme.accent)
             }
             
             Text(
@@ -29,6 +27,7 @@ struct WorkoutTimer: View {
                 ),
                 style: .timer
             )
+            
             .contentTransition(.numericText(countsDown: true))
         }
     }

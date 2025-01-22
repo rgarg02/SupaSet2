@@ -96,7 +96,7 @@ struct ExerciseCardView: View {
                 Spacer()
             }
         }
-        .modifier(ExerciseCardStyle())
+        .padding()
     }
     private var customCombinedGesture: some Gesture {
         LongPressGesture(minimumDuration: 0.25)

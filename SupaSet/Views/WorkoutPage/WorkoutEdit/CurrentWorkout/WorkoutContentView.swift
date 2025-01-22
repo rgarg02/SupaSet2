@@ -21,49 +21,32 @@ struct WorkoutContentView: View {
     
     var body: some View {
         GeometryReader { geometry in
-                ZStack(alignment: .bottom) {
+            ZStack(alignment: .bottom) {
+                VStack(spacing: 0) {
                     VStack(spacing: 0) {
-                        VStack(spacing: 0) {
-                            DragIndicator()
-                                .opacity(show ? 1 : 0)
-                            TopControls(
-                                workout: workout,
-                                show: $show,
-                                offset: $offset
-                            )
-                            Spacer()
-                            Divider()
-                        }
-                        .frame(maxHeight: minHeight)
-                        .frame(height: minHeight)
-                        ScrollContentView(workout: workout, exercises: $workout.exercises)
-                        .opacity(show ? 1 : 0)
-                    }
-                    .background(Color.theme.background)
-                    NavigationLink {
-                        ExerciseListPickerView(workout: workout)
-                    } label: {
-                        HStack(spacing: 8) {
-                            Image(systemName: "plus")
-                                .foregroundColor(.theme.text)
-                                .font(.title3)
-                            
-                            Text("Add Exercises")
-                                .foregroundColor(.theme.text)
-                                .font(.title3)
-                        }
-                        .padding()
-                        .background(
-                            RoundedRectangle(cornerRadius: 30)
-                                .fill(Color.theme.accent)
+                        DragIndicator()
+                            .opacity(show ? 1 : 0)
+                        TopControls(
+                            workout: workout,
+                            show: $show,
+                            offset: $offset
                         )
+                        Spacer()
+                        Divider()
                     }
-                    .padding(.horizontal, 50.0)
-                    .padding(.vertical)
+                    .foregroundStyle(Color.theme.text)
+                    .background(Color.theme.primarySecond)
+                    .frame(maxHeight: minHeight)
+                    .frame(height: minHeight)
+                    ScrollContentView(workout: workout, exercises: $workout.exercises, show: $show)
+                        .opacity(show ? 1 : 0)
                 }
+                .background(Color.theme.background)
+            }
             .ignoresSafeArea(.keyboard, edges: .bottom)
             .dismissKeyboardOnTap()
             .background(Color.theme.background)
+            .cornerRadius(8)
             .offset(y: show ? max(min(offset, geometry.size.height - minHeight), 0) : geometry.size.height - minHeight)
             .gesture(
                 DragGesture()
@@ -71,7 +54,6 @@ struct WorkoutContentView: View {
                         isDragging = true
                         let dragAmount = value.translation.height
                         offset = min(dragAmount, geometry.size.height - minHeight)
-                        print(offset)
                         draggingViewDown = true
                     }
                     .onEnded { value in

@@ -107,7 +107,7 @@ struct TemplateExerciseCard: View {
                 Spacer()
             }
         }
-        .modifier(ExerciseCardStyle())
+        .padding()
     }
 }
 

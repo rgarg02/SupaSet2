@@ -10,7 +10,7 @@ struct ScrollContentView: View {
     @Bindable var workout: Workout
     @Binding var exercises: [WorkoutExercise]
     @State var dragging: Bool = false
-    
+    @Binding var show: Bool
     // State properties
     @State internal var selectedExercise: WorkoutExercise?
     @State internal var selectedExerciseScale: CGFloat = 1.0
@@ -31,9 +31,9 @@ struct ScrollContentView: View {
         exercises.sorted { $0.order < $1.order }
     }
 }
-#Preview {
-    let preview = PreviewContainer.preview
-    let workout = preview.workout
-    ScrollContentView(workout: workout, exercises: .constant(workout.exercises))
-        .modelContainer(preview.container)
-}
+//#Preview {
+//    let preview = PreviewContainer.preview
+//    let workout = preview.workout
+//    ScrollContentView(workout: workout, exercises: .constant(workout.exercises))
+//        .modelContainer(preview.container)
+//}

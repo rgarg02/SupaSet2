@@ -6,6 +6,17 @@
 //
 import Foundation
 import SwiftUI
+// Custom View Modifier
+struct LongButtonModifier: ViewModifier {
+    func body(content: Content) -> some View {
+        content
+            .frame(maxWidth: .infinity)
+            .padding()
+            .background(Color.theme.accent) // Background color
+            .cornerRadius(25) // Medium size dimension divided by 2
+            .frame(height: 50) // Medium size dimension
+    }
+}
 struct CustomButtonStyle {
     enum Size {
         case small, medium, large
@@ -173,7 +184,6 @@ struct CustomButton: View {
                     ),
                     action: {}
                 )
-                
                 CustomButton(
                     icon: "star",
                     title: "Custom Outlined",
