@@ -42,40 +42,11 @@ struct ExerciseCardView: View {
             if !dragging{
                 VStack(spacing: 8) {
                     ScrollView(.vertical){
-                        LazyVGrid(columns: columns) {
-                            Text("SET")
-                                .font(.caption)
-                                .foregroundColor(.theme.text)
-                                .frame(maxWidth: .infinity, alignment: .trailing)
-                            //                    .frame(width: 20)
-                            
-                            Text("WEIGHT")
-                                .font(.caption)
-                                .foregroundColor(.theme.text)
-                                .frame(maxWidth: .infinity, alignment: .trailing)
-                            //                    .frame(width: 100)
-                            
-                            Text("REPS")
-                                .font(.caption)
-                                .foregroundColor(.theme.text)
-                                .frame(maxWidth: .infinity, alignment: .trailing)
-                                .padding(.trailing)
-                            //                    .frame(width: 100)
-                            
-                            Text("DONE")
-                                .font(.caption)
-                                .foregroundColor(.theme.text)
-                                .frame(maxWidth: .infinity, alignment: .trailing)
-                                .padding(.trailing)
-                            //                    .frame(width: 40)
-                        }
+                        SetColumnNamesView(exerciseID: workoutExercise.exerciseID, isTemplate: false)
                         ForEach(workoutExercise.sortedSets, id: \.self) { set in
+                            @Bindable var set = set
                             SwipeAction(cornerRadius: 8, direction: .trailing){
-                                SetRowView(
-                                    setNumber: set.order + 1,
-                                    set: set,
-                                    exerciseID: workoutExercise.exerciseID
-                                )
+                                SetRowViewCombined(order: set.order, isTemplate: false, weight: $set.weight, reps: $set.reps, isDone: $set.isDone)
                             } actions:{
                                 Action(tint: .red, icon: "trash.fill") {
                                     withAnimation(.easeInOut){
