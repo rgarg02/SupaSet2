@@ -40,27 +40,11 @@ struct TemplateExerciseCard: View {
             if !dragging{
                 VStack(spacing: 8) {
                     ScrollView(.vertical){
-                        LazyVGrid(columns: columns) {
-                            Text("SET")
-                                .font(.caption)
-                                .foregroundColor(.theme.text)
-                            //                    .frame(width: 20)
-                            Text("WEIGHT")
-                                .font(.caption)
-                                .foregroundColor(.theme.text)
-                                .frame(maxWidth: .infinity, alignment: .trailing)
-                            //                    .frame(width: 100)
-                            Text("REPS")
-                                .font(.caption)
-                                .foregroundColor(.theme.text)
-                                .frame(maxWidth: .infinity, alignment: .trailing)
-                                .padding(.trailing)
-                            //                    .frame(width: 100)
-                            
-                        }
+                        SetColumnNamesView(exerciseID: templateExericse.exerciseID, isTemplate: true)
                         ForEach(templateExericse.sortedSets, id: \.self) { set in
+                            @Bindable var set = set
                             SwipeAction(cornerRadius: 8, direction: .trailing){
-                                TemplateExerciseSetRow(set: set, exerciseID: templateExericse.exerciseID)
+                                SetRowViewCombined(order: set.order, isTemplate: true, weight: $set.weight, reps: $set.reps, isDone: .constant(false))
 
                             } actions:{
                                 Action(tint: .red, icon: "trash.fill") {
