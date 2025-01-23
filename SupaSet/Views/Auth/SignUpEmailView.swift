@@ -14,8 +14,7 @@ struct SignEmailView: View {
     @State var email: String = ""
     @State var password: String = ""
     @State var isSignUp: Bool = false
-    @State var showEmailAlert: Bool = false
-    @State var emailError: String = ""
+    @Environment(\.alertController) private var alertController
     var body: some View {
         VStack{
             TextField("Email", text: Bindable(authViewModel).email)
@@ -36,11 +35,6 @@ struct SignEmailView: View {
                 Text(isSignUp ? "Already have an account? Sign in" : "Don't have an account? Sign up")
             }
         }
-        .alert("Error", isPresented: $showEmailAlert) {
-            Button("OK", role: .cancel) {}
-        } message: {
-            Text(emailError)
-        }
         .navigationTitle("Sign in with Email")
     }
     func authenticate() {
@@ -51,8 +45,8 @@ struct SignEmailView: View {
             do {
                 try await authViewModel.signUp()
             } catch {
-                showEmailAlert = true
-                emailError = error.localizedDescription
+                let error = error.firebaseAuthErrorMessage()
+                alertController.present(message: error)
             }
         }
     }
@@ -61,11 +55,12 @@ struct SignEmailView: View {
             do {
                 try await authViewModel.signIn()
             } catch {
-                showEmailAlert = true
-                emailError = error.localizedDescription
+                let error = error.firebaseAuthErrorMessage()
+                alertController.present(message: error)
             }
         }
     }
+    
 }
 #Preview{
     NavigationStack{

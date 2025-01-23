@@ -7,13 +7,17 @@
 import SwiftData
 import Foundation
 
+enum ExerciseImporterError: Error {
+    case unexpected
+    case couldNotLoad
+}
+
 @Observable
 class ExerciseViewModel {
     private(set) var exercises: [Exercise] = []
-    private(set) var error: Error?
     private(set) var isLoading = false
     init(){
-            loadExercises()
+            try? loadExercises()
         }
     // Filtered collections
     var strengthExercises: [Exercise] {
@@ -47,7 +51,7 @@ class ExerciseViewModel {
     }
     
     // Load data
-    func loadExercises() {
+    func loadExercises() throws {
             guard let filePath = Bundle.main.path(forResource: "exercises", ofType: "json") else { return }
             do {
                 let data = try Data(contentsOf: URL(fileURLWithPath: filePath))
@@ -55,7 +59,7 @@ class ExerciseViewModel {
                 let exercises = try decoder.decode([Exercise].self, from: data)
                 self.exercises = exercises
             } catch {
-                print("Error while loading or decoding exercises: \(error)")
+                throw ExerciseImporterError.couldNotLoad
             }
         }
 }

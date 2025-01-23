@@ -163,7 +163,6 @@ extension SCNScene {
             if let color = colorForIntensity(intensity, maxIntensity: maxIntensity) {
                 rootNode.enumerateChildNodes { node, _ in
                     if (node.name).map(nodeNames.contains) ?? false {
-                        print(node.geometry?.name ?? "")
                         node.geometry?.materials.forEach { material in
                             material.diffuse.contents = color
                         }

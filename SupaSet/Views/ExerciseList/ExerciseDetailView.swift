@@ -107,7 +107,7 @@ struct ExerciseDetailView: View {
 }
 struct ExerciseImageView: View {
     let imagePath: String
-
+    @Environment(\.alertController) private var alertController
     var body: some View {
         if let image = loadImage(from: imagePath) {
             Image(uiImage: image)
@@ -123,10 +123,8 @@ struct ExerciseImageView: View {
         // Get the bundle
         guard let bundlePath = Bundle.main.path(forResource: "exerciseImages", ofType: "bundle"),
               let bundle = Bundle(path: bundlePath) else {
-            print("Bundle not found")
             return nil
         }
-        
         // Load the image
         return UIImage(named: path, in: bundle, compatibleWith: nil)
     }

@@ -31,14 +31,12 @@ struct CompleteSetIntent: LiveActivityIntent {
             let workouts = try container.mainContext.fetch(descriptor)
             
             guard let workout = workouts.first(where: { $0.id == uuid }) else {
-                print("No workout found with id \(workoutId)")
                 return .result()
             }
             
             WorkoutActivityManager.shared.completeCurrentSet(workout: workout)
             return .result()
         } catch {
-            print("Error fetching workouts: \(error)")
             return .result()
         }
     }
@@ -73,17 +71,14 @@ struct IncrementWeightIntent: LiveActivityIntent {
             
             let workouts = try context.fetch(descriptor)
             guard let workout = workouts.first else {
-                print("No workout found with id \(workoutId)")
                 return .result()
             }
-            print(workout.currentSetOrder)
             // Ensure we're operating within the correct context
             WorkoutActivityManager.shared.incrementWeight(workout: workout)
             
             try context.save()
             return .result()
         } catch {
-            print("Error in increment weight intent: \(error)")
             return .result()
         }
     }
@@ -113,14 +108,12 @@ struct DecrementWeightIntent: LiveActivityIntent {
             let workouts = try container.mainContext.fetch(descriptor)
             
             guard let workout = workouts.first(where: { $0.id == uuid }) else {
-                print("No workout found with id \(workoutId)")
                 return .result()
             }
             
             WorkoutActivityManager.shared.decrementWeight(workout: workout)
             return .result()
         } catch {
-            print("Error fetching workouts: \(error)")
             return .result()
         }
     }
@@ -151,14 +144,12 @@ struct IncrementRepsIntent: LiveActivityIntent {
             let workouts = try container.mainContext.fetch(descriptor)
             
             guard let workout = workouts.first(where: { $0.id == uuid }) else {
-                print("No workout found with id \(workoutId)")
                 return .result()
             }
             
             WorkoutActivityManager.shared.incrementReps(workout: workout)
             return .result()
         } catch {
-            print("Error fetching workouts: \(error)")
             return .result()
         }
     }
@@ -188,14 +179,12 @@ struct DecrementRepsIntent: LiveActivityIntent {
             let workouts = try container.mainContext.fetch(descriptor)
             
             guard let workout = workouts.first(where: { $0.id == uuid }) else {
-                print("No workout found with id \(workoutId)")
                 return .result()
             }
             
             WorkoutActivityManager.shared.decrementReps(workout: workout)
             return .result()
         } catch {
-            print("Error fetching workouts: \(error)")
             return .result()
         }
     }

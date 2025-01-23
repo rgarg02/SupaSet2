@@ -12,7 +12,6 @@ extension ScrollContentView {
             x: parentFrame.midX,
             y: location.y
         )
-        print(centeredLocation)
         let topStatus = topRegion.contains(centeredLocation)
         let bottomStatus = bottomRegion.contains(centeredLocation)
         

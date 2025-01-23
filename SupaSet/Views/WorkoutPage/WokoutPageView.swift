@@ -13,6 +13,7 @@ struct WorkoutPageView: View {
     @Namespace private var namespace
     @Query(filter: #Predicate<Workout> { !$0.isFinished }) private var ongoingWorkouts: [Workout]
     @Environment(\.modelContext) private var modelContext
+    @Environment(\.alertController) private var alertController
     @State private var activityID: String?
     private var hasOngoingWorkout: Bool {
         !ongoingWorkouts.isEmpty
@@ -54,9 +55,13 @@ struct WorkoutPageView: View {
     }
     
     private func startNewWorkout() {
-        let workout = Workout(name: "New Workout")
-        modelContext.insert(workout)
-        WorkoutActivityManager.shared.startWorkoutActivity(workout: workout)
+        do {
+            let workout = Workout(name: "New Workout")
+            modelContext.insert(workout)
+            try WorkoutActivityManager.shared.startWorkoutActivity(workout: workout)
+        } catch {
+            alertController.present(title: "Could not start workout", error: error)
+        }
     }
 }
 

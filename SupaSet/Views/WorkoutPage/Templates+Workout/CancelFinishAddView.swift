@@ -83,7 +83,7 @@ struct CancelFinishAddView<T: Nameable>: View {
                 }
                 WorkoutActivityManager.shared.endAllActivities()
             } catch {
-                print("Error finishing workout: \(error)")
+                alertController.present(title: "Error Saving Workout", message: "There was an error saving the workout. Please try again.")
             }
         } else if let template = item as? Template {
             if isNew {
@@ -95,7 +95,7 @@ struct CancelFinishAddView<T: Nameable>: View {
                         dismiss()
                     }
                 } catch {
-                    print("Error saving new template: \(error)")
+                    alertController.present(title: "Error Saving Template", message: "There was an error saving the template. Please try again.")
                 }
             } else {
                 do {
@@ -104,7 +104,7 @@ struct CancelFinishAddView<T: Nameable>: View {
                         dismiss()
                     }
                 } catch {
-                    print("Error updating template: \(error)")
+                    alertController.present(title: "Error Updating Template", message: "There was an error updating the template. Please try again.")
                 }
             }
         }

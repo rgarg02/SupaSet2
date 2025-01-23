@@ -175,9 +175,6 @@ struct ExerciseListPickerView: View {
                 }
             }
         }
-        .task {
-            viewModel.loadExercises()
-        }
     }
     
     private func handleExerciseSelection(_ exercise: Exercise) {

@@ -58,6 +58,7 @@ struct EditOrCreateTemplateView: View {
                                         }
                                 }
                                 CancelFinishAddView(item: template, show: .constant(true), isNew: isNew)
+                                    .opacity(dragging ? 0 : 1) // hide when reordering exercises
 
                             }
                             .scrollTargetLayout()
