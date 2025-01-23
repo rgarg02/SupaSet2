@@ -112,14 +112,15 @@ struct CancelFinishAddView<T: Nameable>: View {
     
     func delete() {
         if let workout = item as? Workout {
-            modelContext.delete(workout)
             WorkoutActivityManager.shared.endAllActivities()
-            withAnimation {
+            withAnimation(.easeInOut(duration: 0.25), completionCriteria: .removed) {
                 show = false
+            } completion: {
+                modelContext.delete(workout)
             }
         } else if let template = item as? Template {
             modelContext.delete(template)
-            withAnimation {
+            withAnimation(.easeInOut(duration: 0.25)) {
                 dismiss()
             }
         }
