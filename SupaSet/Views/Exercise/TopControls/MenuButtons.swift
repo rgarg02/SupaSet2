@@ -8,15 +8,19 @@ import SwiftUI
 import SwiftData
 struct MenuButtons: View {
     @Binding var changeExercise: Bool
+    @Binding var deleteExercise: Bool
     let exerciseID: String
     @Query private var exerciseDetails: [ExerciseDetail]
-    init(exerciseID: String, changeExercise: Binding<Bool>) {
+    init(exerciseID: String, changeExercise: Binding<Bool>, deleteExercise: Binding<Bool>) {
         self.exerciseID = exerciseID
         self._changeExercise = changeExercise
+        self._deleteExercise = deleteExercise
         _exerciseDetails = Query(filter: #Predicate<ExerciseDetail> {
             $0.exerciseID == exerciseID
         })
     }
+    @Environment(\.alertController) private var alertController
+    @Environment(ExerciseViewModel.self) private var viewModel
     var body: some View {
         VStack {
             Button{
@@ -60,6 +64,17 @@ struct MenuButtons: View {
                     }
                 }
                 .padding(.vertical, 5)
+            }
+            Button{
+                deleteExercise.toggle()
+            } label: {
+                HStack{
+                    Image(systemName: "trash")
+                        .foregroundColor(.cancel)
+                    Text("Delete Exercise")
+                        .bold()
+                    Spacer()
+                }
             }
             Spacer()
         }
