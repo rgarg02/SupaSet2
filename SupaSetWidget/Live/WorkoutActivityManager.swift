@@ -19,7 +19,7 @@ class WorkoutActivityManager {
     }
     
     
-    func startWorkoutActivity(workout: Workout) {
+    func startWorkoutActivity(workout: Workout) throws {
         guard ActivityAuthorizationInfo().areActivitiesEnabled else { return }
         
         // End any existing activities before starting a new one
@@ -64,7 +64,7 @@ class WorkoutActivityManager {
             currentActivity = activity
             
         } catch {
-            print("Error starting workout activity: \(error.localizedDescription)")
+            throw error
         }
     }
     

@@ -33,7 +33,7 @@ struct PreviewContainer {
         
         // Initialize view model for exercises
         viewModel = ExerciseViewModel()
-        viewModel.loadExercises()
+        try? viewModel.loadExercises()
         
         // Create sample active workout
         workout = Workout(name: "Preview Workout", isFinished: false)

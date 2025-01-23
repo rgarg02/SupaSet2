@@ -41,6 +41,7 @@ extension ScrollContentView {
                             }
                         }
                         CancelFinishAddView(item: workout, show: $show, isNew: !workout.isFinished)
+                            .opacity(dragging ? 0 : 1) // hide when reordering exercises
                     }
                     .scrollTargetLayout()
                 },

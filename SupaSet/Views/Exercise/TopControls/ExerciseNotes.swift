@@ -4,6 +4,7 @@ import SwiftData
 struct ExerciseNotesView: View {
     let exerciseID: String
     @Environment(\.modelContext) private var modelContext
+    @Environment(\.alertController) private var alertController
     @Query private var exerciseDetails: [ExerciseDetail]
     @FocusState private var focused: Bool
     init(exerciseID: String) {
@@ -61,7 +62,7 @@ struct ExerciseNotesView: View {
         do {
             try modelContext.save()
         } catch {
-            print("Failed to save exercise detail: \(error)")
+            alertController.present(title:"Failed to save exercise detail", error: error)
         }
     }
 }
