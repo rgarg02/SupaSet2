@@ -74,6 +74,7 @@
 				Model/SwiftDataModels/SchemaV1.swift,
 				"Model/SwiftDataModels/SchemaV1+Model.swift",
 				"Model/SwiftDataModels/SchemaV1+Template.swift",
+				"Model/SwiftDataModels/Tempalte+Copy.swift",
 				"Model/SwiftDataModels/Template+Funcs.swift",
 				"Model/SwiftDataModels/Workout+Reorder.swift",
 				"Model/SwiftDataModels/WorkoutExercise+Reorder.swift",
