@@ -161,7 +161,6 @@ struct CancelFinishAddView<T: Nameable>: View {
     private func deleteWorkout(_ workout: Workout) {
         WorkoutActivityManager.shared.endAllActivities()
         withAnimation(.easeInOut(duration: 0.25), completionCriteria: .removed) {
-            print("here too")
             show = false
         } completion: {
             modelContext.delete(workout)

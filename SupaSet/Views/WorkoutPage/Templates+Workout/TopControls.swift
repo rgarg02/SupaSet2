@@ -65,13 +65,7 @@ struct TopControls: View {
             HStack {
                 if !mode.isWorkout {
                     Button("Go Back") {
-                        let buttons = [AlertButton(title: "Discard Changes", role: .destructive,
-                                                   action: {
-                            show = false
-                        })]
-                        alertController.present(title: "Discard Changes",
-                                                message: "Are you sure you want to discard changes?",
-                                                buttons: buttons)
+                        show.toggle()
                     }
                 }
                 Spacer()
@@ -91,7 +85,6 @@ struct TopControls: View {
                 }
                 
             }
-            .allowsHitTesting(show)
             
             if case .workout(let workout) = mode {
                 WorkoutTimer(workout: workout)

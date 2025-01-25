@@ -19,51 +19,21 @@ extension Template: Nameable {} // Assuming Template is your template model
 // Create a generic NameSection view with @Bindable
 struct NameSection<T: Nameable>: View {
     @Bindable var item: T
-    @State private var isEditingName: Bool = false
     var font: Font = .title2
-    
-    var body: some View {
-        HStack {
-            if isEditingName {
-                NameEditor(
-                    item: item,
-                    isEditingName: $isEditingName
-                )
-            } else {
-                Text(item.name)
-                    .font(font.bold())
-            }
-            
-            EditButton(isEditing: isEditingName) {
-                withAnimation {
-                    isEditingName.toggle()
-                }
-            }
-        }
-    }
-}
-
-// Update NameEditor to use @Bindable
-struct NameEditor<T: Nameable>: View {
-    @Bindable var item: T
-    @Binding var isEditingName: Bool
     @FocusState private var isFocused: Bool
-    
+
     var body: some View {
-        TextField("Name", text: $item.name)
-            .font(.title2)
+        HStack(alignment: .center) {
+            NameEditor()
+        }
+        .frame(maxWidth: .infinity)
+    }
+    @ViewBuilder
+    func NameEditor() -> some View{
+        TextField("New Workout", text: $item.name)
+            .font(font.bold())
             .textFieldStyle(.plain)
             .focused($isFocused)
-            .onAppear {
-                isFocused = true
-            }
-            .onSubmit {
-                if !item.name.isEmpty {
-                    withAnimation {
-                        isEditingName = false
-                    }
-                }
-            }
             .submitLabel(.done)
     }
 }
