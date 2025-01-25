@@ -1,7 +1,8 @@
 import SwiftUI
+import SwiftData
 
 // First, create a protocol that both exercise types will conform to
-protocol ExerciseMenuType {
+protocol ExerciseMenuType: PersistentModel{
     var exerciseID: String { get }
     // Add any other common properties needed
 }
@@ -45,6 +46,7 @@ struct ExerciseTopControls<T: ExerciseMenuType>: View {
             }
             if !dragging{
                 ExerciseNotesView(exerciseID: exercise.exerciseID)
+    
             }
         }
     }

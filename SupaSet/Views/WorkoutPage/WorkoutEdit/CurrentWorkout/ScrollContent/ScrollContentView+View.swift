@@ -40,7 +40,7 @@ extension ScrollContentView {
                                 exerciseFrames[exercise.id] = newValue
                             }
                         }
-                        CancelFinishAddView(item: workout, show: $show, isNew: !workout.isFinished)
+                        CancelFinishAddView(item: workout, originalItem: workout, show: $show, isNew: !workout.isFinished)
                             .opacity(dragging ? 0 : 1) // hide when reordering exercises
                     }
                     .scrollTargetLayout()

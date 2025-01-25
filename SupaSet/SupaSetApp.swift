@@ -29,6 +29,7 @@ struct SupaSetApp: App {
                let storeURL = URL.documentsDirectory.appending(path: "SupaSet.sqlite")
                let config = ModelConfiguration(url: storeURL)
                container = try ModelContainer(for: schema, configurations: config)
+               container.mainContext.undoManager = UndoManager()
            } catch {
                fatalError("Failed to configure SwiftData container.")
            }

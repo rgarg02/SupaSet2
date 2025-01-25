@@ -33,13 +33,20 @@ extension SupaSetSchemaV1 {
         func updateOrder(_ newOrder: Int) {
                 self.order = newOrder
             }
+        func reorderExercises() {
+            let sortedExercises = exercises.sorted { $0.order < $1.order }
+            for (index, exercise) in sortedExercises.enumerated() {
+                exercise.order = index
+            }
+        }
     }
     @Model
     final class TemplateExercise: Hashable {
         var id: UUID
         var exerciseID: String
         var order: Int
-        var sets: [TemplateExerciseSet]
+        @Relationship(deleteRule: .cascade) var sets: [TemplateExerciseSet]
+        @Relationship(inverse: \Template.exercises) var template: Template?
         var notes: String?
         
         init(exerciseID: String, order: Int, sets: [TemplateExerciseSet] = [TemplateExerciseSet(order: 0)], notes: String? = nil) {
@@ -78,6 +85,7 @@ extension SupaSetSchemaV1 {
         var reps: Int
         var weight: Double
         var order: Int
+        @Relationship(inverse: \TemplateExercise.sets) var templateExercise: TemplateExercise?
         init(reps: Int = 1, order: Int, weight: Double = 0) {
             self.id = UUID()
             self.reps = reps

@@ -35,7 +35,7 @@ extension SupaSetSchemaV1{
     }
     
     @Model
-    final class Workout: Hashable {
+    final class Workout: Hashable, Identifiable {
         var id: UUID
         var name: String
         var date: Date

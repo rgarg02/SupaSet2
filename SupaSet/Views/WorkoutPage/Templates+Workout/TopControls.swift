@@ -9,7 +9,9 @@ import SwiftUI
 
 struct TopControls: View {
     @Environment(\.dismiss) var dismiss
-
+    @Environment(\.modelContext) var modelContext
+    @Environment(\.alertController) var alertController
+    
     enum Mode {
         case workout(workout: Workout)
         case template(template: Template)
@@ -27,13 +29,24 @@ struct TopControls: View {
             case .template: return false
             }
         }
+        var getWorkout: Workout? {
+            if case .workout(let workout) = self {
+                return workout
+            }
+            return nil
+        }
+        var getTemplate: Template? {
+            if case .template(let template) = self {
+                return template
+            }
+            return nil
+        }
     }
     
     let mode: Mode
-    @Environment(\.modelContext) var modelContext
+    
     @Binding var show: Bool
     @Binding var offset: CGFloat
-    
     // Initializers
     init(workout: Workout, show: Binding<Bool>, offset: Binding<CGFloat>) {
         self.mode = .workout(workout: workout)
@@ -41,9 +54,9 @@ struct TopControls: View {
         self._offset = offset
     }
     
-    init(template: Template, isNew: Bool) {
+    init(template: Template, show: Binding<Bool>, isNew: Bool) {
         self.mode = .template(template: template)
-        self._show = .constant(true)
+        self._show = show
         self._offset = .constant(0)
     }
     
@@ -52,9 +65,7 @@ struct TopControls: View {
             HStack {
                 if !mode.isWorkout {
                     Button("Go Back") {
-                        withAnimation {
-                            dismiss()
-                        }
+                        show.toggle()
                     }
                 }
                 Spacer()
@@ -74,7 +85,6 @@ struct TopControls: View {
                 }
                 
             }
-            .allowsHitTesting(show)
             
             if case .workout(let workout) = mode {
                 WorkoutTimer(workout: workout)
@@ -90,26 +100,4 @@ struct TopControls: View {
         }
         .padding(.horizontal)
     }
-}
-
-// Preview
-#Preview {
-    let previewContainer = PreviewContainer.preview
-    
-    Group {
-        // Workout preview
-        TopControls(
-            workout: previewContainer.workout,
-            show: .constant(true),
-            offset: .constant(0)
-        )
-        
-        // Template preview
-        TopControls(
-            template: Template(name: "Template", order: 0),
-            isNew: true
-        )
-    }
-    .modelContainer(previewContainer.container)
-    .environment(previewContainer.viewModel)
 }
