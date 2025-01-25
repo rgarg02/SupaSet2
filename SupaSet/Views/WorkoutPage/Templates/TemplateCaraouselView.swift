@@ -9,6 +9,17 @@ import SwiftUI
 import SwiftData
 import UniformTypeIdentifiers
 
+struct DropOutsideDelegate: DropDelegate {
+    @Binding var current: Template?
+        
+    func performDrop(info: DropInfo) -> Bool {
+        current = nil
+        return true
+    }
+    func dropUpdated(info: DropInfo) -> DropProposal? {
+        DropProposal(operation: .move)
+    }
+}
 struct DragRelocateDelegate: DropDelegate {
     let item: Template
     @Binding var current: Template?
@@ -24,11 +35,9 @@ struct DragRelocateDelegate: DropDelegate {
         }
         
     }
-
     func dropUpdated(info: DropInfo) -> DropProposal? {
         DropProposal(operation: .move)
     }
-
     func performDrop(info: DropInfo) -> Bool {
         current = nil
         return true
@@ -56,8 +65,6 @@ struct TemplateCarouselView: View {
                         NavigationLink(destination: EditOrCreateTemplateView(template: template, isNew: false)) {
                             TemplateCard(template: template)
                                 .onDrag {
-                                    // Start dragging the selected template:
-                                    //                                draggingTemplate = template
                                     return NSItemProvider(object: String(template.id.uuidString) as NSString)
                                 } preview: {
                                     TemplateCard(template: template)
@@ -67,14 +74,14 @@ struct TemplateCarouselView: View {
                                         }
                                 }
                                 .opacity(draggingTemplate?.id == template.id ? 0 : 1)
+                                .onDrop(
+                                    of: [.text],
+                                    delegate: DragRelocateDelegate(
+                                        item: template,
+                                        current: $draggingTemplate
+                                    )
+                                )
                         }
-                        .onDrop(
-                            of: [.text],
-                            delegate: DragRelocateDelegate(
-                                item: template,
-                                current: $draggingTemplate
-                            )
-                        )
                     }
                     // Add Template Card
                     NavigationLink(destination: createNewTemplateView()) {
@@ -84,10 +91,15 @@ struct TemplateCarouselView: View {
                 .padding()
             }
         }
+        .onDrop(of: [UTType.text], delegate: DropOutsideDelegate(current: $draggingTemplate))
+        .onChange(of: templates.count) { oldValue, newValue in
+            for (index,template) in templates.enumerated() {
+                template.order = index
+            }
+        }
     }
     private func createNewTemplateView() -> some View {
-        let newTemplate = Template(order: templates.count)
-        return EditOrCreateTemplateView(template: newTemplate, isNew: true)
+        return EditOrCreateTemplateView(isNew: true)
     }
     // You may not need this moveTemplate function anymore if your drop delegate
     // handles reordering by updating the `Template.order` directly.

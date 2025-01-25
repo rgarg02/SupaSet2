@@ -15,6 +15,8 @@ struct ContentView: View {
                     .tabItem {Image(systemName: "clock.arrow.circlepath")}
                 ProfilePageView()
                     .tabItem { Image(systemName: "person") }
+                TESTVIEW()
+                    .tabItem { Image(systemName: "plus") }
             }
         }
     }
