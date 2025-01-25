@@ -14,6 +14,7 @@ struct TemplateCard: View {
         VStack(alignment: .leading, spacing: 0) {
             // Template Name
             Text(template.name)
+                .lineLimit(1)
                 .font(.headline)
                 .foregroundStyle(.primary)
                 .padding(.vertical, 3)

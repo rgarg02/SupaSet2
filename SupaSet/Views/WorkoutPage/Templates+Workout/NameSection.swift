@@ -19,7 +19,7 @@ extension Template: Nameable {} // Assuming Template is your template model
 // Create a generic NameSection view with @Bindable
 struct NameSection<T: Nameable>: View {
     @Bindable var item: T
-    var font: Font = .title2
+    var font: Font = .title
     @FocusState private var isFocused: Bool
 
     var body: some View {
@@ -31,6 +31,7 @@ struct NameSection<T: Nameable>: View {
     @ViewBuilder
     func NameEditor() -> some View{
         TextField("New Workout", text: $item.name)
+            .multilineTextAlignment(.center)
             .font(font.bold())
             .textFieldStyle(.plain)
             .focused($isFocused)

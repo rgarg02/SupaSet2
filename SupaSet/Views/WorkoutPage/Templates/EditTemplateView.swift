@@ -19,6 +19,7 @@ struct EditOrCreateTemplateView: View {
     let isNew: Bool
     @State private var editableTemplate: Template // Working copy
     @State private var discardChanges: Bool = false
+    @State private var firstAppear: Bool = true
     // MARK: - Drag and Drop States
     @State var dragging: Bool = false
     @State internal var selectedExercise: TemplateExercise?
@@ -76,15 +77,18 @@ struct EditOrCreateTemplateView: View {
             }
         }
         .onAppear {
-            if let template = originalTemplate {
-                editableTemplate = template.copy()
-            } else {
-                let newTemplate = Template(order: editableTemplate.order)
-                newTemplate.createdAt = Date()
-                newTemplate.name = ""
-                newTemplate.notes = ""
-                newTemplate.exercises = []
-                editableTemplate = newTemplate
+            if firstAppear{
+                if let template = originalTemplate {
+                    editableTemplate = template.copy()
+                } else {
+                    let newTemplate = Template(order: editableTemplate.order)
+                    newTemplate.createdAt = Date()
+                    newTemplate.name = ""
+                    newTemplate.notes = ""
+                    newTemplate.exercises = []
+                    editableTemplate = newTemplate
+                }
+                firstAppear.toggle()
             }
         }
         .onChange(of: show, { oldValue, newValue in
@@ -95,6 +99,7 @@ struct EditOrCreateTemplateView: View {
                 dismiss()
                 show.toggle()
                 discardChanges.toggle()
+                firstAppear.toggle()
             }
         })
         .interactiveDismissDisabled(true)
@@ -118,6 +123,7 @@ struct EditOrCreateTemplateView: View {
             } else {
                 dismiss()
                 show.toggle()
+                firstAppear.toggle()
             }
         }
     }
