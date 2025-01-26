@@ -74,6 +74,24 @@ extension SupaSetSchemaV1{
             self.currentSetOrder = currentSetOrder
         }
         
+        init(template: Template) {
+            self.id = UUID()
+            self.name = template.name
+            self.date = Date()
+            self.isFinished = false
+            self.currentExerciseOrder = 0
+            self.currentSetOrder = 0
+            
+            // Create workout exercises from template exercises
+            exercises = template.exercises.map { templateExercise in
+                let workoutExercise = WorkoutExercise(exerciseID: templateExercise.exerciseID)
+                workoutExercise.sets = templateExercise.sets.map { templateSet in
+                    ExerciseSet(reps: templateSet.reps, weight: templateSet.weight)
+                }
+                return workoutExercise
+            }
+        }
+        
         // MARK: - Computed Properties
         var currentExercise: WorkoutExercise? {
             exercises.first { $0.order == currentExerciseOrder }

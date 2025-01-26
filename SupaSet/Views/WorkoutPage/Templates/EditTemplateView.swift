@@ -82,10 +82,6 @@ struct EditOrCreateTemplateView: View {
                     editableTemplate = template.copy()
                 } else {
                     let newTemplate = Template(order: editableTemplate.order)
-                    newTemplate.createdAt = Date()
-                    newTemplate.name = ""
-                    newTemplate.notes = ""
-                    newTemplate.exercises = []
                     editableTemplate = newTemplate
                 }
                 firstAppear.toggle()

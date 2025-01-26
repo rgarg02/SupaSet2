@@ -15,7 +15,7 @@ struct AddTemplateCard: View {
             Text("Create Template")
                 .font(.headline)
         }
-        .frame(height: 150)
+        .frame(height: 160)
         .frame(maxWidth: .infinity)
         .padding()
         .background(Color.theme.secondary)
