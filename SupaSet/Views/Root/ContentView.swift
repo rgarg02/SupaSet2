@@ -1,20 +1,40 @@
 import SwiftUI
-
 struct ContentView: View {
     @Environment(\.modelContext) var modelContext
+    init() {
+        let appearance = UITabBarAppearance()
+        
+        // Configure the shadow (separator) above the tab bar
+        appearance.shadowColor = .gray
+        
+        // You can also set the background color if needed
+        appearance.backgroundColor = UIColor(Color.theme.background)
+        
+        // Apply the appearance to both standard and scrollEdge appearances
+        UITabBar.appearance().standardAppearance = appearance
+        UITabBar.appearance().scrollEdgeAppearance = appearance
+    }
     var body: some View {
         ZStack {
             Color.theme.background
-                .ignoresSafeArea()
             TabView {
 //                HomePageView()
 //                    .tabItem { Image(systemName: "house") }
                 WorkoutPageView()
-                    .tabItem { Image(systemName: "dumbbell") }
+                    .tabItem({
+                        Image(systemName: "dumbbell")
+                        Text("Workout")
+                    })
                 WorkoutHistoryView()
-                    .tabItem {Image(systemName: "clock.arrow.circlepath")}
+                    .tabItem {
+                        Image(systemName: "calendar")
+                        Text("History")
+                    }
                 ProfilePageView()
-                    .tabItem { Image(systemName: "person") }
+                    .tabItem {
+                        Image(systemName: "person")
+                        Text("Profile")
+                    }
                 TESTVIEW()
                     .tabItem { Image(systemName: "plus") }
             }

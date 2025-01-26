@@ -49,8 +49,6 @@ struct WorkoutPageView: View {
                     .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .bottomTrailing)
                 }
             }
-            .toolbarBackground(.visible, for: .tabBar)
-            .toolbarBackground(.ultraThickMaterial, for: .tabBar)
         }
     }
     
