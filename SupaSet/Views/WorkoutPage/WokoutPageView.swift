@@ -63,16 +63,29 @@ struct WorkoutPageView: View {
             }
             .animation(.easeInOut, value: show)
         }
+        .onChange(of: ongoingWorkouts, { oldValue, newValue in
+            if let workout = ongoingWorkouts.first {
+                do {
+                    try WorkoutActivityManager.shared.startWorkoutActivity(workout: workout)
+                } catch {
+                    alertController.present(error: error)
+                }
+            }
+        })
+        .onAppear {
+            if let workout = ongoingWorkouts.first {
+                do {
+                    try WorkoutActivityManager.shared.startWorkoutActivity(workout: workout)
+                } catch {
+                    alertController.present(error: error)
+                }
+            }
+        }
     }
     
     private func startNewWorkout() {
-        do {
-            let workout = Workout(name: "New Workout")
-            modelContext.insert(workout)
-            try WorkoutActivityManager.shared.startWorkoutActivity(workout: workout)
-        } catch {
-            alertController.present(title: "Could not start workout", error: error)
-        }
+        let workout = Workout(name: "New Workout")
+        modelContext.insert(workout)
     }
 }
 

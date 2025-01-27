@@ -81,36 +81,5 @@ struct Line: View {
     }
 }
 
-struct SocialSignInButton: View {
-    let title: String
-    let icon: String
-    let backgroundColor: Color
-    var foregroundColor: Color = .white
-    var borderColor: Color? = nil
-    
-    var body: some View {
-        Button {
-            // Implement social sign-in
-        } label: {
-            HStack {
-                Image(systemName: icon)
-                    .font(.title3)
-                Text(title)
-                    .fontWeight(.medium)
-            }
-            .frame(height: 55)
-            .frame(maxWidth: .infinity)
-            .background(backgroundColor)
-            .foregroundColor(foregroundColor)
-            .cornerRadius(10)
-            .overlay {
-                if let borderColor = borderColor {
-                    RoundedRectangle(cornerRadius: 10)
-                        .stroke(borderColor, lineWidth: 1)
-                }
-            }
-        }
-    }
-}
 
 

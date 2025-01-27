@@ -64,5 +64,8 @@ extension ScrollContentView {
             )
             .sensoryFeedback(.impact, trigger: hapticsTrigger)
         }
+        .onChange(of: dragging) { _, _ in
+            WorkoutActivityManager.shared.updateWorkoutActivity(workout: workout)
+        }
     }
 }

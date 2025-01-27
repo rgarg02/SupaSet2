@@ -6,28 +6,19 @@
 //
 
 import SwiftUI
-
+import AuthenticationServices
 // SignInOptionsView.swift
 struct SignInOptionsView: View {
     @State private var isAnimating = false
-    
+    @State private var isLoading = false
+    @Environment(\.alertController) private var alertController
     var body: some View {
         VStack(spacing: 16) {
             // Social sign-in options
             Group {
-                SocialSignInButton(
-                    title: "Continue with Apple",
-                    icon: "apple.logo",
-                    backgroundColor: .black
-                )
+                AppleSignIn(isLoading: $isLoading)
                 
-                SocialSignInButton(
-                    title: "Continue with Google",
-                    icon: "g.circle.fill",
-                    backgroundColor: .white,
-                    foregroundColor: .black,
-                    borderColor: .gray.opacity(0.3)
-                )
+                GoogleSignIn(isLoading: $isLoading)
             }
             .opacity(isAnimating ? 1 : 0)
             .offset(y: isAnimating ? 0 : 20)
@@ -61,6 +52,37 @@ struct SignInOptionsView: View {
                 isAnimating = true
             }
         }
+        .overlay {
+            if isLoading {
+                LoadingScreen()
+            }
+        }
+    }
+}
+
+struct LoadingScreen: View {
+    var body: some View {
+        ZStack {
+            Color.black.opacity(0.1)
+                .ignoresSafeArea()
+            
+            VStack(spacing: 16) {
+                ProgressView()
+                    .scaleEffect(1.5)
+                    .tint(Color.theme.accent)
+//
+//                        Text("Please wait...")
+//                            .foregroundColor(.secondary)
+//                            .font(.subheadline)
+            }
+            .padding(20)
+            .background(
+                RoundedRectangle(cornerRadius: 10)
+                    .fill(Color(Color.theme.background))
+                    .shadow(radius: 10)
+            )
+        }
+        .transition(.opacity)
     }
 }
 // Create style for sign in button
