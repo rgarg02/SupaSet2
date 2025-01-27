@@ -7,15 +7,58 @@
 
 import SwiftUI
 
+// SignInOptionsView.swift
 struct SignInOptionsView: View {
+    @State private var isAnimating = false
+    
     var body: some View {
-        // Provide sign in options
-        VStack {
-            NavigationLink{
+        VStack(spacing: 16) {
+            // Social sign-in options
+            Group {
+                SocialSignInButton(
+                    title: "Continue with Apple",
+                    icon: "apple.logo",
+                    backgroundColor: .black
+                )
+                
+                SocialSignInButton(
+                    title: "Continue with Google",
+                    icon: "g.circle.fill",
+                    backgroundColor: .white,
+                    foregroundColor: .black,
+                    borderColor: .gray.opacity(0.3)
+                )
+            }
+            .opacity(isAnimating ? 1 : 0)
+            .offset(y: isAnimating ? 0 : 20)
+            
+            // Divider
+            HStack {
+                Line()
+                Text("or")
+                    .foregroundColor(.secondary)
+                    .font(.footnote)
+                Line()
+            }
+            .padding(.vertical)
+            
+            // Email sign-in
+            NavigationLink {
                 SignEmailView()
             } label: {
-                Text("Sign in with Email")
-                    .modifier(SignInButtonStyle())
+                HStack {
+                    Image(systemName: "envelope.fill")
+                    Text("Continue with Email")
+                }
+                .modifier(SignInButtonStyle())
+            }
+            .opacity(isAnimating ? 1 : 0)
+            .offset(y: isAnimating ? 0 : 20)
+        }
+        .padding(.horizontal)
+        .onAppear {
+            withAnimation(.easeOut(duration: 0.5)) {
+                isAnimating = true
             }
         }
     }
@@ -27,8 +70,8 @@ struct SignInButtonStyle: ViewModifier {
             .font(.headline)
             .frame(height: 55)
             .frame(maxWidth: .infinity)
-            .foregroundColor(.white)
-            .background(.blue)
+            .foregroundColor(Color.theme.textOpposite)
+            .background(Color.theme.primary)
             .cornerRadius(10)
             .padding()
     }

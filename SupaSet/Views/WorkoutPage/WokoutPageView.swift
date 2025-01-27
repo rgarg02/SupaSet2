@@ -10,6 +10,7 @@ import SwiftData
 import ActivityKit
 struct WorkoutPageView: View {
     @State private var show = false
+    @State private var scale: CGFloat = 1.0
     @Namespace private var namespace
     @Query(filter: #Predicate<Workout> { !$0.isFinished }) private var ongoingWorkouts: [Workout]
     @Environment(\.modelContext) private var modelContext
@@ -23,24 +24,35 @@ struct WorkoutPageView: View {
         NavigationStack {
             ZStack {
                 VStack(alignment: .leading){
-                    Text("Workouts")
-                        .font(.largeTitle)
-                        .fontWeight(.bold)
-                        .padding()
+                    PageTitle(title: "Workouts")
                     TemplateCarouselView()
                 }
+                .scaleEffect(hasOngoingWorkout ? scale : 1.0)  // Only scale when there's an ongoing workout
+                .animation(.spring(), value: scale)
                 if hasOngoingWorkout {
-                    NavigationStack {
-                        WorkoutContentView(workout: ongoingWorkouts[0], show: $show)
-                    }
-                }
-                if !hasOngoingWorkout {
+                    WorkoutContentView(
+                        workout: ongoingWorkouts[0],
+                        show: $show,
+                        onDragProgress: { progress in
+                            // Start at 0.9 when at top (progress = 0)
+                            // Scale up to 1.0 when dragged down (progress = 1)
+                            scale = 0.9 + (progress * 0.1)
+                        },
+                        onDragEnded: { dismissed in
+                            withAnimation(.spring()) {
+                                // Reset scale based on whether view is dismissed
+                                scale = dismissed ? 1.0 : 0.9
+                            }
+                        }
+                    )
+                }else {
                     FloatingActionButton(
                         namespace: namespace,
                         hasOngoingWorkout: hasOngoingWorkout,
                         action: {
                             withAnimation(.spring(duration: 0.5)) {
                                 show = true
+                                scale = 0.9
                                 startNewWorkout()
                             }
                         }
@@ -49,6 +61,7 @@ struct WorkoutPageView: View {
                     .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .bottomTrailing)
                 }
             }
+            .animation(.easeInOut, value: show)
         }
     }
     

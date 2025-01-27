@@ -15,17 +15,18 @@ struct WorkoutContentView: View {
     // Add state variables to track the drag
     @State private var offset: CGFloat = 0
     @State private var isDragging = false
-    @State private var draggingViewDown : Bool = false
     // Add a constant for the minimum height when collapsed
-    private let minHeight: CGFloat = 60 // Adjust this value based on your WorkoutTopControls height
-    
+    private let minHeight: CGFloat = 60 // Adjust this value based on WorkoutTopControls height
+    var onDragProgress: (CGFloat) -> Void
+    var onDragEnded: (Bool) -> Void
     var body: some View {
         GeometryReader { geometry in
+            let maxOffset = geometry.size.height - minHeight
             ZStack(alignment: .bottom) {
                 VStack(spacing: 0) {
                     VStack(spacing: 0) {
                         DragIndicator()
-                            .opacity(show ? 1 : 0)
+//                            .opacity(show ? 1 : 0)
                         TopControls(
                             workout: workout,
                             show: $show,
@@ -39,7 +40,7 @@ struct WorkoutContentView: View {
                     .frame(maxHeight: minHeight)
                     .frame(height: minHeight)
                     ScrollContentView(workout: workout, exercises: $workout.exercises, show: $show)
-                        .opacity(show ? 1 : 0)
+//                        .opacity(show ? 1 : 0)
                 }
                 .background(Color.theme.background)
             }
@@ -47,28 +48,48 @@ struct WorkoutContentView: View {
             .dismissKeyboardOnTap()
             .background(Color.theme.background)
             .cornerRadius(8)
-            .offset(y: show ? max(min(offset, geometry.size.height - minHeight), 0) : geometry.size.height - minHeight)
+            .offset(y: offset)
             .gesture(
                 DragGesture()
                     .onChanged { value in
                         isDragging = true
                         let dragAmount = value.translation.height
-                        offset = min(dragAmount, geometry.size.height - minHeight)
-                        draggingViewDown = true
+                        
+                        // If at bottom (maxOffset), calculate offset from bottom up
+                        if offset == maxOffset {
+                            // When starting from bottom, subtract drag amount from maxOffset
+                            offset = min(max(maxOffset + dragAmount, 0), maxOffset)
+                        } else {
+                            // Normal dragging from top
+                            offset = min(max(dragAmount, 0), maxOffset)
+                        }
+                        
+                        // Calculate progress based on position
+                        let progress = offset / maxOffset
+                        onDragProgress(progress)
                     }
                     .onEnded { value in
                         isDragging = false
                         let dragAmount = value.translation.height
-                        withAnimation(.spring()) {
-                            if dragAmount > geometry.size.height * 0.5 || value.velocity.height > 200 {
-                                show = false
+                        let velocity = value.predictedEndLocation.y - value.location.y
+                        
+                        withAnimation(.spring(duration: 0.3, bounce: 0.3)) {
+                            if offset == maxOffset {
+                                // Currently at bottom, check if should move up
+                                if -dragAmount > geometry.size.height * 0.3 || velocity < -200 {
+                                    offset = 0
+                                }
                             } else {
-                                // Reset to original position
-                                offset = 0
-                                show = true
+                                // Currently at top or middle, check if should dismiss
+                                if dragAmount > geometry.size.height * 0.3 || velocity > 200 {
+                                    offset = maxOffset
+                                } else {
+                                    offset = 0
+                                }
                             }
                         }
-                        draggingViewDown = false
+                        
+                        onDragEnded(offset == maxOffset)
                     }
             )
             .animation(.spring(), value: isDragging)
@@ -83,18 +104,4 @@ struct DragIndicator: View {
             .frame(width: 40, height: 5)
             .padding(.top, 5)
     }
-}
-#Preview {
-    @Previewable @State var show = true
-    let preview = PreviewContainer.preview
-    NavigationView{
-        ZStack(alignment: .bottom){
-            WorkoutContentView(
-                workout: preview.workout,
-                show: $show
-            )
-        }
-    }
-    .modelContainer(preview.container)
-    .environment(preview.viewModel)
 }

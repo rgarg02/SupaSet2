@@ -35,8 +35,6 @@ struct ContentView: View {
                         Image(systemName: "person")
                         Text("Profile")
                     }
-                TESTVIEW()
-                    .tabItem { Image(systemName: "plus") }
             }
         }
     }

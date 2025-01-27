@@ -18,6 +18,7 @@ struct Theme {
     let secondary = Color("SecondaryThemeColor")
     let secondaryLight = Color("SecondaryColorLight")
     let primarySecond = Color("PrimaryThemeColorTwo")
+    let cancel = Color("Cancel")
 }
 
 // MARK: - Color Extension
