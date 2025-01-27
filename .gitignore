@@ -1,2 +1,53 @@
+# Xcode
+DerivedData/
+.idea/
+*.xcworkspace
+xcuserdata/
+*.xcuserstate
+*.lock
+*.xcconfig
+
+# Build Products
+build/
+Build/
+
+# Swift Package Manager
+.swiftpm/
+Packages/
+Package.pins
+Package.resolved
+*.xcodeproj/project.xcworkspace/
+
+# CocoaPods
+Pods/
+Podfile.lock
+Podfile.swp
+
+# Carthage
+Carthage/Build/
+
+# Fastlane
+fastlane/report.xml
+fastlane/Preview.html
+fastlane/screenshots/
+fastlane/test_output/
+*.lock
+
+# Archives
+*.xcarchive
+
+# Temporary files
+*.tmp
+*.swp
+*~.nib
+
+# Asset Catalog
+*.appiconset/Icon*
+
+# User-provided files
 Config.xcconfig
 GoogleService-Info.plist
+
+# Logs
+*.log
+*.xcactivitylog
