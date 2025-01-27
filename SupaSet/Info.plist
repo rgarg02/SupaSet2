@@ -4,7 +4,14 @@
 <dict>
 	<key>CFBundleURLTypes</key>
 	<array>
-		<dict/>
+		<dict>
+			<key>CFBundleTypeRole</key>
+			<string>Editor</string>
+			<key>CFBundleURLSchemes</key>
+			<array>
+				<string>com.googleusercontent.apps.1042544700584-t31qh7iuabr34sn2bqsmpsradufh0nm3</string>
+			</array>
+		</dict>
 	</array>
 	<key>GOOGLE_API_KEY</key>
 	<string>${GOOGLE_API_KEY}</string>

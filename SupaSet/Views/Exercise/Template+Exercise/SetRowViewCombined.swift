@@ -11,7 +11,6 @@ struct SetRowFieldModifier: ViewModifier {
     func body(content: Content) -> some View {
         content
             .frame(maxWidth: .infinity)
-            .textFieldStyle(RoundedBorderTextFieldStyle())
             .keyboardType(.decimalPad)
             .multilineTextAlignment(.center)
             .padding(.horizontal)
@@ -23,8 +22,6 @@ struct SetRowFieldModifier: ViewModifier {
                 }
     }
 }
-
-
 
 struct SetRowViewCombined: View {
     let order: Int
@@ -76,12 +73,13 @@ struct SetRowViewCombined: View {
                     Image(systemName: isDone ? "checkmark.circle.fill" : "circle")
                         .resizable()
                         .frame(width: 24, height: 24)
-                        .foregroundColor(isDone ? .theme.secondary : .gray)
+                        .foregroundColor(isDone ? .theme.secondarySecond : .gray)
                 }
                 .frame(maxWidth: .infinity, alignment: .trailing)
             }
             
         }
+        .foregroundStyle(isDone ? Color.theme.textOpposite : Color.theme.text)
         .padding(.horizontal, 16)
         .padding(.vertical, 12)
         .toolbar {
@@ -96,7 +94,7 @@ struct SetRowViewCombined: View {
         }
         .background(
             RoundedRectangle(cornerRadius: 8)
-                .fill(isDone ? Color.theme.primary : Color.theme.background)
+                .fill(isDone ? Color.theme.secondary : Color.theme.background)
                 .shadow(
                     color: Color.black.opacity(0.05),
                     radius: 2,

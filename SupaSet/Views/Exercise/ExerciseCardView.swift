@@ -43,13 +43,36 @@ struct ExerciseCardView: View {
                 VStack(spacing: 8) {
                     ScrollView(.vertical){
                         SetColumnNamesView(exerciseID: workoutExercise.exerciseID, isTemplate: false)
+                            .onChange(of: workoutExercise.exerciseID) { oldValue, newValue in
+                                if let workout = workoutExercise.workout {
+                                    WorkoutActivityManager.shared.updateWorkoutActivity(workout: workout)
+                                }
+                            }
                         ForEach(workoutExercise.sortedSets, id: \.self) { set in
                             @Bindable var set = set
                             SwipeAction(cornerRadius: 8, direction: .trailing){
                                 SetRowViewCombined(order: set.order, isTemplate: false, weight: $set.weight, reps: $set.reps, isDone: $set.isDone)
+                                    .onChange(of: set.weight) { oldValue, newValue in
+                                        if let workout = workoutExercise.workout {
+                                            WorkoutActivityManager.shared.updateWorkoutActivity(workout: workout)
+                                        }
+                                    }
+                                    .onChange(of: set.reps) { oldValue, newValue in
+                                        if let workout = workoutExercise.workout {
+                                            WorkoutActivityManager.shared.updateWorkoutActivity(workout: workout)
+                                        }
+                                    }
+                                    .onChange(of: set.isDone) { oldValue, newValue in
+                                        if let workout = workoutExercise.workout {
+                                            WorkoutActivityManager.shared.updateWorkoutActivity(workout: workout)
+                                        }
+                                    }
                             } actions:{
                                 Action(tint: .red, icon: "trash.fill") {
                                     withAnimation(.easeInOut){
+                                        if let workout = workoutExercise.workout {
+                                            WorkoutActivityManager.shared.updateWorkoutActivity(workout: workout)
+                                        }
                                         workoutExercise.deleteSet(set)
                                         modelContext.delete(set)
                                     }
@@ -60,6 +83,9 @@ struct ExerciseCardView: View {
                             .onTapGesture {
                                 withAnimation(.snappy(duration: 0.25)) {
                                     workoutExercise.insertSet(reps: workoutExercise.sortedSets.last?.reps ?? 0, weight: workoutExercise.sortedSets.last?.weight ?? 0)
+                                }
+                                if let workout = workoutExercise.workout {
+                                    WorkoutActivityManager.shared.updateWorkoutActivity(workout: workout)
                                 }
                             }
                     }

@@ -35,7 +35,6 @@ struct WorkoutNameEditor: View {
     private func finishEditing() {
         withAnimation {
             isEditingName = false
-            WorkoutActivityManager.shared.updateWorkoutActivity(workout: workout)
         }
     }
 }

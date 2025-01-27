@@ -42,6 +42,10 @@ struct PreviewContainer {
         container.mainContext.insert(template)
         template.insertExercise(viewModel.exercises.randomElement()!.id)
         template.insertExercise(viewModel.exercises.randomElement()!.id)
+        template.insertExercise(viewModel.exercises.randomElement()!.id)
+        template.insertExercise(viewModel.exercises.randomElement()!.id)
+        template.insertExercise(viewModel.exercises.randomElement()!.id)
+        template.insertExercise(viewModel.exercises.randomElement()!.id)
         for index in 0..<5 {
             let randomTemplate = Template(name: "Template \(index)", order: index)
             container.mainContext.insert(randomTemplate)

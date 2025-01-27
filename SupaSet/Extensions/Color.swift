@@ -16,8 +16,9 @@ struct Theme {
     let textOpposite = Color("TextColorOpposite")
     let primary = Color("PrimaryThemeColor")
     let secondary = Color("SecondaryThemeColor")
-    let secondaryLight = Color("SecondaryColorLight")
+    let secondarySecond = Color("SecondaryThemeColorTwo")
     let primarySecond = Color("PrimaryThemeColorTwo")
+    let cancel = Color("Cancel")
 }
 
 // MARK: - Color Extension

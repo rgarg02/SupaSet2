@@ -15,9 +15,9 @@ struct AddTemplateCard: View {
             Text("Create Template")
                 .font(.headline)
         }
-        .frame(height: 150)
+        .frame(height: 165)
         .frame(maxWidth: .infinity)
-        .padding()
+        .padding(10)
         .background(Color.theme.secondary)
         .clipShape(RoundedRectangle(cornerRadius: 12))
         .shadow(color: .black.opacity(0.1), radius: 5, x: 0, y: 2)

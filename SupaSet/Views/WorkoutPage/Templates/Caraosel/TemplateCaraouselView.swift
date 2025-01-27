@@ -19,8 +19,8 @@ struct TemplateCarouselView: View {
     @Environment(ExerciseViewModel.self) var exerciseViewModel
     var body: some View {
         VStack(alignment: .leading){
+            TemplateTitle()
             ScrollView {
-                TemplateTitle()
                 LazyVGrid(columns: columns, spacing: 16) {
                     // Template Cards
                     ForEach(templates) { template in

@@ -48,13 +48,18 @@ extension SupaSetSchemaV1{
                 }
             return endTime.timeIntervalSince(date)
         }
-        var totalVolume: Double?  // Total weight lifted across all exercises
         @Relationship(deleteRule: .cascade) var exercises: [WorkoutExercise] = []
         
         // New properties for tracking current position
         var currentExerciseOrder: Int
         var currentSetOrder: Int
         
+        // Total weight lifted across all exercises
+        var totalVolume: Double? {
+            exercises.reduce(0) { total, exercise in
+                total + exercise.totalVolume
+            }
+        }
         init(
             name: String,
             date: Date = Date(),
@@ -72,6 +77,24 @@ extension SupaSetSchemaV1{
             self.notes = notes
             self.currentExerciseOrder = currentExerciseOrder
             self.currentSetOrder = currentSetOrder
+        }
+        
+        init(template: Template) {
+            self.id = UUID()
+            self.name = template.name
+            self.date = Date()
+            self.isFinished = false
+            self.currentExerciseOrder = 0
+            self.currentSetOrder = 0
+            
+            // Create workout exercises from template exercises
+            exercises = template.exercises.map { templateExercise in
+                let workoutExercise = WorkoutExercise(exerciseID: templateExercise.exerciseID)
+                workoutExercise.sets = templateExercise.sets.map { templateSet in
+                    ExerciseSet(reps: templateSet.reps, weight: templateSet.weight)
+                }
+                return workoutExercise
+            }
         }
         
         // MARK: - Computed Properties

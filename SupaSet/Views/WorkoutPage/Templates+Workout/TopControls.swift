@@ -83,9 +83,7 @@ struct TopControls: View {
                     }
                     .hidden()
                 }
-                
             }
-            
             if case .workout(let workout) = mode {
                 WorkoutTimer(workout: workout)
             }

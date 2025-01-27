@@ -98,13 +98,12 @@ struct CancelFinishAddView<T: Nameable>: View {
             workout.isFinished = true
             workout.endTime = Date()
         }
-        
+        WorkoutActivityManager.shared.endAllActivities()
         do {
             try modelContext.save()
             withAnimation {
                 show = false
             }
-            WorkoutActivityManager.shared.endAllActivities()
         } catch {
             alertController.present(
                 title: "Error Saving Workout",
@@ -159,11 +158,11 @@ struct CancelFinishAddView<T: Nameable>: View {
         }
     }
     private func deleteWorkout(_ workout: Workout) {
-        WorkoutActivityManager.shared.endAllActivities()
         withAnimation(.easeInOut(duration: 0.25), completionCriteria: .removed) {
             show = false
         } completion: {
             modelContext.delete(workout)
+            WorkoutActivityManager.shared.endAllActivities()
         }
     }
     
