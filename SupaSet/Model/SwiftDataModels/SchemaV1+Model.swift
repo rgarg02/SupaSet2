@@ -89,9 +89,9 @@ extension SupaSetSchemaV1{
             
             // Create workout exercises from template exercises
             exercises = template.exercises.map { templateExercise in
-                let workoutExercise = WorkoutExercise(exerciseID: templateExercise.exerciseID)
+                let workoutExercise = WorkoutExercise(exerciseID: templateExercise.exerciseID, order: templateExercise.order, notes: templateExercise.notes)
                 workoutExercise.sets = templateExercise.sets.map { templateSet in
-                    ExerciseSet(reps: templateSet.reps, weight: templateSet.weight)
+                    ExerciseSet(reps: templateSet.reps, weight: templateSet.weight, order: templateSet.order)
                 }
                 return workoutExercise
             }
