@@ -38,13 +38,12 @@ struct WorkoutHistoryCard: View {
                         icon: "dumbbell"
                     )
                     
-                    if let volume = workout.totalVolume {
-                        workoutStat(
-                            title: "Volume",
-                            value: String(format: "%.1f", volume),
-                            icon: "chart.bar.fill"
-                        )
-                    }
+                    workoutStat(
+                        title: "Volume",
+                        value: String(format: "%.1f", workout.totalVolume),
+                        icon: "chart.bar.fill"
+                    )
+                    
                 }
             }
             .padding()

@@ -1,9 +1,10 @@
 //
-//  Tempalte+Copy.swift
+//  +Copy.swift
 //  SupaSet
 //
-//  Created by Rishi Garg on 1/23/25.
+//  Created by Rishi Garg on 1/29/25.
 //
+
 
 import Foundation
 

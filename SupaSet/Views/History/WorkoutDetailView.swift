@@ -66,13 +66,11 @@ struct WorkoutDetailView: View {
                     icon: "dumbbell.fill"
                 )
                 
-                if let volume = workout.totalVolume {
-                    StatBox(
-                        title: "Total Volume",
-                        value: String(format: "%.1f", volume),
-                        icon: "chart.bar.fill"
-                    )
-                }
+                StatBox(
+                    title: "Total Volume",
+                    value: String(format: "%.1f", workout.totalVolume),
+                    icon: "chart.bar.fill"
+                )
             }
         }
         .padding()

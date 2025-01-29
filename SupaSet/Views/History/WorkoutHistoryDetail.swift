@@ -13,9 +13,9 @@ struct WorkoutHistoryDetailView: View {
             Section {
                 LabeledContent("Date", value: workout.date.formatted(date: .long, time: .shortened))
                 LabeledContent("Duration", value: formatDuration(workout.duration))
-                if let volume = workout.totalVolume {
-                    LabeledContent("Total Volume", value: "\(Int(volume))lbs")
-                }
+                
+                LabeledContent("Total Volume", value: "\(Int(workout.totalVolume))lbs")
+                
                 LabeledContent("Notes", value: workout.notes)
             }
             
