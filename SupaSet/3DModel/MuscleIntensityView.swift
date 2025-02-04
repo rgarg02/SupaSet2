@@ -12,13 +12,12 @@ import SceneKit
 struct MuscleIntensityView: View {
     @Environment(ExerciseViewModel.self) var exerciseViewModel
     let workout: Workout
-    @State private var sceneView = SCNView()
     @State private var nodeName: String = ""
     @State private var showDetails: Bool = false
     @State private var isTapGestureEnabled: Bool = false
     @State private var movetoMuscle: String? = nil
     @State private var locationOfNode: Float? = nil
-    
+    @State private var sceneManager = SceneManager.shared
     var body: some View {
         ZStack {
             LinearGradient(
@@ -30,20 +29,15 @@ struct MuscleIntensityView: View {
                 endPoint: .bottomTrailing
             )
             SceneKitContainer(
-                sceneView: $sceneView,
-                nodeName: $nodeName,
-                showDetails: $showDetails,
-                isTapGestureEnabled: isTapGestureEnabled,
-                movetoMuscle: $movetoMuscle,
-                locationOfNode: $locationOfNode
+                isTapGestureEnabled: isTapGestureEnabled
             )
         }
         .frame(height: 350) // Set height for the 3D view
         .cornerRadius(8)
         .onAppear {
-            // Highlight muscles on first load
+//             Highlight muscles on first load
             DispatchQueue.main.async {
-                sceneView.scene?.highlightMuscleIntensity(muscleIntensity: calculateMuscleIntensity(from: workout))
+                sceneManager.sceneView.scene?.highlightMuscleIntensity(muscleIntensity: calculateMuscleIntensity(from: workout))
             }
         }
     }

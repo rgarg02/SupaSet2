@@ -36,7 +36,7 @@ struct AnimationRigged: View {
 
     private func loadModelAndAnimation() {
         // Load the model
-        guard let modelURL = Bundle.main.url(forResource: "Male_Full", withExtension: "dae"),
+        guard let modelURL = Bundle.main.url(forResource: "Male_Full", withExtension: "scn"),
               let sceneSource = SCNSceneSource(url: modelURL, options: nil) else {
             fatalError("Failed to load the model file.")
         }
