@@ -12,6 +12,10 @@ struct TopControls: View {
     @Environment(\.modelContext) var modelContext
     @Environment(\.alertController) var alertController
     
+    
+    @Binding var show: Bool
+    @Binding var offset: CGFloat
+    
     enum Mode {
         case workout(workout: Workout)
         case template(template: Template)
@@ -44,13 +48,10 @@ struct TopControls: View {
     }
     
     let mode: Mode
-    
-    @Binding var show: Bool
-    @Binding var offset: CGFloat
     // Initializers
-    init(workout: Workout, show: Binding<Bool>, offset: Binding<CGFloat>) {
+    init(workout: Workout, offset: Binding<CGFloat>) {
         self.mode = .workout(workout: workout)
-        self._show = show
+        self._show = .constant(true)
         self._offset = offset
     }
     
@@ -86,14 +87,6 @@ struct TopControls: View {
             }
             if case .workout(let workout) = mode {
                 WorkoutTimer(workout: workout)
-            }
-        }
-        .onTapGesture {
-            if !show {
-                withAnimation(.spring()) {
-                    show = true
-                    offset = 0
-                }
             }
         }
         .padding(.horizontal)

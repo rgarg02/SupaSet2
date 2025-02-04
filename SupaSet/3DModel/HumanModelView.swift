@@ -23,12 +23,7 @@ struct MuscleModelView: View {
     var body: some View {
         VStack {
             SceneKitContainer(
-                sceneView: $sceneView,
-                nodeName: $nodeName,
-                showDetails: $showDetails,
-                isTapGestureEnabled: isTapGestureEnabled,
-                movetoMuscle: $movetoMuscle,
-                locationOfNode: $locationOfNode
+                isTapGestureEnabled: isTapGestureEnabled
             )
             .frame(height: 500) // Set height for the 3D view
             

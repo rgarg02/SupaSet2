@@ -9,13 +9,14 @@ import SwiftUI
 import SwiftData
 import ActivityKit
 struct WorkoutPageView: View {
-    @State private var show = false
     @State private var scale: CGFloat = 1.0
     @Namespace private var namespace
     @Query(filter: #Predicate<Workout> { !$0.isFinished }) private var ongoingWorkouts: [Workout]
     @Environment(\.modelContext) private var modelContext
     @Environment(\.alertController) private var alertController
     @State private var activityID: String?
+    @State private var workoutIsFinished: Bool = false
+    @State private var workout: Workout?
     private var hasOngoingWorkout: Bool {
         !ongoingWorkouts.isEmpty
     }
@@ -32,7 +33,7 @@ struct WorkoutPageView: View {
                 if hasOngoingWorkout {
                     WorkoutContentView(
                         workout: ongoingWorkouts[0],
-                        show: $show,
+                        workoutIsFinished: $workoutIsFinished,
                         onDragProgress: { progress in
                             // Start at 0.9 when at top (progress = 0)
                             // Scale up to 1.0 when dragged down (progress = 1)
@@ -45,13 +46,16 @@ struct WorkoutPageView: View {
                             }
                         }
                     )
-                }else {
+                    .transition(.asymmetric(insertion: .move(edge: .bottom), removal: .move(edge: .bottom)))
+                    .onAppear{
+                        workout = ongoingWorkouts[0]
+                    }
+                } else {
                     FloatingActionButton(
                         namespace: namespace,
                         hasOngoingWorkout: hasOngoingWorkout,
                         action: {
                             withAnimation(.spring(duration: 0.5)) {
-                                show = true
                                 scale = 0.9
                                 startNewWorkout()
                             }
@@ -61,7 +65,11 @@ struct WorkoutPageView: View {
                     .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .bottomTrailing)
                 }
             }
-            .animation(.easeInOut, value: show)
+            .sheet(isPresented: $workoutIsFinished) {
+                if let workout {
+                    WorkoutFinishedView(workout: workout)
+                }
+            }
         }
         .onChange(of: ongoingWorkouts, { oldValue, newValue in
             if let workout = ongoingWorkouts.first {

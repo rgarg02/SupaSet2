@@ -10,7 +10,8 @@ import SwiftUI
 
 struct WorkoutContentView: View {
     @Bindable var workout: Workout
-    @Binding var show: Bool
+    @Binding var workoutIsFinished: Bool
+    @State var show: Bool = true
     
     // Add state variables to track the drag
     @State private var offset: CGFloat = 0
@@ -26,10 +27,8 @@ struct WorkoutContentView: View {
                 VStack(spacing: 0) {
                     VStack(spacing: 0) {
                         DragIndicator()
-//                            .opacity(show ? 1 : 0)
                         TopControls(
                             workout: workout,
-                            show: $show,
                             offset: $offset
                         )
                         Spacer()
@@ -40,10 +39,17 @@ struct WorkoutContentView: View {
                     .frame(maxHeight: minHeight)
                     .frame(height: minHeight)
                     ScrollContentView(workout: workout, exercises: $workout.exercises, show: $show)
-//                        .opacity(show ? 1 : 0)
                 }
                 .background(Color.theme.background)
             }
+            .onChange(of: show, { oldValue, newValue in
+                if newValue == false {
+                    withAnimation(.easeInOut(duration: 0.25)) {
+                        offset = maxOffset
+                        onDragEnded(true)
+                    }
+                }
+            })
             .ignoresSafeArea(.keyboard, edges: .bottom)
             .dismissKeyboardOnTap()
             .background(Color.theme.background)
@@ -92,6 +98,11 @@ struct WorkoutContentView: View {
                         onDragEnded(offset == maxOffset)
                     }
             )
+            .onChange(of: workout.isFinished, { oldValue, newValue in
+                if newValue {
+                    workoutIsFinished = true
+                }
+            })
             .animation(.spring(), value: isDragging)
         }
     }

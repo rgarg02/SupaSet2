@@ -13,11 +13,9 @@ struct CancelFinishAddView<T: Nameable>: View {
     @Binding var show: Bool
     let isNew: Bool
     var onSave: (() -> Void)?  // Optional closure for custom save behavior
-    
-    @Environment(\.dismiss) var dismiss
-    @Environment(\.modelContext) var modelContext
-    @Environment(\.alertController) var alertController
-    
+    @Environment(\.dismiss) private var dismiss
+    @Environment(\.modelContext) private var modelContext
+    @Environment(\.alertController) private var alertController
     var body: some View {
         VStack {
             // Add Exercises Button
@@ -41,50 +39,51 @@ struct CancelFinishAddView<T: Nameable>: View {
                 }
                 .modifier(LongButtonModifier())
             }
-            
-            // Cancel/Delete and Finish/Save Buttons
-            HStack {
-                let buttonTitle = isNew ? "Cancel" : "Delete"
-                let itemType = item is Workout ? "Workout" : "Template"
-                let title = "\(buttonTitle) \(itemType)"
-                
-                CustomButton(
-                    icon: "trash",
-                    title: title,
-                    style: .filled(
-                        background: .red,
-                        foreground: .theme.textOpposite
-                    ),
-                    action: {
-                        let buttons: [AlertButton] = [
-                            AlertButton(title: "Go Back", role: .cancel),
-                            AlertButton(title: buttonTitle, role: .destructive, action: {
-                                delete()
-                            })
-                        ]
-                        alertController.present(
-                            .confirmationDialog,
-                            title: "\(title)?",
-                            buttons: buttons
-                        )
-                    }
-                )
-                
-                CustomButton(
-                    icon: "checkmark",
-                    title: "\(isNew ? "Finish" : "Save") \(itemType)",
-                    style: .filled(
-                        background: .theme.secondary,
-                        foreground: .theme.textOpposite
-                    ),
-                    action: {
-                        finish()
-                    }
-                )
-            }
+            CancelFinishButtons
         }
     }
-    
+    private var CancelFinishButtons: some View {
+        // Cancel/Delete and Finish/Save Buttons
+        HStack {
+            let buttonTitle = isNew ? "Cancel" : "Delete"
+            let itemType = item is Workout ? "Workout" : "Template"
+            let title = "\(buttonTitle) \(itemType)"
+            
+            CustomButton(
+                icon: "trash",
+                title: title,
+                style: .filled(
+                    background: .red,
+                    foreground: .theme.textOpposite
+                ),
+                action: {
+                    let buttons: [AlertButton] = [
+                        AlertButton(title: "Go Back", role: .cancel),
+                        AlertButton(title: buttonTitle, role: .destructive, action: {
+                            delete()
+                        })
+                    ]
+                    alertController.present(
+                        .confirmationDialog,
+                        title: "\(title)?",
+                        buttons: buttons
+                    )
+                }
+            )
+            
+            CustomButton(
+                icon: "checkmark",
+                title: "\(isNew ? "Finish" : "Save") \(itemType)",
+                style: .filled(
+                    background: .theme.secondary,
+                    foreground: .theme.textOpposite
+                ),
+                action: {
+                    finish()
+                }
+            )
+        }
+    }
     private func finish() {
         if let workout = item as? Workout {
             finishWorkout(workout)
@@ -94,21 +93,22 @@ struct CancelFinishAddView<T: Nameable>: View {
     }
     
     private func finishWorkout(_ workout: Workout) {
-        if !workout.isFinished {
-            workout.isFinished = true
-            workout.endTime = Date()
-        }
         WorkoutActivityManager.shared.endAllActivities()
-        do {
-            try modelContext.save()
-            withAnimation {
-                show = false
+        
+        show = false
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.25) {
+            if !workout.isFinished {
+                workout.isFinished = true
+                workout.endTime = Date()
             }
-        } catch {
-            alertController.present(
-                title: "Error Saving Workout",
-                message: "There was an error saving the workout. Please try again."
-            )
+            do {
+                try modelContext.save()
+            } catch {
+                alertController.present(
+                    title: "Error Saving Workout",
+                    message: "There was an error saving the workout. Please try again."
+                )
+            }
         }
     }
     
@@ -158,11 +158,13 @@ struct CancelFinishAddView<T: Nameable>: View {
         }
     }
     private func deleteWorkout(_ workout: Workout) {
-        withAnimation(.easeInOut(duration: 0.25), completionCriteria: .removed) {
-            show = false
-        } completion: {
-            modelContext.delete(workout)
-            WorkoutActivityManager.shared.endAllActivities()
+        show = false
+        // add 0.25 sec delay
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.25) {
+            withAnimation(.smooth) {
+                modelContext.delete(workout)
+                WorkoutActivityManager.shared.endAllActivities()
+            }
         }
     }
     

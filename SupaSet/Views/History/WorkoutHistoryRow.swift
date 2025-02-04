@@ -26,11 +26,10 @@ struct WorkoutHistoryRow: View {
                 .font(.caption)
                 .foregroundStyle(.secondary)
             
-            if let volume = workout.totalVolume {
-                Text("Total Volume: \(Int(volume))lbs")
-                    .font(.caption)
-                    .foregroundStyle(.secondary)
-            }
+            Text("Total Volume: \(Int(workout.totalVolume))lbs")
+                .font(.caption)
+                .foregroundStyle(.secondary)
+            
         }
         .padding(.vertical, 4)
     }
