@@ -129,8 +129,8 @@ extension SCNScene {
     func highlightMuscleIntensity(muscleIntensity: [MuscleGroup: Double]) {
         // Find the maximum intensity across all muscles
         let maxIntensity = muscleIntensity.values.max() ?? 0
-        
         // Apply visual effects to each muscle node based on intensity
+        
         for (muscleGroup, nodeNames) in MuscleGroups.muscleMappings {
             let intensity = muscleIntensity[muscleGroup] ?? 0 // Default intensity to 0 if not provided
             if let color = colorForIntensity(intensity, maxIntensity: maxIntensity) {
@@ -156,7 +156,6 @@ extension SCNScene {
         // Normalize the exaggerated intensity to 0-1 range
         let normalized = CGFloat(exaggeratedIntensity)
         
-        
         // Ensure the red component is always at its highest value and other components adjust based on intensity
         let red = 1.0 // Ensure the lowest intensity is not too green
         let green = 1.0 - normalized
@@ -164,6 +163,7 @@ extension SCNScene {
         
         // Adjust opacity to make the color more vivid as intensity increases
         let alpha: CGFloat = 0.7 + (normalized * 0.3)  // Opacity increases with intensity
+        
         
         return UIColor(red: red, green: green, blue: blue, alpha: alpha)
     }

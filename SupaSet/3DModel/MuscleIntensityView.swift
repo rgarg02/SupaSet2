@@ -36,6 +36,7 @@ struct MuscleIntensityView: View {
         .cornerRadius(8)
         .onAppear {
 //             Highlight muscles on first load
+            sceneManager.resetScene()
             DispatchQueue.main.async {
                 sceneManager.sceneView.scene?.highlightMuscleIntensity(muscleIntensity: calculateMuscleIntensity(from: workout))
             }
