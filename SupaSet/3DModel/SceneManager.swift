@@ -7,7 +7,7 @@
 
 import SwiftUI
 import SceneKit
-
+// https://blog.studiolanes.com/posts/unified-animation-timeline
 @Observable
 final class SceneManager {
     static let shared = SceneManager()
@@ -47,5 +47,9 @@ final class SceneManager {
         sceneView.defaultCameraController.maximumVerticalAngle = 0.001
         
         scene.rootNode.flattenedClone()
+    }
+    
+    func resetScene() {
+        setupSceneView()
     }
 }
