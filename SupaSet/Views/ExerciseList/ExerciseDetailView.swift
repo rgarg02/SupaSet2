@@ -8,7 +8,7 @@
 import SwiftUI
 
 struct ExerciseDetailView: View {
-    let exercise: Exercise
+    let exercise: ExerciseEntity
     @State private var selectedImageIndex = 0
     
     var body: some View {
@@ -35,7 +35,7 @@ struct ExerciseDetailView: View {
                 if !exercise.images.isEmpty {
                     TabView(selection: $selectedImageIndex) {
                         ForEach(Array(exercise.images.enumerated()), id: \.element) { index, imageUrl in
-                            ExerciseImageView(imagePath: imageUrl)
+                            ExerciseImageView(imagePath: imageUrl.url)
                                 .tag(index)
                         }
                     }
@@ -92,7 +92,7 @@ struct ExerciseDetailView: View {
                                 Text("\(index + 1).")
                                     .font(.subheadline)
                                     .foregroundColor(.secondary)
-                                Text(instruction)
+                                Text(instruction.text)
                                     .font(.subheadline)
                             }
                             .padding(.vertical, 4)
@@ -223,20 +223,20 @@ struct FlowLayout: Layout {
         }
     }
 }
-
-#Preview {
-    ExerciseDetailView(exercise: Exercise(
-        id: "1",
-        name: "Bench Press",
-        force: .push,
-        level: .intermediate,
-        mechanic: .compound,
-        equipment: .bands,
-        primaryMuscles: [.chest, .triceps, .shoulders],
-        secondaryMuscles: [.forearms],
-        instructions: ["Sample instruction"],
-        category: .strength,
-        images: []
-    ))
-        
-}
+//
+//#Preview {
+//    ExerciseDetailView(exercise: Exercise(
+//        id: "1",
+//        name: "Bench Press",
+//        force: .push,
+//        level: .intermediate,
+//        mechanic: .compound,
+//        equipment: .bands,
+//        primaryMuscles: [.chest, .triceps, .shoulders],
+//        secondaryMuscles: [.forearms],
+//        instructions: ["Sample instruction"],
+//        category: .strength,
+//        images: []
+//    ))
+//        
+//}

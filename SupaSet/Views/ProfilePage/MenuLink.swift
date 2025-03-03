@@ -7,10 +7,10 @@
 
 
 import SwiftUI
-struct MenuLink: View {
+struct MenuLink<Destination: View>: View {
     let title: String
     let icon: String
-    let destination: AnyView
+    let destination: Destination
     
     var body: some View {
         NavigationLink {
@@ -39,7 +39,6 @@ struct MenuLink: View {
         }
     }
 }
-
 #Preview {
     MenuLink(title: "Your Workouts", icon: "list.bullet", destination: AnyView(Text("Workouts")))
 }

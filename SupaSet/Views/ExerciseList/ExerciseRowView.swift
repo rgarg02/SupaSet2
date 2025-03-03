@@ -6,8 +6,8 @@
 //
 import SwiftUI
 struct ExerciseRowView: View {
-    let exercise: Exercise
-    @Binding var selectedExercise: Exercise?
+    let exercise: ExerciseEntity
+    @Binding var selectedExercise: ExerciseEntity?
     @Binding var isShowingDetail: Bool
     var body: some View {
         VStack(alignment: .leading, spacing: 8) {
@@ -85,27 +85,27 @@ struct Badge<T: RawRepresentable>: View where T.RawValue == String {
 }
 
 // Preview Provider
-#Preview {
-    @Previewable @State var exercise : Exercise? = Exercise(
-        id: "1",
-        name: "Bench Press",
-        force: .push,
-        level: .intermediate,
-        mechanic: .compound,
-        equipment: .barbell,
-        primaryMuscles: [.chest, .triceps, .shoulders],
-        secondaryMuscles: [.forearms],
-        instructions: ["Sample instruction"],
-        category: .strength,
-        images: []
-    )
-    if let exercise{
-        NavigationView{
-            List{
-                ExerciseRowView(exercise: exercise, selectedExercise: $exercise,
-                                isShowingDetail: .constant(false))
-                .padding()
-            }
-        }
-    }
-}
+//#Preview {
+//    @Previewable @State var exercise : Exercise? = Exercise(
+//        id: "1",
+//        name: "Bench Press",
+//        force: .push,
+//        level: .intermediate,
+//        mechanic: .compound,
+//        equipment: .barbell,
+//        primaryMuscles: [.chest, .triceps, .shoulders],
+//        secondaryMuscles: [.forearms],
+//        instructions: ["Sample instruction"],
+//        category: .strength,
+//        images: []
+//    )
+//    if let exercise{
+//        NavigationView{
+//            List{
+//                ExerciseRowView(exercise: exercise, selectedExercise: $exercise,
+//                                isShowingDetail: .constant(false))
+//                .padding()
+//            }
+//        }
+//    }
+//}

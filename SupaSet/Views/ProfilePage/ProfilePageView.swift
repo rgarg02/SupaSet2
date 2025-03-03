@@ -88,7 +88,7 @@ struct ProfilePageView: View {
     private var menuSection: some View {
         VStack(spacing: 8) {
             MenuLink(title: "Your Workouts", icon: "list.bullet", destination: AnyView(Text("Workouts")))
-            MenuLink(title: "Progress", icon: "chart.line.uptrend.xyaxis", destination: AnyView(Text("Progress")))
+            MenuLink(title: "Progress", icon: "chart.bar.xaxis", destination: WorkoutStatsView())
             MenuLink(title: "Goals", icon: "target", destination: AnyView(Text("Goals")))
             MenuLink(title: "Help & Support", icon: "questionmark.circle", destination: AnyView(Text("Help")))
         }

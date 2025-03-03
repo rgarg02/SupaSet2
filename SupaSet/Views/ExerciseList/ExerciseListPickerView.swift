@@ -5,12 +5,11 @@
 //  Created by Rishi Garg on 11/6/24.
 //
 import SwiftUI
-
+import SwiftData
 struct ExerciseListPickerView: View {
     @Environment(ExerciseViewModel.self) var viewModel
     @Environment(\.modelContext) var modelContext
     @Environment(\.dismiss) private var dismiss
-    
     enum Mode {
         case add(workout: Workout)
         case replace(workoutExercise: WorkoutExercise)

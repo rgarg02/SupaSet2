@@ -1,25 +1,34 @@
-//
-//  CustomRestTimerView.swift
-//  SupaSet
-//
-//  Created by Rishi Garg on 12/17/24.
-//
 
 import SwiftUI
 import SwiftData
+
 struct RestTimerView: View {
     @Bindable var exerciseDetail: ExerciseDetail
-    @State private var isAutoRestEnabled: Bool = false
     @State private var minutes: Int = 0
     @State private var seconds: Int = 0
+    @State private var isEnabled: Bool = false
+    
+    // Computed property to convert minutes and seconds to TimeInterval
+    private var timeInterval: TimeInterval {
+        isEnabled ? TimeInterval(minutes * 60 + seconds) : 0
+    }
+    
     
     var body: some View {
         VStack {
             Form {
                 Section {
-                    Toggle("Auto Rest Timer", isOn: $isAutoRestEnabled)
+                    Toggle("Auto Rest Timer", isOn: $isEnabled)
+                        .onChange(of: isEnabled) { _, newValue in
+                            if !newValue {
+                                exerciseDetail.autoRestTimer = 0
+                            } else {
+                                updateTimeInterval()
+                            }
+                        }
                 }
-                if isAutoRestEnabled {
+                
+                if isEnabled {
                     Section("Rest Duration") {
                         HStack(spacing: 0) {
                             Picker("Minutes", selection: $minutes) {
@@ -50,30 +59,22 @@ struct RestTimerView: View {
                 }
             }
             .foregroundColor(.theme.text)
+            .onChange(of: minutes) { _, _ in
+                updateTimeInterval()
+            }
+            .onChange(of: seconds) { _, _ in
+                updateTimeInterval()
+            }
         }
-        .onChange(of: isAutoRestEnabled) { _, newValue in
-            updateExerciseDetail(enabled: newValue)
-        }
-        .onChange(of: minutes) { _, _ in
-            updateTimer()
-        }
-        .onChange(of: seconds) { _, _ in
-            updateTimer()
-        }
-    }
-    
-    
-    private func updateExerciseDetail(enabled: Bool) {
-        if enabled {
-            exerciseDetail.autoRestTimer = TimeInterval(minutes * 60 + seconds)
-        } else {
-            exerciseDetail.autoRestTimer = 0
-            minutes = 0
-            seconds = 0
+        .onAppear {
+            let totalSeconds = Int(exerciseDetail.autoRestTimer)
+            minutes = totalSeconds / 60
+            seconds = totalSeconds % 60
+            isEnabled = totalSeconds > 0
         }
     }
     
-    private func updateTimer() {
-        exerciseDetail.autoRestTimer = TimeInterval(minutes * 60 + seconds)
+    private func updateTimeInterval() {
+        exerciseDetail.autoRestTimer = timeInterval
     }
 }

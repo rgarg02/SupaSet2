@@ -70,6 +70,7 @@
 				CustomComponents/Button.swift,
 				Extensions/Color.swift,
 				Model/AppContainer.swift,
+				Model/ExerciseEntity.swift,
 				Model/Other/ExerciseImporter.swift,
 				Model/Other/Exercises.swift,
 				"Model/SwiftDataModels/Extensions/Execise+.swift",

@@ -57,6 +57,11 @@ struct ExerciseCardView: View {
                                             WorkoutActivityManager.shared.updateWorkoutActivity(workout: workout)
                                         }
                                     }
+                                    .onChange(of: set.isDone, { oldValue, newValue in
+                                        if let workout = workoutExercise.workout {
+                                            WorkoutActivityManager.shared.updateWorkoutActivity(workout: workout)
+                                        }
+                                    })
                                     .onChange(of: set.reps) { oldValue, newValue in
                                         if let workout = workoutExercise.workout {
                                             WorkoutActivityManager.shared.updateWorkoutActivity(workout: workout)

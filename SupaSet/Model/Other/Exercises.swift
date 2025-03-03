@@ -114,7 +114,12 @@ enum MuscleGroup: String, Codable, CaseIterable, Hashable {
     case triceps
 }
 
-
+struct Instruction: Codable, Hashable {
+    var text: String
+}
+struct ImageString: Codable, Hashable{
+    var url: String
+}
 // MARK: - Exercise Model
 struct Exercise: Codable, Identifiable, Equatable, Hashable {
     var id: String

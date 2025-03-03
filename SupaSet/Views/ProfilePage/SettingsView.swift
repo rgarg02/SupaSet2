@@ -23,6 +23,9 @@ struct SettingsView: View {
                     NavigationLink("Notifications") {
                         Text("Notification Settings")
                     }
+                    NavigationLink("Import Strong Data") {
+                        CSVImportView()
+                    }
                 }
                 
                 Section("App") {

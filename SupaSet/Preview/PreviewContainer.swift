@@ -9,7 +9,8 @@ struct PreviewContainer {
     let completedWorkouts: [Workout]
     let viewModel: ExerciseViewModel
     
-    init() throws {
+    // Make the initializer support concurrency
+    init() async throws {
         // Create schema and configuration
         let schema = Schema([
             Workout.self,
@@ -17,7 +18,8 @@ struct PreviewContainer {
             ExerciseSet.self,
             Template.self,
             TemplateExercise.self,
-            ExerciseDetail.self
+            ExerciseDetail.self,
+            ExerciseEntity.self
         ])
         
         let config = ModelConfiguration(
@@ -32,53 +34,147 @@ struct PreviewContainer {
         )
         
         // Initialize view model for exercises
-        viewModel = ExerciseViewModel()
-        try? viewModel.loadExercises()
+        viewModel = ExerciseViewModel(modelContext: container.mainContext)
+        try await viewModel.loadExercises()
+        
         
         // Create sample active workout
         workout = Workout(name: "Preview Workout", isFinished: false)
         container.mainContext.insert(workout)
+        
         template = Template(name: "Preview Template", order: 0)
         container.mainContext.insert(template)
-        template.insertExercise(viewModel.exercises.randomElement()!.id)
-        template.insertExercise(viewModel.exercises.randomElement()!.id)
-        template.insertExercise(viewModel.exercises.randomElement()!.id)
-        template.insertExercise(viewModel.exercises.randomElement()!.id)
-        template.insertExercise(viewModel.exercises.randomElement()!.id)
-        template.insertExercise(viewModel.exercises.randomElement()!.id)
-        for index in 0..<5 {
-            let randomTemplate = Template(name: "Template \(index)", order: index)
-            container.mainContext.insert(randomTemplate)
-            randomTemplate.insertExercise(viewModel.exercises.randomElement()!.id)
-            randomTemplate.insertExercise(viewModel.exercises.randomElement()!.id)
-            randomTemplate.insertExercise(viewModel.exercises.randomElement()!.id)
-            randomTemplate.insertExercise(viewModel.exercises.randomElement()!.id)
-            randomTemplate.insertExercise(viewModel.exercises.randomElement()!.id)
-            randomTemplate.insertExercise(viewModel.exercises.randomElement()!.id)
+        
+        // Add exercises to template
+        if !viewModel.exercises.isEmpty {
+            for _ in 0..<6 {
+                template.insertExercise(viewModel.exercises.randomElement()!.id)
+            }
+            
+            // Create additional templates
+            for index in 0..<5 {
+                let randomTemplate = Template(name: "Template \(index)", order: index)
+                container.mainContext.insert(randomTemplate)
+                
+                for _ in 0..<6 {
+                    randomTemplate.insertExercise(viewModel.exercises.randomElement()!.id)
+                }
+            }
+            
+            // Add exercises to workout
+            workout.insertExercise(viewModel.exercises.randomElement()!.id)
+            workout.insertExercise(viewModel.exercises.randomElement()!.id)
         }
-        workout.insertExercise(viewModel.exercises.randomElement()!.id)
-        workout.insertExercise(viewModel.exercises.randomElement()!.id)
+        
         // Create completed workouts
-        completedWorkouts = PreviewContainer.createCompletedWorkouts(
+        completedWorkouts = try await PreviewContainer.createCompletedWorkouts(
             using: container.mainContext,
             exercises: viewModel.exercises
         )
     }
     
-    // Static helper for previews
+    // Static helper for previews - now needs to be async
     static var preview: PreviewContainer {
+        // Since we can't use async in this property, we'll create a basic version
+        // that doesn't rely on loadExercises
         do {
-            return try PreviewContainer()
+            let schema = Schema([
+                Workout.self,
+                WorkoutExercise.self,
+                ExerciseSet.self,
+                Template.self,
+                TemplateExercise.self,
+                ExerciseDetail.self,
+                ExerciseEntity.self
+            ])
+            
+            let config = ModelConfiguration(
+                schema: schema,
+                isStoredInMemoryOnly: true
+            )
+            
+            let container = try ModelContainer(
+                for: schema,
+                configurations: config
+            )
+            
+            // Create a basic view model
+            let viewModel = ExerciseViewModel(modelContext: container.mainContext)
+            
+            // Add some sample exercises to the database directly
+            let exercises = createFallbackExercises()
+            let exerciseEntities = exercises.map { createExerciseEntity(from: $0) }
+            for entity in exerciseEntities {
+                container.mainContext.insert(entity)
+            }
+            
+            // Create a basic workout
+            let workout = Workout(name: "Preview Workout", isFinished: false)
+            container.mainContext.insert(workout)
+            
+            // Add a couple exercises
+            if !exercises.isEmpty {
+                workout.insertExercise(exercises[0].id)
+                if exercises.count > 1 {
+                    workout.insertExercise(exercises[1].id)
+                }
+            }
+            
+            // Create a template
+            let template = Template(name: "Preview Template", order: 0)
+            container.mainContext.insert(template)
+            
+            // Add exercises to template
+            if !exercises.isEmpty {
+                template.insertExercise(exercises[0].id)
+                if exercises.count > 1 {
+                    template.insertExercise(exercises[1].id)
+                }
+            }
+            
+            // Create a simple completed workout
+            let completedWorkout = Workout(
+                name: "Completed Workout",
+                date: Date().addingTimeInterval(-86400), // Yesterday
+                endTime: Date().addingTimeInterval(-82800), // 1 hour after start
+                isFinished: true
+            )
+            container.mainContext.insert(completedWorkout)
+            
+            // Return a simplified preview container
+            return PreviewContainer(
+                container: container,
+                workout: workout,
+                template: template,
+                completedWorkouts: [completedWorkout],
+                viewModel: viewModel
+            )
+            
         } catch {
             fatalError("Failed to create PreviewContainer: \(error)")
         }
+    }
+    
+    // Direct initializer that doesn't require async
+    private init(
+        container: ModelContainer,
+        workout: Workout,
+        template: Template,
+        completedWorkouts: [Workout],
+        viewModel: ExerciseViewModel
+    ) {
+        self.container = container
+        self.workout = workout
+        self.template = template
+        self.completedWorkouts = completedWorkouts
+        self.viewModel = viewModel
     }
     
     // Helper to create sample completed workouts
     private static func createCompletedWorkouts(
         using context: ModelContext,
         exercises: [Exercise]
-    ) -> [Workout] {
+    ) async throws -> [Workout] {
         guard !exercises.isEmpty else { return [] }
         
         // Helper to get random exercises
@@ -189,5 +285,70 @@ struct PreviewContainer {
         }
         
         return workout
+    }
+    
+    // Helper function to create fallback exercises for preview
+    private static func createFallbackExercises() -> [Exercise] {
+        return [
+            Exercise(
+                id: UUID().uuidString,
+                name: "Bench Press",
+                force: .push,
+                level: .intermediate,
+                mechanic: .compound,
+                equipment: .barbell,
+                primaryMuscles: [.chest],
+                secondaryMuscles: [.triceps, .shoulders],
+                instructions: ["Lie on bench", "Lower bar to chest", "Press up"],
+                category: .strength,
+                images: []
+            ),
+            Exercise(
+                id: UUID().uuidString,
+                name: "Squats",
+                force: .push,
+                level: .intermediate,
+                mechanic: .compound,
+                equipment: .barbell,
+                primaryMuscles: [.quadriceps, .glutes],
+                secondaryMuscles: [.hamstrings, .calves],
+                instructions: ["Stand with bar on shoulders", "Squat down", "Stand up"],
+                category: .strength,
+                images: []
+            ),
+            Exercise(
+                id: UUID().uuidString,
+                name: "Deadlift",
+                force: .pull,
+                level: .intermediate,
+                mechanic: .compound,
+                equipment: .barbell,
+                primaryMuscles: [.lowerBack, .glutes],
+                secondaryMuscles: [.hamstrings, .traps],
+                instructions: ["Stand with bar at feet", "Lift bar", "Lower bar"],
+                category: .strength,
+                images: []
+            ),
+            Exercise(
+                id: UUID().uuidString,
+                name: "Treadmill",
+                force: .none,
+                level: .beginner,
+                mechanic: .none,
+                equipment: .machine,
+                primaryMuscles: [.quadriceps],
+                secondaryMuscles: [.calves, .hamstrings],
+                instructions: ["Set speed", "Run at steady pace"],
+                category: .cardio,
+                images: []
+            )
+        ]
+    }
+    
+    // Helper to create exercise entity from Exercise struct
+    private static func createExerciseEntity(from exercise: Exercise) -> ExerciseEntity {
+        let entity = ExerciseEntity(from: exercise)
+        
+        return entity
     }
 }

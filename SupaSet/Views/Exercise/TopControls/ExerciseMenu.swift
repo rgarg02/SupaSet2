@@ -19,7 +19,7 @@ struct ExerciseMenu<T: ExerciseMenuType>: View {
         MenuButtons(exerciseID: exercise.exerciseID, changeExercise: $changeExercise, deleteExercise: $deleteExercise)
         .padding()
         .fullScreenCover(isPresented: $changeExercise) {
-            NavigationView{
+            NavigationStack{
                 Group {
                     if let workoutExercise = exercise as? WorkoutExercise {
                         ExerciseListPickerView(workoutExercise: workoutExercise)

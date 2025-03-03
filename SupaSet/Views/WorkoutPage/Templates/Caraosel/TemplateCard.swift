@@ -103,7 +103,9 @@ struct TemplateCard: View {
                     AlertButton(title: "Cancel", role: .cancel),
                     AlertButton(title: "Start Workout", action: {
                         let workout = Workout(template: template)
-                        modelContext.insert(workout)
+                        withAnimation(.smooth) {
+                            modelContext.insert(workout)
+                        }
                     })]
                 alertController.present(title: "Start Workout", message: "Start a new workout using \(template.name)?", buttons: buttons)
             }

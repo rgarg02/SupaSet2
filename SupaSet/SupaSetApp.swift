@@ -14,7 +14,7 @@ struct SupaSetApp: App {
     @UIApplicationDelegateAdaptor(AppDelegate.self) var delegate
     let container: ModelContainer
     @State private var authenticationViewModel = AuthenticationViewModel()
-    @State private var exerciseViewModel = ExerciseViewModel()
+    @State private var exerciseViewModel : ExerciseViewModel
     init() {
         let schema = Schema([
             Workout.self,
@@ -23,13 +23,15 @@ struct SupaSetApp: App {
             ExerciseDetail.self,
             Template.self,
             TemplateExercise.self,
-            TemplateExerciseSet.self
+            TemplateExerciseSet.self,
+            ExerciseEntity.self
         ])
            do {
                let storeURL = URL.documentsDirectory.appending(path: "SupaSet.sqlite")
                let config = ModelConfiguration(url: storeURL)
                container = try ModelContainer(for: schema, configurations: config)
                container.mainContext.undoManager = UndoManager()
+               self.exerciseViewModel = ExerciseViewModel(modelContext: container.mainContext)
            } catch {
                fatalError("Failed to configure SwiftData container.")
            }
@@ -39,9 +41,11 @@ struct SupaSetApp: App {
             RootView()
                 .modelContainer(container)
                 .onAppear {
+                    WorkoutActivityManager.shared.setModelContext(container.mainContext)
                     authenticationViewModel.listenToAuthChanges()
                     AppContainer.shared.container = container
                     WorkoutActivityManager.shared.endAllActivities()
+                    loadAndSaveExercises(container: container)
                 }
                 .environment(exerciseViewModel)
                 .environment(authenticationViewModel)
