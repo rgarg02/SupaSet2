@@ -78,9 +78,9 @@ struct ProfilePageView: View {
     
     private var statsSection: some View {
         HStack(spacing: 20) {
-            StatCard(title: "Workouts", value: "0", icon: "dumbbell.fill")
-            StatCard(title: "Hours", value: "0", icon: "clock.fill")
-            StatCard(title: "Streak", value: "0", icon: "flame.fill")
+            StatCard(title: "Workouts", value: "0", icon: "dumbbell.fill", delay: 0.0)
+            StatCard(title: "Hours", value: "0", icon: "clock.fill", delay: 0.2)
+            StatCard(title: "Streak", value: "0", icon: "flame.fill", delay: 0.3)
         }
         .foregroundColor(Color("TextColor"))
     }

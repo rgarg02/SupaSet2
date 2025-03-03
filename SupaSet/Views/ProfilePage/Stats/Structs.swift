@@ -28,7 +28,7 @@ enum StatsPeriod: String, CaseIterable, Identifiable {
 }
 
 /// Model for chart data
-struct VolumeData: Identifiable {
+struct VolumeData: Identifiable, Equatable {
     let id = UUID()
     let date: Date
     let totalVolume: Double
@@ -44,7 +44,7 @@ struct VolumeData: Identifiable {
     }
 }
 
-struct MuscleGroupData: Identifiable {
+struct MuscleGroupData: Identifiable, Equatable {
     let id = UUID()
     let muscleGroup: String
     let totalVolume: Double

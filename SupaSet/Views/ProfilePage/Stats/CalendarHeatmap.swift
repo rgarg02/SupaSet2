@@ -63,9 +63,6 @@ struct CalendarHeatmap: View {
     var body: some View {
         VStack(alignment: .leading, spacing: 8) {
             VStack(alignment: .leading, spacing: 2) {
-                Text("Activity Heat Map")
-                    .font(.headline)
-                    .foregroundColor(.primary)
                 
                 Text("Each square represents a day of activity")
                     .font(.caption)

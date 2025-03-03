@@ -63,14 +63,6 @@ class ExerciseViewModel {
             try? await loadExercises()
         }
     }
-    // Filtered collections
-    var strengthExercises: [Exercise] {
-        exercises.filter { $0.category == .strength }
-    }
-    
-    var cardioExercises: [Exercise] {
-        exercises.filter { $0.category == .cardio }
-    }
     func getExerciseName(for exerciseId: String) -> String {
         // Find the exercise in the view model by ID and return its name
         exercises.first(where: { $0.id == exerciseId })?.name ?? ""

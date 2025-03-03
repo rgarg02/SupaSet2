@@ -3,15 +3,29 @@ import SwiftUI
 struct WorkoutStatsView: View {
     @Environment(\.modelContext) private var modelContext
     @State private var selectedPeriod: StatsPeriod = .month
+    @State private var selectedStatsType: StatsType = .overview
     
     var body: some View {
         NavigationStack {
             ScrollView {
                 VStack(spacing: 20) {
+                    // Stats Type Selector
+                    statsTypePicker
+                    
                     // Period Picker
                     periodPicker
                     
-                    WorkoutStatsSection(selectedPeriod: selectedPeriod)
+                    // Dynamic content based on selected stats type
+                    switch selectedStatsType {
+                    case .overview:
+                        WorkoutStatsSection(selectedPeriod: selectedPeriod)
+                    case .performance:
+                        PerformanceStatsSection(selectedPeriod: selectedPeriod)
+                    case .predictions:
+                        PredictionsSection(selectedPeriod: selectedPeriod)
+                    case .researchInsights:
+                        ResearchInsightsSection(selectedPeriod: selectedPeriod)
+                    }
                 }
                 .padding()
             }
@@ -20,9 +34,41 @@ struct WorkoutStatsView: View {
         }
     }
     
-    
-    
     // MARK: - UI Components
+    
+    private var statsTypePicker: some View {
+        ScrollView(.horizontal, showsIndicators: false) {
+            HStack(spacing: 12) {
+                ForEach(StatsType.allCases) { type in
+                    statsTypeButton(for: type)
+                }
+            }
+            .padding(.horizontal)
+        }
+    }
+    
+    private func statsTypeButton(for type: StatsType) -> some View {
+        Button(action: {
+            withAnimation(.spring(response: 0.3, dampingFraction: 0.7)) {
+                selectedStatsType = type
+            }
+        }) {
+            VStack(spacing: 8) {
+                Image(systemName: type.icon)
+                    .font(.title2)
+                    .foregroundColor(selectedStatsType == type ? .white : .primary)
+                Text(type.rawValue)
+                    .font(.subheadline)
+                    .foregroundColor(selectedStatsType == type ? .white : .primary)
+            }
+            .frame(width: 100, height: 80)
+            .background(
+                RoundedRectangle(cornerRadius: 12)
+                    .fill(selectedStatsType == type ? Color.blue : Color(.secondarySystemBackground))
+            )
+        }
+        .buttonStyle(PlainButtonStyle())
+    }
     
     private var periodPicker: some View {
         VStack(alignment: .leading) {
@@ -36,16 +82,14 @@ struct WorkoutStatsView: View {
                     Text(period.rawValue).tag(period)
                 }
             }
-            .pickerStyle(SegmentedPickerStyle())
+            .pickerStyle(.segmented)
         }
         .padding()
         .frame(maxWidth: .infinity)
         .background(Color(.secondarySystemGroupedBackground))
         .cornerRadius(16)
     }
-    
 }
-
 
 // SwiftUI Preview
 struct WorkoutStatsView_Previews: PreviewProvider {

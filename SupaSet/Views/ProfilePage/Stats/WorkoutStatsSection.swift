@@ -1,10 +1,3 @@
-//
-//  WorkoutStatsSection.swift
-//  SupaSet
-//
-//  Created by Rishi Garg on 3/2/25.
-//
-
 import SwiftUI
 import SwiftData
 import Charts
@@ -14,7 +7,8 @@ struct WorkoutStatsSection: View {
     @Environment(ExerciseViewModel.self) private var exerciseViewModel
     @Query private var workouts: [Workout]
     
-    // State variables for async calculations
+    // Task cancellation and state variables for async calculations
+    @State private var calculationTask: Task<Void, Never>? = nil
     @State private var isLoading = true
     @State private var frequency = "0/week"
     @State private var totalWorkoutCount = 0
@@ -23,50 +17,82 @@ struct WorkoutStatsSection: View {
     @State private var volumeChartDataPoints: [VolumeData] = []
     @State private var muscleGroupDataPoints: [MuscleGroupData] = []
     @State private var topExercisesList: [(name: String, volume: Double)] = []
-    
+    @State private var yearOffset = 0 // For year navigation
+
     init(selectedPeriod: StatsPeriod) {
         self.selectedPeriod = selectedPeriod
         if let daysBack = selectedPeriod.daysBack {
             let cutoffDate = Calendar.current.date(byAdding: .day, value: -daysBack, to: Date()) ?? Date()
-            self._workouts = Query(filter: #Predicate<Workout>{$0.date >= cutoffDate && $0.isFinished == true})
+            self._workouts = Query(filter: #Predicate<Workout> { $0.date >= cutoffDate && $0.isFinished == true })
         } else {
-            self._workouts = Query(filter: #Predicate<Workout>{$0.isFinished == true})
+            self._workouts = Query(filter: #Predicate<Workout> { $0.isFinished == true })
         }
     }
     
+    // MARK: - Computed Properties
+    
+    private var hasMultipleYears: Bool {
+        guard let firstDate = workouts.map({ $0.date }).min() else { return false }
+        let years = Calendar.current.dateComponents([.year], from: firstDate, to: Date()).year ?? 0
+        return years > 0
+    }
+    
+    private var yearLabel: String {
+        let calendar = Calendar.current
+        let year = calendar.component(.year, from: calendar.date(byAdding: .year, value: yearOffset, to: Date())!)
+        return "\(year)"
+    }
+    
+    private var chartXDomain: ClosedRange<Date> {
+        let calendar = Calendar.current
+        let latestWorkoutDate = workouts.map({ $0.date }).max() ?? Date()
+        let startDate: Date
+        let endDate: Date = latestWorkoutDate
+        switch selectedPeriod {
+        case .week:
+            startDate = calendar.date(byAdding: .day, value: -6, to: calendar.startOfDay(for: endDate))!
+        case .month:
+            startDate = calendar.date(byAdding: .day, value: -29, to: calendar.startOfDay(for: endDate))!
+        case .threeMonths:
+            startDate = calendar.date(byAdding: .day, value: -89, to: calendar.startOfDay(for: endDate))!
+        case .year:
+            startDate = calendar.date(byAdding: .year, value: -1, to: endDate)!
+        case .allTime:
+            startDate = workouts.map({ $0.date }).min() ?? endDate
+        }
+        return startDate...endDate
+    }
+    
+    // MARK: - Body
+    
     var body: some View {
         ScrollView {
-            VStack(spacing: 20) {
+            LazyVStack(spacing: 20) {
                 if isLoading {
                     loadingView
                 } else {
-                    // Overview Stats
                     overviewStatsSection
-                    
-                    // Volume Progress Chart
-                    volumeChartSection
-                    
-                    // Muscle Group Distribution
-                    muscleGroupSection
-                    
-                    // Top Exercises
+                    VolumeChartSection(
+                        dataPoints: volumeChartDataPoints,
+                        dateDomain: chartXDomain,
+                        selectedPeriod: selectedPeriod
+                    )
+                    MuscleGroupChartSection(dataPoints: muscleGroupDataPoints)
                     topExercisesSection
-                    
-                    // Workout Consistency
                     workoutConsistencySection
                 }
             }
         }
-        .onAppear {
-            performCalculations()
-        }
-        .onChange(of: workouts) {
-            performCalculations()
-        }
-        .onChange(of: selectedPeriod) {
-            // Reset loading state when period changes
+        .onAppear { performCalculations() }
+        .onChange(of: workouts) { _, _ in performCalculations() }
+        .onChange(of: selectedPeriod) { _, _ in
+            yearOffset = 0
             isLoading = true
+            volumeChartDataPoints = [] // Clear previous data
             performCalculations()
+        }
+        .onChange(of: yearOffset) {
+            Task { await updateVolumeChartForYearChange() }
         }
     }
     
@@ -77,7 +103,6 @@ struct WorkoutStatsSection: View {
             ProgressView()
                 .scaleEffect(1.5)
                 .padding(.top, 40)
-            
             Text("Calculating your workout stats...")
                 .font(.headline)
                 .foregroundColor(.secondary)
@@ -86,254 +111,194 @@ struct WorkoutStatsSection: View {
         .frame(maxWidth: .infinity, minHeight: 300)
     }
     
-    // MARK: - Calculation Methods
+    // MARK: - Async Calculations
     
     private func performCalculations() {
-        // Use Task to perform calculations asynchronously
-        Task {
-            // Small delay to ensure loading indicator shows
+        calculationTask?.cancel()
+        calculationTask = Task {
             try? await Task.sleep(nanoseconds: 100_000_000)
+            if Task.isCancelled { return }
             
-            // Calculate data points on background thread
-            await calculateAllStats()
+            // Cache sorted workouts for chart data so we don't sort multiple times.
+            let sortedWorkouts = workouts.sorted { $0.date < $1.date }
             
-            // Update UI on main thread
-            await MainActor.run {
-                isLoading = false
+            // Launch several calculations concurrently with async let.
+            async let freqResult: () = calculateFrequencyAsync()
+            async let basicStatsResult: () = calculateBasicStatsAsync()
+            async let volumeChartResult: () = calculateVolumeChartDataAsync(using: sortedWorkouts)
+            async let exerciseStatsResult: () = calculateExerciseStatsAsync()
+            
+            // Wait for all concurrently
+            _ = await (freqResult, basicStatsResult, volumeChartResult, exerciseStatsResult)
+            
+            if !Task.isCancelled {
+                await MainActor.run { isLoading = false }
             }
         }
     }
     
-    private func calculateAllStats() async {
-        await withTaskGroup(of: Void.self) { group in
-            // Add all calculation tasks to the group
-            group.addTask { await calculateFrequencyAsync() }
-            group.addTask { await calculateBasicStatsAsync() }
-            group.addTask { await calculateVolumeChartDataAsync() }
-            group.addTask { await calculateMuscleGroupDataAsync() }
-            group.addTask { await calculateTopExercisesAsync() }
-            
-            // Wait for all tasks to complete
-            for await _ in group { }
-        }
-    }
-    
+    // Calculate workout frequency
     private func calculateFrequencyAsync() async {
         guard !workouts.isEmpty else {
             await MainActor.run { frequency = "0/week" }
             return
         }
-        
         let result: String
-        
         if selectedPeriod == .allTime {
-            // Calculate average per week for all time
             let firstWorkoutDate = workouts.map { $0.date }.min() ?? Date()
             let totalWeeks = max(1, (Date().timeIntervalSince(firstWorkoutDate) / (86400 * 7)).rounded())
             let workoutsPerWeek = Double(workouts.count) / totalWeeks
-            
             result = String(format: "%.1f/week", workoutsPerWeek)
         } else {
-            // Calculate for selected period
             let period: Double
             switch selectedPeriod {
             case .week: period = 1
             case .month: period = 4.3
             case .threeMonths: period = 13
             case .year: period = 52
-            case .allTime: period = 1 // Should not reach here
+            case .allTime: period = 1
             }
-            
             let workoutsPerWeek = Double(workouts.count) / period
             result = String(format: "%.1f/week", workoutsPerWeek)
         }
-        
         await MainActor.run { frequency = result }
     }
     
+    // Calculate basic stats: count, total volume, and average duration
     private func calculateBasicStatsAsync() async {
         let count = workouts.count
-        let volume = workouts.reduce(0) { $0 + $1.totalVolume }
-        let duration: TimeInterval
+        var volumeSum = 0.0
+        var durationSum = 0.0
         
-        if !workouts.isEmpty {
-            let totalDuration = workouts.reduce(0) { $0 + $1.duration }
-            duration = totalDuration / Double(count)
-        } else {
-            duration = 0
+        for workout in workouts {
+            volumeSum += workout.totalVolume
+            durationSum += workout.duration
         }
-        
+        let avgDur = count > 0 ? durationSum / Double(count) : 0
         await MainActor.run {
             totalWorkoutCount = count
-            totalVolumeAmount = volume
-            avgDuration = duration
+            totalVolumeAmount = volumeSum
+            avgDuration = avgDur
         }
     }
     
-    private func calculateVolumeChartDataAsync() async {
-        let sortedWorkouts = workouts.sorted(by: { $0.date < $1.date })
-        let data = sortedWorkouts.map { VolumeData(date: $0.date, totalVolume: $0.totalVolume) }
+    // Calculate chart data based on selected period
+    private func calculateVolumeChartDataAsync(using sortedWorkouts: [Workout]) async {
+        if Task.isCancelled { return }
+        let dateRange = chartXDomain
+        let data: [VolumeData]
         
-        await MainActor.run {
-            volumeChartDataPoints = data
+        switch selectedPeriod {
+        case .week, .month:
+            data = generateDailyDataPoints(from: sortedWorkouts, in: dateRange)
+        case .threeMonths:
+            data = generateWeeklyDataPoints(from: sortedWorkouts, in: dateRange)
+        case .year, .allTime:
+            data = generateMonthlyDataPoints(from: sortedWorkouts, in: dateRange)
+        }
+        if !Task.isCancelled {
+            await MainActor.run { volumeChartDataPoints = data }
         }
     }
     
-    private func calculateMuscleGroupDataAsync() async {
-        // Dictionary to store volume by muscle group
+    // Combines calculations for muscle group and top exercise stats into a single pass.
+    private func calculateExerciseStatsAsync() async {
         var volumeByMuscle: [String: Double] = [:]
+        var exerciseVolume: [String: Double] = [:]
         
         for workout in workouts {
             for exercise in workout.exercises {
-                // Try to find the exercise in the view model
+                // Top Exercises: aggregate by exercise name.
+                let exerciseName = exerciseViewModel.getExerciseName(for: exercise.exerciseID)
+                exerciseVolume[exerciseName, default: 0] += exercise.totalVolume
+                
+                // Muscle Group: accumulate volume for primary and secondary muscles.
                 if let actualExercise = exerciseViewModel.exercises.first(where: { $0.id == exercise.exerciseID }) {
-                    // Add volume to primary muscles
                     for muscle in actualExercise.primaryMuscles {
-                        let muscleName = muscle.rawValue
-                        volumeByMuscle[muscleName, default: 0] += exercise.totalVolume
+                        volumeByMuscle[muscle.rawValue, default: 0] += exercise.totalVolume
                     }
-                    
-                    // Add half volume to secondary muscles
                     for muscle in actualExercise.secondaryMuscles {
-                        let muscleName = muscle.rawValue
-                        volumeByMuscle[muscleName, default: 0] += exercise.totalVolume * 0.5
+                        volumeByMuscle[muscle.rawValue, default: 0] += exercise.totalVolume * 0.5
                     }
                 }
             }
         }
         
-        // Convert dictionary to array and sort by volume
-        let result = volumeByMuscle.map { MuscleGroupData(muscleGroup: $0.key.capitalized, totalVolume: $0.value) }
-            .sorted(by: { $0.totalVolume > $1.totalVolume })
+        let topMuscles = volumeByMuscle.map { MuscleGroupData(muscleGroup: $0.key.capitalized, totalVolume: $0.value) }
+            .sorted { $0.totalVolume > $1.totalVolume }
             .prefix(5)
-            .map { $0 } // Convert back to array
+            .map { $0 }
         
-        await MainActor.run {
-            muscleGroupDataPoints = result
-        }
-    }
-    
-    private func calculateTopExercisesAsync() async {
-        var exerciseVolume: [String: Double] = [:]
-        
-        for workout in workouts {
-            for exercise in workout.exercises {
-                let exerciseName = exerciseViewModel.getExerciseName(for: exercise.exerciseID)
-                exerciseVolume[exerciseName, default: 0] += exercise.totalVolume
-            }
-        }
-        
-        let result = exerciseVolume.map { ($0.key, $0.value) }
-            .sorted(by: { $0.1 > $1.1 })  // Access tuple elements by index (1 is the volume)
+        let topExercises = exerciseVolume.map { ($0.key, $0.value) }
+            .sorted { $0.1 > $1.1 }
             .prefix(5)
             .map { $0 }
         
         await MainActor.run {
-            topExercisesList = result
+            muscleGroupDataPoints = topMuscles
+            topExercisesList = topExercises
         }
     }
     
-    // MARK: - View Sections
+    private func updateVolumeChartForYearChange() async {
+        let dateRange = chartXDomain
+        let sortedWorkouts = workouts.sorted { $0.date < $1.date }
+        let data = generateMonthlyDataPoints(from: sortedWorkouts, in: dateRange)
+        await MainActor.run { volumeChartDataPoints = data }
+    }
+    
+    // MARK: - Data Generation Helpers
+    
+    private func generateDailyDataPoints(from workouts: [Workout], in dateRange: ClosedRange<Date>) -> [VolumeData] {
+        let calendar = Calendar.current
+        let filteredWorkouts = workouts.filter { dateRange.contains($0.date) }
+        let workoutsByDay = Dictionary(grouping: filteredWorkouts) { calendar.startOfDay(for: $0.date) }
+        
+        return workoutsByDay.map { date, dayWorkouts in
+            let totalVolume = dayWorkouts.reduce(0) { $0 + $1.totalVolume }
+            return VolumeData(date: date, totalVolume: totalVolume)
+        }.sorted { $0.date < $1.date }
+    }
+    
+    private func generateWeeklyDataPoints(from workouts: [Workout], in dateRange: ClosedRange<Date>) -> [VolumeData] {
+        let calendar = Calendar.current
+        let filteredWorkouts = workouts.filter { dateRange.contains($0.date) }
+        let workoutsByWeek = Dictionary(grouping: filteredWorkouts) {
+            calendar.date(from: calendar.dateComponents([.yearForWeekOfYear, .weekOfYear], from: $0.date)) ?? $0.date
+        }
+        
+        return workoutsByWeek.map { weekStart, weekWorkouts in
+            let totalVolume = weekWorkouts.reduce(0) { $0 + $1.totalVolume }
+            return VolumeData(date: weekStart, totalVolume: totalVolume)
+        }.sorted { $0.date < $1.date }
+    }
+    
+    private func generateMonthlyDataPoints(from workouts: [Workout], in dateRange: ClosedRange<Date>) -> [VolumeData] {
+        let calendar = Calendar.current
+        let filteredWorkouts = workouts.filter { dateRange.contains($0.date) }
+        let workoutsByMonth = Dictionary(grouping: filteredWorkouts) {
+            let components = calendar.dateComponents([.year, .month], from: $0.date)
+            return calendar.date(from: components) ?? $0.date
+        }
+        
+        return workoutsByMonth.map { monthStart, monthWorkouts in
+            let totalVolume = monthWorkouts.reduce(0) { $0 + $1.totalVolume }
+            return VolumeData(date: monthStart, totalVolume: totalVolume)
+        }.sorted { $0.date < $1.date }
+    }
+    
+    // MARK: - Overview, Top Exercises & Consistency Sections
     
     private var overviewStatsSection: some View {
         VStack(alignment: .leading, spacing: 16) {
             Text("Overview")
                 .font(.title2)
                 .fontWeight(.bold)
-            
             LazyVGrid(columns: [GridItem(.flexible()), GridItem(.flexible())], spacing: 20) {
-                StatCard(title: "Total Workouts", value: "\(totalWorkoutCount)", icon: "figure.strengthtraining.traditional")
-                
-                StatCard(title: "Total Volume", value: "\(Int(totalVolumeAmount)) kg", icon: "scalemass.fill")
-                
-                StatCard(title: "Avg. Duration", value: formatDuration(avgDuration), icon: "timer")
-                
-                StatCard(title: "Workout Freq.", value: frequency, icon: "calendar")
-            }
-        }
-        .padding()
-        .background(Color(.secondarySystemGroupedBackground))
-        .cornerRadius(16)
-    }
-    
-    private var volumeChartSection: some View {
-        VStack(alignment: .leading, spacing: 16) {
-            Text("Volume Progress")
-                .font(.title2)
-                .fontWeight(.bold)
-            
-            if volumeChartDataPoints.isEmpty {
-                Text("No workout data for this period")
-                    .foregroundColor(.secondary)
-                    .frame(maxWidth: .infinity, minHeight: 200)
-            } else {
-                Chart {
-                    ForEach(volumeChartDataPoints) { data in
-                        LineMark(
-                            x: .value("Date", data.date),
-                            y: .value("Volume", data.totalVolume)
-                        )
-                        .foregroundStyle(Color.blue.gradient)
-                        .interpolationMethod(.catmullRom)
-                        
-                        AreaMark(
-                            x: .value("Date", data.date),
-                            y: .value("Volume", data.totalVolume)
-                        )
-                        .foregroundStyle(
-                            .linearGradient(colors: [.blue.opacity(0.3), .clear], startPoint: .top, endPoint: .bottom)
-                        )
-                        .interpolationMethod(.catmullRom)
-                        
-                        PointMark(
-                            x: .value("Date", data.date),
-                            y: .value("Volume", data.totalVolume)
-                        )
-                        .foregroundStyle(Color.blue)
-                    }
-                }
-                .frame(height: 200)
-                .chartYAxis {
-                    AxisMarks()
-                }
-                .chartXAxis {
-                    AxisMarks()
-                }
-            }
-        }
-        .padding()
-        .background(Color(.secondarySystemGroupedBackground))
-        .cornerRadius(16)
-    }
-    
-    private var muscleGroupSection: some View {
-        VStack(alignment: .leading, spacing: 16) {
-            Text("Muscle Focus")
-                .font(.title2)
-                .fontWeight(.bold)
-            
-            if muscleGroupDataPoints.isEmpty {
-                Text("No muscle data for this period")
-                    .foregroundColor(.secondary)
-                    .frame(maxWidth: .infinity, minHeight: 200)
-            } else {
-                Chart {
-                    ForEach(muscleGroupDataPoints) { data in
-                        BarMark(
-                            x: .value("Volume", data.totalVolume),
-                            y: .value("Muscle", data.muscleGroup)
-                        )
-                        .foregroundStyle(Color.purple.gradient)
-                        .cornerRadius(6)
-                    }
-                }
-                .frame(height: 250)
-                .chartXAxis {
-                    AxisMarks()
-                }
-                .chartYAxis {
-                    AxisMarks()
-                }
+                StatCard(title: "Total Workouts", value: "\(totalWorkoutCount)", icon: "figure.strengthtraining.traditional", delay: 0.0)
+                StatCard(title: "Total Volume", value: "\(Int(totalVolumeAmount)) kg", icon: "scalemass.fill", delay: 0.2)
+                StatCard(title: "Avg. Duration", value: formatDuration(avgDuration), icon: "timer", delay: 0.3)
+                StatCard(title: "Workout Freq.", value: frequency, icon: "calendar", delay: 0.4)
             }
         }
         .padding()
@@ -346,7 +311,6 @@ struct WorkoutStatsSection: View {
             Text("Top Exercises")
                 .font(.title2)
                 .fontWeight(.bold)
-            
             if topExercisesList.isEmpty {
                 Text("No exercise data for this period")
                     .foregroundColor(.secondary)
@@ -360,22 +324,16 @@ struct WorkoutStatsSection: View {
                             .frame(width: 28, height: 28)
                             .background(Color.blue)
                             .clipShape(Circle())
-                        
-                        Text(topExercisesList[index].name)
+                        Text(topExercisesList[index].0)
                             .font(.callout)
                             .lineLimit(1)
-                        
                         Spacer()
-                        
-                        Text("\(Int(topExercisesList[index].volume)) kg")
+                        Text("\(Int(topExercisesList[index].1)) kg")
                             .font(.callout)
                             .foregroundColor(.secondary)
                     }
                     .padding(.vertical, 5)
-                    
-                    if index < topExercisesList.count - 1 {
-                        Divider()
-                    }
+                    if index < topExercisesList.count - 1 { Divider() }
                 }
             }
         }
@@ -389,25 +347,18 @@ struct WorkoutStatsSection: View {
             Text("Workout Commitment")
                 .font(.title2)
                 .fontWeight(.bold)
-            
             CalendarHeatmap(workouts: workouts, selectedPeriod: selectedPeriod)
-//                .frame(height: 140)
         }
         .padding()
         .background(Color(.secondarySystemGroupedBackground))
         .cornerRadius(16)
     }
     
-    // MARK: - Helper Functions
+    // MARK: - Helper
     
     private func formatDuration(_ duration: TimeInterval) -> String {
         let hours = Int(duration) / 3600
         let minutes = Int(duration) / 60 % 60
-        
-        if hours > 0 {
-            return "\(hours)h \(minutes)m"
-        } else {
-            return "\(minutes) min"
-        }
+        return hours > 0 ? "\(hours)h \(minutes)m" : "\(minutes) min"
     }
 }
