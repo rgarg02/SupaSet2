@@ -13,7 +13,7 @@ struct WorkoutStatsView: View {
                     statsTypePicker
                     
                     // Period Picker
-                    periodPicker
+                    PeriodPicker(selectedPeriod: $selectedPeriod)
                     
                     // Dynamic content based on selected stats type
                     switch selectedStatsType {
@@ -68,26 +68,6 @@ struct WorkoutStatsView: View {
             )
         }
         .buttonStyle(PlainButtonStyle())
-    }
-    
-    private var periodPicker: some View {
-        VStack(alignment: .leading) {
-            Text("Time Period")
-                .font(.headline)
-                .foregroundColor(.secondary)
-                .padding(.leading, 5)
-            
-            Picker("Time Period", selection: $selectedPeriod) {
-                ForEach(StatsPeriod.allCases) { period in
-                    Text(period.rawValue).tag(period)
-                }
-            }
-            .pickerStyle(.segmented)
-        }
-        .padding()
-        .frame(maxWidth: .infinity)
-        .background(Color(.secondarySystemGroupedBackground))
-        .cornerRadius(16)
     }
 }
 

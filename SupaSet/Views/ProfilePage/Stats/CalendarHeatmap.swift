@@ -61,184 +61,192 @@ struct CalendarHeatmap: View {
     }
     
     var body: some View {
-        VStack(alignment: .leading, spacing: 8) {
-            VStack(alignment: .leading, spacing: 2) {
+        VStack(alignment: .leading, spacing: 16) {
+            Text("Workout Commitment")
+                .font(.title2)
+                .fontWeight(.bold)
+            VStack(alignment: .leading, spacing: 8) {
+                VStack(alignment: .leading, spacing: 2) {
+                    
+                    Text("Each square represents a day of activity")
+                        .font(.caption)
+                        .foregroundColor(.secondary)
+                }
+                .onAppear {
+                    updateCachedValues()
+                }
+                .onChange(of: selectedPeriod) { _, _ in
+                    updateCachedValues()
+                }
                 
-                Text("Each square represents a day of activity")
-                    .font(.caption)
-                    .foregroundColor(.secondary)
-            }
-            .onAppear {
-                updateCachedValues()
-            }
-            .onChange(of: selectedPeriod) { _, _ in
-                updateCachedValues()
-            }
-            
-            ScrollView(.horizontal, showsIndicators: false) {                
-                VStack(alignment: .leading, spacing: 4) {
-                    // Grid for weekday labels + heatmap cells
-                    LazyHGrid(rows: Array(repeating: GridItem(.fixed(18), spacing: 3), count: 7), spacing: 3) {
-                        // First column: weekday letters
-                        ForEach(0..<7, id: \.self) { index in
-                            Text(dayLetter(for: index))
-                                .font(.system(size: 9, weight: .medium))
-                                .foregroundColor(.secondary)
-                                .frame(width: 18, height: 18)
-                        }
-                        
-                        // Heatmap cells
-                        ForEach(0..<daysToShow, id: \.self) { index in
-                            if let date = Calendar.current.date(byAdding: .day, value: index, to: startDate) {
-                                let dayStart = Calendar.current.startOfDay(for: date)
-                                let count = workoutDateCounts[dayStart] ?? 0
-                                let isToday = Calendar.current.isDateInToday(date)
-                                
-                                Rectangle()
-                                    .fill(count > 0 ? heatColors[1] : heatColors[0])
+                ScrollView(.horizontal, showsIndicators: false) {
+                    VStack(alignment: .leading, spacing: 4) {
+                        // Grid for weekday labels + heatmap cells
+                        LazyHGrid(rows: Array(repeating: GridItem(.fixed(18), spacing: 3), count: 7), spacing: 3) {
+                            // First column: weekday letters
+                            ForEach(0..<7, id: \.self) { index in
+                                Text(dayLetter(for: index))
+                                    .font(.system(size: 9, weight: .medium))
+                                    .foregroundColor(.secondary)
                                     .frame(width: 18, height: 18)
-                                    .cornerRadius(3)
-                                    .overlay(
-                                        ZStack {
-                                            if isToday {
-                                                RoundedRectangle(cornerRadius: 3)
-                                                    .stroke(Color.primary, lineWidth: 1.5)
+                            }
+                            
+                            // Heatmap cells
+                            ForEach(0..<daysToShow, id: \.self) { index in
+                                if let date = Calendar.current.date(byAdding: .day, value: index, to: startDate) {
+                                    let dayStart = Calendar.current.startOfDay(for: date)
+                                    let count = workoutDateCounts[dayStart] ?? 0
+                                    let isToday = Calendar.current.isDateInToday(date)
+                                    
+                                    Rectangle()
+                                        .fill(count > 0 ? heatColors[1] : heatColors[0])
+                                        .frame(width: 18, height: 18)
+                                        .cornerRadius(3)
+                                        .overlay(
+                                            ZStack {
+                                                if isToday {
+                                                    RoundedRectangle(cornerRadius: 3)
+                                                        .stroke(Color.primary, lineWidth: 1.5)
+                                                } else {
+                                                    RoundedRectangle(cornerRadius: 3)
+                                                        .stroke(Color.gray.opacity(0.15), lineWidth: 0.5)
+                                                }
+                                            }
+                                        )
+                                        .contentShape(Rectangle())
+                                        .onTapGesture {
+                                            if let selected = selectedDate, Calendar.current.isDate(selected, inSameDayAs: date) {
+                                                selectedDate = nil
                                             } else {
-                                                RoundedRectangle(cornerRadius: 3)
-                                                    .stroke(Color.gray.opacity(0.15), lineWidth: 0.5)
+                                                selectedDate = date
+                                                // Add haptic feedback
+                                                let generator = UIImpactFeedbackGenerator(style: .light)
+                                                generator.impactOccurred()
                                             }
                                         }
-                                    )
-                                    .contentShape(Rectangle())
-                                    .onTapGesture {
-                                        if let selected = selectedDate, Calendar.current.isDate(selected, inSameDayAs: date) {
-                                            selectedDate = nil
-                                        } else {
-                                            selectedDate = date
-                                            // Add haptic feedback
-                                            let generator = UIImpactFeedbackGenerator(style: .light)
-                                            generator.impactOccurred()
-                                        }
-                                    }
+                                }
                             }
                         }
-                    }
-                    .padding(.vertical, 6)
-                    
-                    // Month labels with proper offset and new year indicator
-                    GeometryReader { _ in
-                        ZStack(alignment: .topLeading) {
-                            ForEach(monthLabels, id: \.offset) { labelInfo in
-                                VStack(alignment: .leading, spacing: 0) {
-                                    // If this date is Jan 1, display the year above the month label.
-                                    if labelInfo.isNewYear, let year = labelInfo.year {
-                                        Text(year)
-                                            .font(.system(size: 9, weight: .bold))
+                        .padding(.vertical, 6)
+                        
+                        // Month labels with proper offset and new year indicator
+                        GeometryReader { _ in
+                            ZStack(alignment: .topLeading) {
+                                ForEach(monthLabels, id: \.offset) { labelInfo in
+                                    VStack(alignment: .leading, spacing: 0) {
+                                        // If this date is Jan 1, display the year above the month label.
+                                        if labelInfo.isNewYear, let year = labelInfo.year {
+                                            Text(year)
+                                                .font(.system(size: 9, weight: .bold))
+                                                .foregroundColor(.secondary)
+                                        }
+                                        Text(labelInfo.label)
+                                            .font(.system(size: 9, weight: .medium))
                                             .foregroundColor(.secondary)
                                     }
-                                    Text(labelInfo.label)
-                                        .font(.system(size: 9, weight: .medium))
-                                        .foregroundColor(.secondary)
+                                    // Add an initial offset equal to the day-label column width plus spacing
+                                    .frame(width: 40, alignment: .leading)
+                                    .offset(x: labelInfo.offset + 21, y: 0)
                                 }
-                                // Add an initial offset equal to the day-label column width plus spacing
-                                .frame(width: 40, alignment: .leading)
-                                .offset(x: labelInfo.offset + 21, y: 0)
                             }
                         }
-                    }
-                    .frame(height: 24)
-                    
-                    // Legend
-                    HStack(spacing: 16) {
-                        HStack(spacing: 4) {
-                            Rectangle()
-                                .fill(heatColors[0])
-                                .frame(width: 12, height: 12)
-                                .cornerRadius(2)
-                                .overlay(
-                                    RoundedRectangle(cornerRadius: 2)
-                                        .stroke(Color.gray.opacity(0.15), lineWidth: 0.5)
-                                )
-                            
-                            Text("No workout")
-                                .font(.system(size: 10))
-                                .foregroundColor(.secondary)
-                        }
+                        .frame(height: 24)
                         
-                        HStack(spacing: 4) {
-                            Rectangle()
-                                .fill(heatColors[1])
-                                .frame(width: 12, height: 12)
-                                .cornerRadius(2)
-                                .overlay(
-                                    RoundedRectangle(cornerRadius: 2)
-                                        .stroke(Color.gray.opacity(0.15), lineWidth: 0.5)
-                                )
-                            
-                            Text("Workout completed")
-                                .font(.system(size: 10))
-                                .foregroundColor(.secondary)
-                        }
-                    }
-                    .padding(.top, 4)
-                }
-                .padding(8)
-            }
-            .background(
-                RoundedRectangle(cornerRadius: 10)
-                    .fill(Color(.systemBackground))
-                    .shadow(color: Color.black.opacity(0.05), radius: 5, x: 0, y: 2)
-            )
-            
-            // Detail view for selected date
-            if let selectedDate = selectedDate {
-                HStack(alignment: .top) {
-                    VStack(alignment: .leading, spacing: 4) {
-                        Text(formattedDate(selectedDate))
-                            .font(.headline)
-                        
-                        let count = workoutDateCounts[Calendar.current.startOfDay(for: selectedDate)] ?? 0
-                        if count > 0 {
-                            Text("Workout completed")
-                                .font(.subheadline)
-                                .foregroundColor(.green)
+                        // Legend
+                        HStack(spacing: 16) {
+                            HStack(spacing: 4) {
+                                Rectangle()
+                                    .fill(heatColors[0])
+                                    .frame(width: 12, height: 12)
+                                    .cornerRadius(2)
+                                    .overlay(
+                                        RoundedRectangle(cornerRadius: 2)
+                                            .stroke(Color.gray.opacity(0.15), lineWidth: 0.5)
+                                    )
                                 
-                                // Find workouts for this date and display their names if any
-                                let dayWorkouts = workouts.filter {
-                                    Calendar.current.isDate($0.date, inSameDayAs: selectedDate)
-                                }
-                                if !dayWorkouts.isEmpty {
-                                    VStack(alignment: .leading, spacing: 4) {
-                                        ForEach(dayWorkouts, id: \.id) { workout in
-                                            Text(workout.name)
-                                                .font(.caption)
-                                                .foregroundColor(.primary)
-                                        }
-                                    }
-                                    .padding(.top, 2)
-                                }
-                        } else {
-                            Text("No workouts")
-                                .font(.subheadline)
-                                .foregroundColor(.secondary)
+                                Text("No workout")
+                                    .font(.system(size: 10))
+                                    .foregroundColor(.secondary)
+                            }
+                            
+                            HStack(spacing: 4) {
+                                Rectangle()
+                                    .fill(heatColors[1])
+                                    .frame(width: 12, height: 12)
+                                    .cornerRadius(2)
+                                    .overlay(
+                                        RoundedRectangle(cornerRadius: 2)
+                                            .stroke(Color.gray.opacity(0.15), lineWidth: 0.5)
+                                    )
+                                
+                                Text("Workout completed")
+                                    .font(.system(size: 10))
+                                    .foregroundColor(.secondary)
+                            }
                         }
+                        .padding(.top, 4)
                     }
-                    
-                    Spacer()
-                    
-                    Button(action: {
-                        self.selectedDate = nil
-                    }) {
-                        Image(systemName: "xmark.circle.fill")
-                            .foregroundColor(.secondary)
-                    }
+                    .padding(8)
                 }
                 .background(
                     RoundedRectangle(cornerRadius: 10)
-                        .fill(Color(.secondarySystemBackground))
+                        .fill(Color(.systemBackground))
+                        .shadow(color: Color.black.opacity(0.05), radius: 5, x: 0, y: 2)
                 )
+                
+                // Detail view for selected date
+                if let selectedDate = selectedDate {
+                    HStack(alignment: .top) {
+                        VStack(alignment: .leading, spacing: 4) {
+                            Text(formattedDate(selectedDate))
+                                .font(.headline)
+                            
+                            let count = workoutDateCounts[Calendar.current.startOfDay(for: selectedDate)] ?? 0
+                            if count > 0 {
+                                Text("Workout completed")
+                                    .font(.subheadline)
+                                    .foregroundColor(.green)
+                                    
+                                    // Find workouts for this date and display their names if any
+                                    let dayWorkouts = workouts.filter {
+                                        Calendar.current.isDate($0.date, inSameDayAs: selectedDate)
+                                    }
+                                    if !dayWorkouts.isEmpty {
+                                        VStack(alignment: .leading, spacing: 4) {
+                                            ForEach(dayWorkouts, id: \.id) { workout in
+                                                Text(workout.name)
+                                                    .font(.caption)
+                                                    .foregroundColor(.primary)
+                                            }
+                                        }
+                                        .padding(.top, 2)
+                                    }
+                            } else {
+                                Text("No workouts")
+                                    .font(.subheadline)
+                                    .foregroundColor(.secondary)
+                            }
+                        }
+                        
+                        Spacer()
+                        
+                        Button(action: {
+                            self.selectedDate = nil
+                        }) {
+                            Image(systemName: "xmark.circle.fill")
+                                .foregroundColor(.secondary)
+                        }
+                    }
+                    .background(
+                        RoundedRectangle(cornerRadius: 10)
+                            .fill(Color(.secondarySystemBackground))
+                    )
+                }
             }
         }
+        .padding()
+        .background(Color(.secondarySystemGroupedBackground))
+        .cornerRadius(16)
     }
     
     // MARK: - Helpers

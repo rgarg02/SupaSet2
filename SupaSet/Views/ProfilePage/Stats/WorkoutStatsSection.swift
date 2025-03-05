@@ -16,7 +16,7 @@ struct WorkoutStatsSection: View {
     @State private var avgDuration: TimeInterval = 0
     @State private var volumeChartDataPoints: [VolumeData] = []
     @State private var muscleGroupDataPoints: [MuscleGroupData] = []
-    @State private var topExercisesList: [(name: String, volume: Double)] = []
+    @State private var topExercisesList: [(exerciseID: String, name: String, weight: Double)] = []
     @State private var yearOffset = 0 // For year navigation
 
     init(selectedPeriod: StatsPeriod) {
@@ -78,8 +78,8 @@ struct WorkoutStatsSection: View {
                         selectedPeriod: selectedPeriod
                     )
                     MuscleGroupChartSection(dataPoints: muscleGroupDataPoints)
-                    topExercisesSection
-                    workoutConsistencySection
+                    TopExerciseSection(topExercisesList: topExercisesList)
+                    CalendarHeatmap(workouts: workouts, selectedPeriod: selectedPeriod)
                 }
             }
         }
@@ -204,13 +204,21 @@ struct WorkoutStatsSection: View {
     // Combines calculations for muscle group and top exercise stats into a single pass.
     private func calculateExerciseStatsAsync() async {
         var volumeByMuscle: [String: Double] = [:]
-        var exerciseVolume: [String: Double] = [:]
+        var exerciseVolume: [(id: String, name: String, volume: Double)] = []
         
         for workout in workouts {
             for exercise in workout.exercises {
-                // Top Exercises: aggregate by exercise name.
+                // Get exercise name from view model
                 let exerciseName = exerciseViewModel.getExerciseName(for: exercise.exerciseID)
-                exerciseVolume[exerciseName, default: 0] += exercise.totalVolume
+                
+                // Check if this exercise is already in our array
+                if let index = exerciseVolume.firstIndex(where: { $0.id == exercise.exerciseID }) {
+                    // Update existing entry
+                    exerciseVolume[index].volume += exercise.totalVolume
+                } else {
+                    // Add new entry with ID, name and volume
+                    exerciseVolume.append((id: exercise.exerciseID, name: exerciseName, volume: exercise.totalVolume))
+                }
                 
                 // Muscle Group: accumulate volume for primary and secondary muscles.
                 if let actualExercise = exerciseViewModel.exercises.first(where: { $0.id == exercise.exerciseID }) {
@@ -229,10 +237,10 @@ struct WorkoutStatsSection: View {
             .prefix(5)
             .map { $0 }
         
-        let topExercises = exerciseVolume.map { ($0.key, $0.value) }
-            .sorted { $0.1 > $1.1 }
+        let topExercises = exerciseVolume
+            .sorted { $0.volume > $1.volume }
             .prefix(5)
-            .map { $0 }
+            .map { (exerciseID: $0.id, name: $0.name, weight: $0.volume) }
         
         await MainActor.run {
             muscleGroupDataPoints = topMuscles
@@ -248,18 +256,20 @@ struct WorkoutStatsSection: View {
     }
     
     // MARK: - Data Generation Helpers
-    
+            
     private func generateDailyDataPoints(from workouts: [Workout], in dateRange: ClosedRange<Date>) -> [VolumeData] {
         let calendar = Calendar.current
         let filteredWorkouts = workouts.filter { dateRange.contains($0.date) }
         let workoutsByDay = Dictionary(grouping: filteredWorkouts) { calendar.startOfDay(for: $0.date) }
         
-        return workoutsByDay.map { date, dayWorkouts in
+        return workoutsByDay.compactMap { date, dayWorkouts in
             let totalVolume = dayWorkouts.reduce(0) { $0 + $1.totalVolume }
+            // Skip data points with zero volume
+            guard totalVolume > 0 else { return nil }
             return VolumeData(date: date, totalVolume: totalVolume)
         }.sorted { $0.date < $1.date }
     }
-    
+
     private func generateWeeklyDataPoints(from workouts: [Workout], in dateRange: ClosedRange<Date>) -> [VolumeData] {
         let calendar = Calendar.current
         let filteredWorkouts = workouts.filter { dateRange.contains($0.date) }
@@ -267,12 +277,15 @@ struct WorkoutStatsSection: View {
             calendar.date(from: calendar.dateComponents([.yearForWeekOfYear, .weekOfYear], from: $0.date)) ?? $0.date
         }
         
-        return workoutsByWeek.map { weekStart, weekWorkouts in
+        return workoutsByWeek.compactMap { weekStart, weekWorkouts in
             let totalVolume = weekWorkouts.reduce(0) { $0 + $1.totalVolume }
-            return VolumeData(date: weekStart, totalVolume: totalVolume)
+            let count = weekWorkouts.count
+            // Skip data points with zero volume
+            guard totalVolume > 0 else { return nil }
+            return VolumeData(date: weekStart, totalVolume: totalVolume, workoutCount: count)
         }.sorted { $0.date < $1.date }
     }
-    
+
     private func generateMonthlyDataPoints(from workouts: [Workout], in dateRange: ClosedRange<Date>) -> [VolumeData] {
         let calendar = Calendar.current
         let filteredWorkouts = workouts.filter { dateRange.contains($0.date) }
@@ -281,11 +294,15 @@ struct WorkoutStatsSection: View {
             return calendar.date(from: components) ?? $0.date
         }
         
-        return workoutsByMonth.map { monthStart, monthWorkouts in
+        return workoutsByMonth.compactMap { monthStart, monthWorkouts in
             let totalVolume = monthWorkouts.reduce(0) { $0 + $1.totalVolume }
-            return VolumeData(date: monthStart, totalVolume: totalVolume)
+            let count = monthWorkouts.count
+            // Skip data points with zero volume
+            guard totalVolume > 0 else { return nil }
+            return VolumeData(date: monthStart, totalVolume: totalVolume, workoutCount: count)
         }.sorted { $0.date < $1.date }
     }
+
     
     // MARK: - Overview, Top Exercises & Consistency Sections
     
@@ -300,54 +317,6 @@ struct WorkoutStatsSection: View {
                 StatCard(title: "Avg. Duration", value: formatDuration(avgDuration), icon: "timer", delay: 0.3)
                 StatCard(title: "Workout Freq.", value: frequency, icon: "calendar", delay: 0.4)
             }
-        }
-        .padding()
-        .background(Color(.secondarySystemGroupedBackground))
-        .cornerRadius(16)
-    }
-    
-    private var topExercisesSection: some View {
-        VStack(alignment: .leading, spacing: 16) {
-            Text("Top Exercises")
-                .font(.title2)
-                .fontWeight(.bold)
-            if topExercisesList.isEmpty {
-                Text("No exercise data for this period")
-                    .foregroundColor(.secondary)
-                    .frame(maxWidth: .infinity, minHeight: 100)
-            } else {
-                ForEach(topExercisesList.indices, id: \.self) { index in
-                    HStack {
-                        Text("\(index + 1)")
-                            .font(.headline)
-                            .foregroundColor(.white)
-                            .frame(width: 28, height: 28)
-                            .background(Color.blue)
-                            .clipShape(Circle())
-                        Text(topExercisesList[index].0)
-                            .font(.callout)
-                            .lineLimit(1)
-                        Spacer()
-                        Text("\(Int(topExercisesList[index].1)) kg")
-                            .font(.callout)
-                            .foregroundColor(.secondary)
-                    }
-                    .padding(.vertical, 5)
-                    if index < topExercisesList.count - 1 { Divider() }
-                }
-            }
-        }
-        .padding()
-        .background(Color(.secondarySystemGroupedBackground))
-        .cornerRadius(16)
-    }
-    
-    private var workoutConsistencySection: some View {
-        VStack(alignment: .leading, spacing: 16) {
-            Text("Workout Commitment")
-                .font(.title2)
-                .fontWeight(.bold)
-            CalendarHeatmap(workouts: workouts, selectedPeriod: selectedPeriod)
         }
         .padding()
         .background(Color(.secondarySystemGroupedBackground))

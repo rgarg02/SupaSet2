@@ -33,11 +33,11 @@ struct VolumeData: Identifiable, Equatable {
     let date: Date
     let totalVolume: Double
     let formattedDate: String
-    
-    init(date: Date, totalVolume: Double) {
+    let workoutCount: Int
+    init(date: Date, totalVolume: Double, workoutCount: Int = 1) {
         self.date = date
         self.totalVolume = totalVolume
-        
+        self.workoutCount = workoutCount
         let formatter = DateFormatter()
         formatter.dateFormat = "MMM d"
         self.formattedDate = formatter.string(from: date)
