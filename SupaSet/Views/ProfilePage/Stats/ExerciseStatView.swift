@@ -165,7 +165,6 @@ struct ExerciseStatView: View {
         }
         .navigationTitle("Exercise Stats")
         .navigationBarTitleDisplayMode(.inline)
-        .background(Color(.systemGroupedBackground))
     }
     
     // MARK: - UI Components
@@ -200,36 +199,11 @@ struct ExerciseStatView: View {
                 }
             }
         }
-        .padding()
         .frame(maxWidth: .infinity, alignment: .leading)
-        .background(
-            RoundedRectangle(cornerRadius: 12)
-                .fill(Color(.secondarySystemGroupedBackground))
-        )
     }
     
     private var emptyStateView: some View {
-        VStack(spacing: 20) {
-            Image(systemName: "chart.line.uptrend.xyaxis")
-                .font(.system(size: 60))
-                .foregroundColor(.secondary.opacity(0.6))
-                .padding()
-            
-            Text("No progress data available")
-                .font(.headline)
-            
-            Text("Complete workouts with this exercise to track your progress")
-                .font(.subheadline)
-                .foregroundColor(.secondary)
-                .multilineTextAlignment(.center)
-                .padding(.horizontal)
-        }
-        .frame(maxWidth: .infinity, minHeight: 300)
-        .padding()
-        .background(
-            RoundedRectangle(cornerRadius: 12)
-                .fill(Color(.secondarySystemGroupedBackground))
-        )
+        ContentUnavailableView("No progress data available", systemImage: "chart.line.uptrend.xyaxis", description: Text("Complete workouts with this exercise to track your progress"))
     }
     
     private var statsOverview: some View {
@@ -237,7 +211,8 @@ struct ExerciseStatView: View {
             // Header
             HStack {
                 Text("Progress Overview")
-                    .font(.headline)
+                    .font(.title2)
+                    .fontWeight(.bold)
                 Spacer()
                 
                 // Workout count badge
@@ -282,7 +257,7 @@ struct ExerciseStatView: View {
                 if let firstWorkout = exerciseData.first, let lastWorkout = exerciseData.last {
                     StatCard(
                         title: "Estimated 1RM",
-                        value: "\(lastWorkout.estimatedOneRM) Lbs",
+                        value: "\(String(format: "%0.1f", lastWorkout.estimatedOneRM)) Lbs",
                         icon: "figure.strengthtraining.traditional",
                         delay: 0.3,
                         subtitle: "Started at \(Int(firstWorkout.estimatedOneRM)) Lbs",
@@ -303,11 +278,6 @@ struct ExerciseStatView: View {
                 }
             }
         }
-        .padding()
-        .background(
-            RoundedRectangle(cornerRadius: 12)
-                .fill(Color(.secondarySystemGroupedBackground))
-        )
     }
     
     private var weightProgressChartView: some View {
@@ -318,9 +288,7 @@ struct ExerciseStatView: View {
         let dateDomain: ClosedRange<Date>? = exerciseData.count > 1 ?
         (exerciseData.first?.date ?? Date())...(exerciseData.last?.date ?? Date()) : nil
         
-        return
-            ChartContainer {
-                WorkoutProgressChart(
+        return WorkoutProgressChart(
                     dataPoints: exerciseData,
                     yValueProvider: { Double($0.weight) },
                     yAxisLabel: "Weight",
@@ -331,7 +299,6 @@ struct ExerciseStatView: View {
                     lineColor: .blue,
                     showDaily: true
                 )
-            }
     }
     
     private var volumeProgressChartView: some View {
@@ -342,27 +309,26 @@ struct ExerciseStatView: View {
         let dateDomain: ClosedRange<Date>? = exerciseData.count > 1 ?
         (exerciseData.first?.date ?? Date())...(exerciseData.last?.date ?? Date()) : nil
         
-        return
-            ChartContainer {
-                WorkoutProgressChart(
-                    dataPoints: exerciseData,
-                    yValueProvider: { Double($0.totalVolume) },
-                    yAxisLabel: "Volume",
-                    dateDomain: dateDomain,
-                    period: selectedPeriod,
-                    rawSelectedDate: $rawSelectedDateVolume,
-                    selectedDateProvider: { selectionManager.findClosestDate(to: $0) },
-                    lineColor: .blue,
-                    showDaily: true
-                )
-            }
+        return WorkoutProgressChart(
+            dataPoints: exerciseData,
+            yValueProvider: { Double($0.totalVolume) },
+            yAxisLabel: "Volume",
+            dateDomain: dateDomain,
+            period: selectedPeriod,
+            rawSelectedDate: $rawSelectedDateVolume,
+            selectedDateProvider: { selectionManager.findClosestDate(to: $0) },
+            lineColor: .blue,
+            showDaily: true
+        )
+        
     }
     private var personalRecordsSection: some View {
         let records = personalRecords
         
         return VStack(alignment: .leading, spacing: 16) {
             Text("Personal Records")
-                .font(.headline)
+                .font(.title2)
+                .fontWeight(.bold)
             
             // PR Cards
             VStack(spacing: 12) {
@@ -397,17 +363,14 @@ struct ExerciseStatView: View {
                 }
             }
         }
-        .padding()
-        .background(
-            RoundedRectangle(cornerRadius: 12)
-                .fill(Color(.secondarySystemGroupedBackground))
-        )
+        
     }
     
     private var recentWorkoutsSection: some View {
         VStack(alignment: .leading, spacing: 16) {
             Text("Recent Workouts")
-                .font(.headline)
+                .font(.title2)
+                .fontWeight(.bold)
             
             // Recent workouts list
             VStack(spacing: 12) {
@@ -449,19 +412,12 @@ struct ExerciseStatView: View {
                                 .fontWeight(.medium)
                         }
                     }
-                    .padding()
-                    .background(
-                        RoundedRectangle(cornerRadius: 8)
-                            .fill(Color(.tertiarySystemGroupedBackground))
-                    )
+                    .padding(.bottom)
+    
                 }
             }
         }
-        .padding()
-        .background(
-            RoundedRectangle(cornerRadius: 12)
-                .fill(Color(.secondarySystemGroupedBackground))
-        )
+        
     }
     
     // MARK: - Helper Methods
@@ -537,11 +493,6 @@ struct RecordCard: View {
                     .fontWeight(.medium)
             }
         }
-        .padding()
-        .background(
-            RoundedRectangle(cornerRadius: 8)
-                .fill(Color(.tertiarySystemGroupedBackground))
-        )
     }
 }
 

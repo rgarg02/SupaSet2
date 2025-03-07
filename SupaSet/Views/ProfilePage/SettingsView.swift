@@ -14,38 +14,8 @@ struct SettingsView: View {
         NavigationStack {
             List {
                 Section("Account") {
-                    NavigationLink("Personal Information") {
-                        Text("Personal Information")
-                    }
-                    NavigationLink("Privacy") {
-                        Text("Privacy Settings")
-                    }
-                    NavigationLink("Notifications") {
-                        Text("Notification Settings")
-                    }
                     NavigationLink("Import Strong Data") {
                         CSVImportView()
-                    }
-                }
-                
-                Section("App") {
-                    NavigationLink("Appearance") {
-                        Text("Appearance Settings")
-                    }
-                    NavigationLink("Units") {
-                        Text("Unit Settings")
-                    }
-                }
-                
-                Section("About") {
-                    NavigationLink("Terms of Service") {
-                        Text("Terms of Service")
-                    }
-                    NavigationLink("Privacy Policy") {
-                        Text("Privacy Policy")
-                    }
-                    NavigationLink("App Version") {
-                        Text("Version 1.0.0")
                     }
                 }
             }

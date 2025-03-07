@@ -83,12 +83,6 @@ struct TopExerciseSection: View {
                 }
             }
         }
-        .padding()
-        .background(
-            Color(.secondarySystemGroupedBackground)
-                .shadow(color: Color.black.opacity(0.05), radius: 5, x: 0, y: 2)
-        )
-        .cornerRadius(16)
     }
     
     // Get colors based on ranking

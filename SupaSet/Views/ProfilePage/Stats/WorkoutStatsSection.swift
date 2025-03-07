@@ -67,7 +67,7 @@ struct WorkoutStatsSection: View {
     
     var body: some View {
         ScrollView {
-            LazyVStack(spacing: 20) {
+            VStack(spacing: 20) {
                 if isLoading {
                     loadingView
                 } else {
@@ -78,6 +78,7 @@ struct WorkoutStatsSection: View {
                         selectedPeriod: selectedPeriod
                     )
                     MuscleGroupChartSection(dataPoints: muscleGroupDataPoints)
+                    MuscleRadarChartView(period: selectedPeriod)
                     TopExerciseSection(topExercisesList: topExercisesList)
                     CalendarHeatmap(workouts: workouts, selectedPeriod: selectedPeriod)
                 }
@@ -318,9 +319,6 @@ struct WorkoutStatsSection: View {
                 StatCard(title: "Workout Freq.", value: frequency, icon: "calendar", delay: 0.4)
             }
         }
-        .padding()
-        .background(Color(.secondarySystemGroupedBackground))
-        .cornerRadius(16)
     }
     
     // MARK: - Helper
@@ -330,4 +328,11 @@ struct WorkoutStatsSection: View {
         let minutes = Int(duration) / 60 % 60
         return hours > 0 ? "\(hours)h \(minutes)m" : "\(minutes) min"
     }
+}
+
+#Preview {
+    let preview = PreviewContainer.preview
+    WorkoutStatsView()
+        .modelContainer(preview.container)
+        .environment(preview.viewModel)
 }

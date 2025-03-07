@@ -48,19 +48,13 @@ struct MuscleGroupChartSection: View {
                             innerRadius: .ratio(0.618),
                             angularInset: 1.5
                         )
+                        .opacity(rawSelectedMuscleGroup != nil ? (selectedMuscleGroup == data.muscleGroup ? 1 : 0.3) : 1)
                         .cornerRadius(5)
                         .foregroundStyle(by: .value("Muscle", data.muscleGroup))
                     }
                 }
+                .animation(.easeInOut(duration: 0.25), value: selectedMuscleGroup)
                 .chartAngleSelection(value: $rawSelectedMuscleGroup)
-                .onChange(of: rawSelectedMuscleGroup) { oldValue, newValue in
-                    // Log the selected muscle group when selection changes
-                    if let selected = selectedMuscleGroup {
-                        print("Selected muscle group: \(selected)")
-                    } else {
-                        print("No muscle group selected")
-                    }
-                }
                 .chartBackground(content: { chartProxy in
                     GeometryReader { geometry in
                         let frame = geometry[chartProxy.plotFrame!]
@@ -87,8 +81,5 @@ struct MuscleGroupChartSection: View {
             }
         }
         .sensoryFeedback(.impact, trigger: selectedMuscleGroup)
-        .padding()
-        .background(Color(.secondarySystemGroupedBackground))
-        .cornerRadius(16)
     }
 }

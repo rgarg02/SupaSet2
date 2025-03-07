@@ -1,5 +1,4 @@
 import SwiftUI
-
 struct StatCard: View {
     let title: String
     let value: String
@@ -25,14 +24,13 @@ struct StatCard: View {
                 .font(.title2)
                 .foregroundColor(.theme.text)
                 .fontWeight(.bold)
-            // Subtitle if provided
+            
             if let subtitle = subtitle {
                 Text(subtitle)
                     .font(.caption)
                     .foregroundColor(.secondary)
             }
             
-            // Trend indicator if provided
             if let trend = trend {
                 HStack(spacing: 4) {
                     Image(systemName: trend >= 0 ? "arrow.up" : "arrow.down")
@@ -46,12 +44,13 @@ struct StatCard: View {
             }
             Spacer()
         }
-        .frame(maxWidth: .infinity, maxHeight: .infinity)
         .padding(8)
+        .frame(maxWidth: .infinity, maxHeight: .infinity)
         .background(
             RoundedRectangle(cornerRadius: 8)
                 .fill(Color.theme.background)
-                .shadow(color: Color.theme.text, radius: 1)
+                .shadow(color: Color.theme.text.opacity(0.5), radius: 1, x: 0, y: 0)
+                .padding(1)
         )
         .opacity(isVisible ? 1 : 0)
         .offset(y: isVisible ? 0 : 20)
@@ -71,13 +70,5 @@ struct StatCard: View {
                 isVisible = false
             }
         }
-    }
-}
-
-#Preview {
-    HStack(spacing: 20) {
-        StatCard(title: "Workouts", value: "0", icon: "dumbbell.fill", delay: 0.0)
-        StatCard(title: "Hours", value: "0", icon: "clock.fill", delay: 0.2)
-        StatCard(title: "Streak", value: "0", icon: "flame.fill", delay: 0.3)
     }
 }

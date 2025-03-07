@@ -19,12 +19,6 @@ struct WorkoutStatsView: View {
                     switch selectedStatsType {
                     case .overview:
                         WorkoutStatsSection(selectedPeriod: selectedPeriod)
-                    case .performance:
-                        PerformanceStatsSection(selectedPeriod: selectedPeriod)
-                    case .predictions:
-                        PredictionsSection(selectedPeriod: selectedPeriod)
-                    case .researchInsights:
-                        ResearchInsightsSection(selectedPeriod: selectedPeriod)
                     }
                 }
                 .padding()

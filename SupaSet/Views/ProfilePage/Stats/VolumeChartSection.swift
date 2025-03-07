@@ -28,9 +28,7 @@ struct VolumeChartSection: View {
         VStack(alignment: .leading, spacing: 16) {
             // Use the reusable chart component
             if dataPoints.isEmpty {
-                Text("No workout data for this period")
-                    .foregroundColor(.secondary)
-                    .frame(maxWidth: .infinity, minHeight: 200)
+                ContentUnavailableView("No workout data for this period", systemImage: "chart.line.uptrend.xyaxis", description: Text("Complete workouts to track your progress"))
             } else {
                 // Create selection manager
                 let selectionManager = ChartSelectionManager(dataPoints: dataPoints)
@@ -44,23 +42,14 @@ struct VolumeChartSection: View {
                     period: selectedPeriod,
                     rawSelectedDate: $rawSelectedDate,
                     selectedDateProvider: { selectionManager.findClosestDate(to: $0) },
-                    showPoints: true,
                     lineColor: .blue,
                     showAverage: $showAverage
                 )
                 .scaleEffect(animationController.animateScale ? 1 : 0.8)
                 .opacity(animationController.animateChart ? 1 : 0)
-                .rotation3DEffect(
-                    .degrees(animationController.animateScale ? 0 : -10),
-                    axis: (x: 1, y: 0, z: 0),
-                    anchor: .center
-                )
                 .accessibilityLabel("Volume Progress Chart")
             }
         }
-        .padding()
-        .background(Color(.secondarySystemGroupedBackground))
-        .cornerRadius(16)
         .onChange(of: selectedPeriod) { _, _ in
             animationController.resetAnimation()
             animationController.startAnimation()

@@ -9,8 +9,8 @@ import Foundation
 /// Enum representing different time periods for stats filtering
 enum StatsPeriod: String, CaseIterable, Identifiable {
     case week = "Week"
-    case month = "Month"
-    case threeMonths = "3 Months"
+    case month = "1M"
+    case threeMonths = "3M"
     case year = "Year"
     case allTime = "All Time"
     
@@ -25,6 +25,22 @@ enum StatsPeriod: String, CaseIterable, Identifiable {
         case .allTime: return nil
         }
     }
+    
+    var description: String {
+        switch self {
+        case .week:
+            "Week"
+        case .month:
+            "Month"
+        case .threeMonths:
+            "3 months"
+        case .year:
+            "Year"
+        case .allTime:
+            "All Time"
+        }
+    }
+    
 }
 
 /// Model for chart data

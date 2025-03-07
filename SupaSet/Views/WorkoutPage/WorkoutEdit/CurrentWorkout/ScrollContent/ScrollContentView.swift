@@ -26,7 +26,9 @@ struct ScrollContentView: View {
     @State internal var lastActiveScrollId: UUID?
     @State internal var parentFrame: CGRect = .zero
     @State internal var exerciseFrames: [UUID: CGRect] = [:]
-    
+    @State internal var scrollPosition: ScrollPosition = .init()
+    @State internal var currentScrollOffset: CGFloat = 0
+    @State internal var lastActiveScrollOffset: CGFloat = 0
     var sortedExercises: [WorkoutExercise] {
         exercises.sorted { $0.order < $1.order }
     }

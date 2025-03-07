@@ -24,7 +24,8 @@ struct SupaSetApp: App {
             Template.self,
             TemplateExercise.self,
             TemplateExerciseSet.self,
-            ExerciseEntity.self
+            ExerciseEntity.self,
+            UserProfile.self
         ])
            do {
                let storeURL = URL.documentsDirectory.appending(path: "SupaSet.sqlite")

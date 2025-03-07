@@ -1,4 +1,5 @@
 import SwiftUI
+import SwiftData
 
 struct ProfilePageView: View {
     @Environment(AuthenticationViewModel.self) private var authViewModel
@@ -69,30 +70,82 @@ struct ProfilePageView: View {
         }
         .padding()
         .frame(maxWidth: .infinity)
-        .background(
-            RoundedRectangle(cornerRadius: 8)
-                .fill(Color("PrimaryThemeColorTwo"))
-                .shadow(radius: 2)
-        )
     }
     
     private var statsSection: some View {
         HStack(spacing: 20) {
-            StatCard(title: "Workouts", value: "0", icon: "dumbbell.fill", delay: 0.0)
-            StatCard(title: "Hours", value: "0", icon: "clock.fill", delay: 0.2)
-            StatCard(title: "Streak", value: "0", icon: "flame.fill", delay: 0.3)
+            StatCard(title: "Workouts", value: "\(workoutCount)", icon: "dumbbell.fill", delay: 0.0)
+            StatCard(title: "Hours", value: "\(totalHours)", icon: "clock.fill", delay: 0.2)
+            StatCard(title: "Streak", value: "\(weeklyStreak) \(weeklyStreak > 1 ? "weeks" : "week")", icon: "flame.fill", delay: 0.3)
         }
         .foregroundColor(Color("TextColor"))
     }
-    
+    private var workoutCount: Int {
+        let descriptor = FetchDescriptor<Workout>(predicate: #Predicate { $0.isFinished == true })
+        return (try? modelContext.fetchCount(descriptor)) ?? 0
+    }
+    private var totalHours: Int {
+        let descriptor = FetchDescriptor<Workout>(predicate: #Predicate { $0.isFinished == true })
+        guard let workouts = try? modelContext.fetch(descriptor) else { return 0 }
+        
+        // Calculate total duration in seconds
+        let totalSeconds = workouts.reduce(0.0) { $0 + $1.duration }
+        
+        // Convert to hours
+        return Int((totalSeconds / 3600).rounded())
+    }
+
+    private var weeklyStreak: Int {
+        let descriptor = FetchDescriptor<Workout>(
+            predicate: #Predicate { $0.isFinished == true },
+            sortBy: [SortDescriptor(\.date, order: .reverse)] // Sort by most recent first
+        )
+        guard let workouts = try? modelContext.fetch(descriptor), !workouts.isEmpty else { return 0 }
+        
+        let calendar = Calendar.current
+        let currentDate = Date()
+        
+        // Get current week and threshold for active streak
+        let currentWeekComponents = calendar.dateComponents([.yearForWeekOfYear, .weekOfYear], from: currentDate)
+        let currentWeekStart = calendar.date(from: currentWeekComponents)!
+        let lastWeekStart = calendar.date(byAdding: .weekOfYear, value: -1, to: currentWeekStart)!
+        
+        // Map workouts to their week start dates
+        var workoutWeeks = [Date]()
+        for workout in workouts {
+            let components = calendar.dateComponents([.yearForWeekOfYear, .weekOfYear], from: workout.date)
+            if let weekStart = calendar.date(from: components) {
+                workoutWeeks.append(weekStart)
+            }
+        }
+        
+        // No workouts in current or last week means no active streak
+        if !workoutWeeks.contains(currentWeekStart) && !workoutWeeks.contains(lastWeekStart) {
+            return 0
+        }
+        
+        // Determine starting week for the streak
+        let streakStartWeek = workoutWeeks.contains(currentWeekStart) ? currentWeekStart : lastWeekStart
+        var streak = 1 // Count the current/last week
+        var weekToCheck = streakStartWeek
+        
+        // Check consecutive previous weeks
+        while true {
+            weekToCheck = calendar.date(byAdding: .weekOfYear, value: -1, to: weekToCheck)!
+            if workoutWeeks.contains(weekToCheck) {
+                streak += 1
+            } else {
+                break // Break the loop on first gap
+            }
+        }
+        
+        return streak
+    }
     private var menuSection: some View {
         VStack(spacing: 8) {
-            MenuLink(title: "Your Workouts", icon: "list.bullet", destination: AnyView(Text("Workouts")))
             MenuLink(title: "Progress", icon: "chart.bar.xaxis", destination: WorkoutStatsView())
-            MenuLink(title: "Goals", icon: "target", destination: AnyView(Text("Goals")))
-            MenuLink(title: "Help & Support", icon: "questionmark.circle", destination: AnyView(Text("Help")))
         }
-        .foregroundColor(Color("TextColor"))
+        .foregroundColor(.text)
     }
     
     private var signOutButton: some View {
@@ -138,6 +191,8 @@ struct ProfilePageView: View {
             try modelContext.delete(model: Template.self)
             try modelContext.delete(model: TemplateExercise.self)
             try modelContext.delete(model: TemplateExerciseSet.self)
+            try modelContext.delete(model: ExerciseEntity.self)
+            try modelContext.delete(model: UserProfile.self)
             
             // reset all models
         } catch {

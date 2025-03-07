@@ -33,7 +33,7 @@ struct MenuLink<Destination: View>: View {
             .padding()
             .background(
                 RoundedRectangle(cornerRadius: 8)
-                    .fill(Color.theme.primarySecond)
+                    .fill(Color.theme.secondarySecond)
                     .shadow(radius: 2)
             )
         }

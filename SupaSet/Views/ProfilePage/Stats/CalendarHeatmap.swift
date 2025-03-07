@@ -151,49 +151,46 @@ struct CalendarHeatmap: View {
                             }
                         }
                         .frame(height: 24)
-                        
-                        // Legend
-                        HStack(spacing: 16) {
-                            HStack(spacing: 4) {
-                                Rectangle()
-                                    .fill(heatColors[0])
-                                    .frame(width: 12, height: 12)
-                                    .cornerRadius(2)
-                                    .overlay(
-                                        RoundedRectangle(cornerRadius: 2)
-                                            .stroke(Color.gray.opacity(0.15), lineWidth: 0.5)
-                                    )
-                                
-                                Text("No workout")
-                                    .font(.system(size: 10))
-                                    .foregroundColor(.secondary)
-                            }
-                            
-                            HStack(spacing: 4) {
-                                Rectangle()
-                                    .fill(heatColors[1])
-                                    .frame(width: 12, height: 12)
-                                    .cornerRadius(2)
-                                    .overlay(
-                                        RoundedRectangle(cornerRadius: 2)
-                                            .stroke(Color.gray.opacity(0.15), lineWidth: 0.5)
-                                    )
-                                
-                                Text("Workout completed")
-                                    .font(.system(size: 10))
-                                    .foregroundColor(.secondary)
-                            }
-                        }
-                        .padding(.top, 4)
                     }
-                    .padding(8)
                 }
                 .background(
                     RoundedRectangle(cornerRadius: 10)
                         .fill(Color(.systemBackground))
                         .shadow(color: Color.black.opacity(0.05), radius: 5, x: 0, y: 2)
                 )
-                
+                // Legend
+                HStack(spacing: 16) {
+                    HStack(spacing: 4) {
+                        Rectangle()
+                            .fill(heatColors[0])
+                            .frame(width: 12, height: 12)
+                            .cornerRadius(2)
+                            .overlay(
+                                RoundedRectangle(cornerRadius: 2)
+                                    .stroke(Color.gray.opacity(0.15), lineWidth: 0.5)
+                            )
+                        
+                        Text("No workout")
+                            .font(.system(size: 10))
+                            .foregroundColor(.secondary)
+                    }
+                    
+                    HStack(spacing: 4) {
+                        Rectangle()
+                            .fill(heatColors[1])
+                            .frame(width: 12, height: 12)
+                            .cornerRadius(2)
+                            .overlay(
+                                RoundedRectangle(cornerRadius: 2)
+                                    .stroke(Color.gray.opacity(0.15), lineWidth: 0.5)
+                            )
+                        
+                        Text("Workout completed")
+                            .font(.system(size: 10))
+                            .foregroundColor(.secondary)
+                    }
+                }
+                .padding(.top, 4)
                 // Detail view for selected date
                 if let selectedDate = selectedDate {
                     HStack(alignment: .top) {
@@ -244,9 +241,6 @@ struct CalendarHeatmap: View {
                 }
             }
         }
-        .padding()
-        .background(Color(.secondarySystemGroupedBackground))
-        .cornerRadius(16)
     }
     
     // MARK: - Helpers

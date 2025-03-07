@@ -7,7 +7,7 @@
 
 import SwiftUI
 ///https://www.realtimecolors.com/?colors=000000-ffffff-7c4d18-86b011-cf852a&fonts=Albert%20Sans-Albert%20Sans
-struct Theme {
+struct Theme : Hashable{
     // MARK: - Main Colors
     let accent = Color("AccentColor")
     let background = Color("BackgroundColor")

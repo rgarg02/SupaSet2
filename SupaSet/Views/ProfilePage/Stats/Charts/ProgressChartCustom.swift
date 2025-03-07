@@ -23,7 +23,6 @@ struct WorkoutProgressChart<DataPoint: DateBasedChartPoint>: View {
     let selectedDateProvider: (Date?) -> Date?
     
     // Styling and display options
-    var showPoints: Bool = true
     var lineColor: Color = .blue
     var chartHeight: CGFloat = 200
     var showDaily: Bool = false
@@ -46,7 +45,6 @@ struct WorkoutProgressChart<DataPoint: DateBasedChartPoint>: View {
         period: StatsPeriod,
         rawSelectedDate: Binding<Date?>,
         selectedDateProvider: @escaping (Date?) -> Date?,
-        showPoints: Bool = true,
         lineColor: Color = .blue,
         chartHeight: CGFloat = 200,
         showDaily: Bool = false,
@@ -61,7 +59,6 @@ struct WorkoutProgressChart<DataPoint: DateBasedChartPoint>: View {
         self.period = period
         self._rawSelectedDate = rawSelectedDate
         self.selectedDateProvider = selectedDateProvider
-        self.showPoints = showPoints
         self.lineColor = lineColor
         self.chartHeight = chartHeight
         self.showDaily = showDaily
@@ -77,7 +74,10 @@ struct WorkoutProgressChart<DataPoint: DateBasedChartPoint>: View {
             self.showAverageToggle = false
         }
     }
-    
+    // Latest data point
+    var latestDataPoint: DataPoint? {
+        dataPoints.sorted(by: { $0.date > $1.date }).first
+    }
     // Current data point based on selection
     var selectedDataPoint: DataPoint? {
         guard let date = selectedDateProvider(rawSelectedDate) else { return nil }
@@ -85,7 +85,7 @@ struct WorkoutProgressChart<DataPoint: DateBasedChartPoint>: View {
     }
     
     var body: some View {
-        VStack(alignment: .leading, spacing: 12) {
+        VStack(alignment: .leading, spacing: 8) {
             // Header with selection info and toggle if applicable
             HStack(spacing: 8) {
                 Text("\(yAxisLabel) Progress")
@@ -93,47 +93,70 @@ struct WorkoutProgressChart<DataPoint: DateBasedChartPoint>: View {
                     .fontWeight(.bold)
                 
                 Spacer()
-                
-                // Selection info
-                if let dataPoint = selectedDataPoint {
-                    VStack(alignment: .trailing) {
-                        Text(formatDate(dataPoint.date))
-                            .font(.subheadline)
-                            .fontWeight(.medium)
-                        Text("\(Int(yValueProvider(dataPoint))) \(unit.rawValue)")
-                            .font(.headline)
-                            .foregroundColor(lineColor)
+                // Only show the toggle for longer time periods when binding is provided
+                if showAverageToggle && (period == .threeMonths || period == .year || period == .allTime) {
+                    HStack(spacing: 4) {
+                        Text("Avg.")
+                            .font(.footnote)
+                            .foregroundColor(.secondary)
+                        
+                        Toggle("", isOn: $showAverageValue)
+                            .toggleStyle(SwitchToggleStyle(tint: .blue))
+                            .labelsHidden()
+                            .padding(.trailing, 5)
                     }
                 }
             }
-            // Only show the toggle for longer time periods when binding is provided
-            if showAverageToggle && (period == .threeMonths || period == .year || period == .allTime) {
-                HStack(spacing: 4) {
-                    Text("Avg.")
-                        .font(.footnote)
-                        .foregroundColor(.secondary)
-                    
-                    Toggle("", isOn: $showAverageValue)
-                        .toggleStyle(SwitchToggleStyle(tint: .blue))
-                        .labelsHidden()
-                        .fixedSize()
+            // Latest data point information
+            if let latest = latestDataPoint{
+                VStack(alignment: .leading, spacing: 4) {
+                    Text("Latest: \(formatDate(latest.date))")
+                        .font(.subheadline)
+                        .fontWeight(.medium)
+                    Text("\(Int(yValueProvider(latest))) \(unit.rawValue)")
+                        .font(.headline)
+                        .foregroundColor(lineColor)
                 }
+                .opacity(rawSelectedDate == nil ? 1 : 0)
             }
-            
             if dataPoints.isEmpty {
-                Text("No data for this period")
+                ContentUnavailableView("No data for this period.", systemImage: "chart.line.uptrend.xyaxis", description: Text("Complete workouts to track your progress"))
                     .foregroundColor(.secondary)
                     .frame(maxWidth: .infinity, minHeight: chartHeight)
             } else {
                 Chart {
                     ForEach(dataPoints) { point in
+                        // Selection indicator
+                        if let selected = selectedDateProvider(rawSelectedDate), point.date == selected {
+                            RuleMark(
+                                x: .value("Selected Date", selected)
+                            )
+                            .foregroundStyle(.gray.opacity(0.3))
+                            .lineStyle(StrokeStyle(lineWidth: 2, dash: [5, 5]))
+                            .annotation(position: .top, overflowResolution: .init(x: .fit(to: .chart), y: .disabled)) {
+                                VStack(alignment: .trailing, spacing: 4) {
+                                    Text(formatDate(point.date))
+                                        .font(.subheadline)
+                                        .fontWeight(.medium)
+                                    Text("\(Int(yValueProvider(point))) \(unit.rawValue)")
+                                        .font(.headline)
+                                        .foregroundColor(lineColor)
+                                }
+                                .padding(.bottom, 4)
+                            }
+                            PointMark(
+                                x: .value("Date", selected),
+                                y: .value(yAxisLabel, yValueProvider(point))
+                            )
+                            .foregroundStyle(lineColor)
+                        }
                         // Line chart
                         LineMark(
                             x: .value("Date", point.date),
                             y: .value(yAxisLabel, animationProgress * yValueProvider(point))
                         )
                         .foregroundStyle(lineColor.gradient)
-                        .interpolationMethod(.catmullRom)
+                        .interpolationMethod(.linear)
                         .opacity(rawSelectedDate == nil || point.date == selectedDateProvider(rawSelectedDate) ? 1.0 : 0.4)
                         
                         // Area fill
@@ -148,28 +171,9 @@ struct WorkoutProgressChart<DataPoint: DateBasedChartPoint>: View {
                                 endPoint: .bottom
                             )
                         )
-                        .interpolationMethod(.catmullRom)
+                        .interpolationMethod(.linear)
                         .opacity(rawSelectedDate == nil || point.date == selectedDateProvider(rawSelectedDate) ? 1.0 : 0.4)
                         
-                        // Data points
-                        if showPoints {
-                            PointMark(
-                                x: .value("Date", point.date),
-                                y: .value(yAxisLabel, yValueProvider(point))
-                            )
-                            .foregroundStyle(lineColor)
-                            .opacity(rawSelectedDate == nil || point.date == selectedDateProvider(rawSelectedDate) ? 1.0 : 0.4)
-                            .symbolSize(point.date == selectedDateProvider(rawSelectedDate) ? 100 : 60)
-                        }
-                        
-                        // Selection indicator
-                        if let selected = selectedDateProvider(rawSelectedDate), point.date == selected {
-                            RuleMark(
-                                x: .value("Selected Date", selected)
-                            )
-                            .foregroundStyle(.gray.opacity(0.3))
-                            .lineStyle(StrokeStyle(lineWidth: 2, dash: [5, 5]))
-                        }
                     }
                 }
                 .chartYAxis {
@@ -280,24 +284,6 @@ struct ChartDomainModifier: ViewModifier {
     }
 }
 
-// MARK: - Chart Container
-
-struct ChartContainer<Content: View>: View {
-    let content: Content
-    
-    init(@ViewBuilder content: () -> Content) {
-        self.content = content()
-    }
-    
-    var body: some View {
-        content
-            .padding()
-            .background(
-                RoundedRectangle(cornerRadius: 12)
-                    .fill(Color(.secondarySystemGroupedBackground))
-            )
-    }
-}
 
 // MARK: - Chart Animation Controller
 

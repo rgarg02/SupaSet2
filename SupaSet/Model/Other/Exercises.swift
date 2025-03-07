@@ -112,8 +112,28 @@ enum MuscleGroup: String, Codable, CaseIterable, Hashable {
     case shoulders
     case traps
     case triceps
+    var description: String {
+        switch self {
+        case .lats: return "Lats"
+        case .middleBack: return "Middle Back"
+        case .lowerBack: return "Lower Back"
+        case .traps: return "Traps"
+        case .chest: return "Chest"
+        case .abdominals: return "Abdominals"
+        case .shoulders: return "Shoulders"
+        case .biceps: return "Biceps"
+        case .triceps: return "Triceps"
+        case .forearms: return "Forearms"
+        case .quadriceps: return "Quadriceps"
+        case .hamstrings: return "Hamstrings"
+        case .calves: return "Calves"
+        case .glutes: return "Glutes"
+        case .abductors: return "Abductors"
+        case .adductors: return "Adductors"
+        case .neck: return "Neck"
+        }
+    }
 }
-
 struct Instruction: Codable, Hashable {
     var text: String
 }
