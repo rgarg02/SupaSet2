@@ -8,7 +8,7 @@ import SwiftData
 import Foundation
 extension SupaSetSchemaV1 {
     @Model
-    final class WorkoutExercise: Hashable {
+    final class WorkoutExercise: Hashable, Identifiable {
         private(set) var id: UUID
         var exerciseID: String
         var order: Int

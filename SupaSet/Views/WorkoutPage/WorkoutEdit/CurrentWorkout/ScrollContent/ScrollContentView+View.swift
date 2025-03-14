@@ -1,71 +1,47 @@
-//
-//  File.swift
-//  SupaSet
-//
-//  Created by Rishi Garg on 12/10/24.
-//
-
+// DragState.swift - A new file to contain our consolidated state
 import SwiftUI
+
+// Centralized state management for drag operations
+
+// ScrollContentView.swift - Simplified extension
 extension ScrollContentView {
     var body: some View {
-        NavigationStack{
+        NavigationStack {
             DraggableScrollContainer(
-                content: VStack(spacing: 10) {
-                    LazyVStack {
+                content: {
+                    LazyVStack(spacing: 10) {
                         WorkoutInfoView(workout: workout)
                         ForEach(sortedExercises) { exercise in
-                            ExerciseCardView(
-                                workoutExercise: exercise,
-                                selectedExercise: $selectedExercise,
-                                selectedExerciseScale: $selectedExerciseScale,
-                                selectedExerciseFrame: $selectedExerciseFrame,
-                                offset: $offset,
-                                hapticsTrigger: $hapticsTrigger,
-                                initialScrollOffset: $initialScrollOffset,
-                                lastActiveScrollId: $lastActiveScrollId,
-                                dragging: $dragging,
-                                parentBounds: $parentFrame,
-                                exerciseFrames: $exerciseFrames,
-                                onScroll: checkAndScroll,
-                                onSwap: checkAndSwapItems
-                            )
-                            .id(exercise.id)
-                            .opacity(selectedExercise?.id == exercise.id ? 0 : 1)
-                            .onGeometryChange(for: CGRect.self) {
-                                $0.frame(in: .global)
-                            } action: { newValue in
-                                if selectedExercise?.id == exercise.id {
-                                    selectedExerciseFrame = newValue
+                            ExerciseCardView(exercise: exercise)
+                                .id(exercise.id)
+                                .opacity(dragState.selectedExercise?.id == exercise.id ? 0 : 1)
+                                .measureFrame { newFrame in
+                                    dragState.itemFrames[exercise.id] = newFrame
+                                    if dragState.selectedExercise?.id == exercise.id {
+                                        dragState.selectedItemFrame = newFrame
+                                    }
                                 }
-                                exerciseFrames[exercise.id] = newValue
-                            }
                         }
-                        CancelFinishAddView(item: workout, originalItem: workout, show: $show, isNew: !workout.isFinished)
-                            .opacity(dragging ? 0 : 1) // hide when reordering exercises
+                        if !dragState.isDragging {
+                            CancelFinishAddView(
+                                item: workout,
+                                originalItem: workout,
+                                show: $show,
+                                isNew: !workout.isFinished
+                            )
+                        }
                     }
                     .scrollTargetLayout()
                 },
-                items: sortedExercises,
-                selectedItem: $selectedExercise,
-                selectedItemScale: $selectedExerciseScale,
-                selectedItemFrame: $selectedExerciseFrame,
-                offset: $offset,
-                hapticsTrigger: $hapticsTrigger,
-                initialScrollOffset: $initialScrollOffset,
-                scrolledItem: $scrolledExercise,
-                lastActiveScrollId: $lastActiveScrollId,
-                dragging: $dragging,
-                parentFrame: $parentFrame,
-                itemFrames: $exerciseFrames,
-                topRegion: $topRegion,
-                bottomRegion: $bottomRegion,
-                onScroll: checkAndScroll,
-                onSwap: checkAndSwapItems
+                items: sortedExercises
             )
-            .sensoryFeedback(.impact, trigger: hapticsTrigger)
+            .environmentObject(dragState)
+            .sensoryFeedback(.impact, trigger: dragState.hapticFeedback)
         }
-        .onChange(of: dragging) { _, _ in
+        .onChange(of: dragState.isDragging) { _, _ in
             WorkoutActivityManager.shared.updateWorkoutActivity(workout: workout)
         }
     }
 }
+
+

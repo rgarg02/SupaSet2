@@ -64,6 +64,7 @@ extension String {
 enum ImportStatus: Equatable {
     case notStarted
     case importing(progress: Double, stage: ImportStage)
+    case mappingExercises
     case completed
     case failed(error: String)
     
@@ -82,6 +83,8 @@ enum ImportStatus: Equatable {
             case .savingData:
                 return "Saving workouts..."
             }
+        case .mappingExercises:
+            return "Review new exercises"
         case .completed:
             return "Import completed"
         case .failed(let error):
@@ -90,6 +93,16 @@ enum ImportStatus: Equatable {
     }
 }
 
+extension ImportStatus {
+    var isInProgress: Bool {
+        switch self {
+        case .importing, .mappingExercises:
+            return true
+        default:
+            return false
+        }
+    }
+}
 // Strong CSV Row Structure
 struct StrongCSVRow {
     let date: Date
@@ -131,6 +144,7 @@ struct CSVImportView: View {
     @State private var showingPicker = false
     @State private var importStatus: ImportStatus = .notStarted
     @State private var dataFrom: DataFrom = .strong
+    @State private var showExerciseMappingView: Bool = false
     private let quotesCharacterSet = CharacterSet(charactersIn: "\"'")
     
     // Date formatters
@@ -174,6 +188,11 @@ struct CSVImportView: View {
                 await handleFileImport(result)
             }
         }
+        .sheet(isPresented: $showExerciseMappingView) {
+               ExerciseMappingView(onComplete: {
+                   importStatus = .completed
+               })
+           }
     }
     
     @ViewBuilder
@@ -193,6 +212,26 @@ struct CSVImportView: View {
                     .foregroundStyle(.secondary)
             }
             .transition(.opacity)
+            
+        case .mappingExercises:
+            if !exerciseViewModel.newExercises.isEmpty {
+                Button("Review \(exerciseViewModel.newExercises.count) New Exercises") {
+                    showExerciseMappingView = true
+                }
+                .buttonStyle(.borderedProminent)
+                .transition(.scale.combined(with: .opacity))
+            } else {
+                Label("Import completed", systemImage: "checkmark.circle.fill")
+                    .foregroundStyle(.green)
+                    .transition(.scale.combined(with: .opacity))
+                    .onAppear {
+                        // Reset status after a brief moment
+                        Task { @MainActor in
+                            try? await Task.sleep(for: .seconds(2))
+                            importStatus = .notStarted
+                        }
+                    }
+            }
             
         case .completed:
             Label("Import completed", systemImage: "checkmark.circle.fill")
@@ -238,7 +277,7 @@ struct CSVImportView: View {
             // Check which type of file we're processing based on headers
             let firstLine = content.components(separatedBy: .newlines).first ?? ""
             let isHevyFile = firstLine.contains("title") && firstLine.contains("start_time") ||
-                             firstLine.contains("exercise_title") && firstLine.contains("set_index")
+            firstLine.contains("exercise_title") && firstLine.contains("set_index")
             
             if isHevyFile && dataFrom == .strong {
                 // User selected Strong but the file is Hevy format
@@ -257,14 +296,17 @@ struct CSVImportView: View {
                 await processHevyWorkouts(from: rows)
             }
             
-            importStatus = .completed
-            exerciseViewModel.addNewExercisesToStore()
+            importStatus = .importing(progress: 0.95, stage: .savingData)
+            
+            try modelContext.save()
+            
+            // Instead of adding new exercises automatically, go to the mapping stage
+            importStatus = .mappingExercises
             
         } catch {
             importStatus = .failed(error: "Error processing file: \(error.localizedDescription)")
         }
     }
-    
     // MARK: - Strong CSV Parsing
     
     private func parseCSVFromStrong(_ content: String) async -> [StrongCSVRow] {
@@ -672,15 +714,6 @@ struct CSVImportView: View {
         
         print("Failed to parse date: \(dateString)")
         return nil
-    }
-}
-
-extension ImportStatus {
-    var isInProgress: Bool {
-        if case .importing = self {
-            return true
-        }
-        return false
     }
 }
 

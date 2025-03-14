@@ -191,7 +191,6 @@ struct ProfilePageView: View {
             try modelContext.delete(model: Template.self)
             try modelContext.delete(model: TemplateExercise.self)
             try modelContext.delete(model: TemplateExerciseSet.self)
-            try modelContext.delete(model: ExerciseEntity.self)
             try modelContext.delete(model: UserProfile.self)
             
             // reset all models

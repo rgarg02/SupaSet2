@@ -20,23 +20,11 @@ struct EditOrCreateTemplateView: View {
     @State private var editableTemplate: Template // Working copy
     @State private var discardChanges: Bool = false
     @State private var firstAppear: Bool = true
-    // MARK: - Drag and Drop States
-    @State var dragging: Bool = false
-    @State internal var selectedExercise: TemplateExercise?
-    @State internal var selectedExerciseScale: CGFloat = 1.0
-    @State internal var selectedExerciseFrame: CGRect = .zero
-    @State internal var offset: CGSize = .zero
-    @State internal var hapticsTrigger: Bool = false
-    @State internal var initialScrollOffset: CGRect = .zero
-    @State internal var scrolledExercise: TemplateExercise.ID?
-    @State internal var currentScrollId: UUID?
-    @State internal var scrollTimer: Timer?
-    @State internal var topRegion: CGRect = .zero
-    @State internal var bottomRegion: CGRect = .zero
-    @State internal var lastActiveScrollId: UUID?
-    @State internal var parentFrame: CGRect = .zero
-    @State internal var exerciseFrames: [UUID: CGRect] = [:]
     @State private var show: Bool = true
+    
+    // MARK: - Drag and Drop States
+    @StateObject private var dragState = DragState()
+    
     // MARK: - Computed Properties
     var sortedExercises: [TemplateExercise] {
         editableTemplate.exercises.sorted { $0.order < $1.order }
@@ -57,6 +45,7 @@ struct EditOrCreateTemplateView: View {
         self._editableTemplate = State(initialValue: newTemplate)
         self.isNew = isNew
     }
+    
     private var hasChanges: Bool {
         guard let originalTemplate = originalTemplate else {
             // If there's no original template (new template case)
@@ -65,6 +54,7 @@ struct EditOrCreateTemplateView: View {
         
         return !originalTemplate.isContentEqual(to: editableTemplate)
     }
+    
     // MARK: - Body
     var body: some View {
         ZStack(alignment: .bottom) {
@@ -73,11 +63,11 @@ struct EditOrCreateTemplateView: View {
                     .frame(height: 60)
                     .background(Color.theme.primarySecond)
                 TemplateScrollView()
-                    .sensoryFeedback(.impact, trigger: hapticsTrigger)
+                    .sensoryFeedback(.impact, trigger: dragState.hapticFeedback)
             }
         }
         .onAppear {
-            if firstAppear{
+            if firstAppear {
                 if let template = originalTemplate {
                     editableTemplate = template.copy()
                 } else {
@@ -87,35 +77,37 @@ struct EditOrCreateTemplateView: View {
                 firstAppear.toggle()
             }
         }
-        .onChange(of: show, { oldValue, newValue in
+        .onChange(of: show) { _, newValue in
             checkForChanges(newValue: newValue)
-        })
-        .onChange(of: discardChanges, { oldValue, newValue in
+        }
+        .onChange(of: discardChanges) { _, newValue in
             if newValue == true {
                 dismiss()
                 show.toggle()
                 discardChanges.toggle()
                 firstAppear.toggle()
             }
-        })
+        }
         .interactiveDismissDisabled(true)
         .cornerRadius(8)
         .navigationBarBackButtonHidden(true)
         .ignoresSafeArea(.keyboard, edges: .bottom)
         .dismissKeyboardOnTap()
+        .environmentObject(dragState)
     }
+    
     func checkForChanges(newValue: Bool) {
         if newValue == false {
             if hasChanges {
                 let buttons = [
-                    AlertButton(title: "Discard Changes",role: .destructive, action: {
+                    AlertButton(title: "Discard Changes", role: .destructive, action: {
                         discardChanges = true
                     }),
                     AlertButton(title: "Go Back", role: .cancel, action: {
                         show.toggle()
                     })
                 ]
-                alertController.present(.alert, title: "Discard Changes?", message: "Discard changes make to \(editableTemplate.name)", buttons: buttons)
+                alertController.present(.alert, title: "Discard Changes?", message: "Discard changes made to \(editableTemplate.name)", buttons: buttons)
             } else {
                 dismiss()
                 show.toggle()
@@ -123,72 +115,43 @@ struct EditOrCreateTemplateView: View {
             }
         }
     }
+    
     @ViewBuilder
     func TemplateScrollView() -> some View {
         DraggableScrollContainer(
-            content: VStack(spacing: 0) {
+            content: {
                 LazyVStack {
                     NameSection(item: editableTemplate)
                     NotesSection(item: editableTemplate)
                     
                     ForEach(sortedExercises) { exercise in
-                        TemplateExerciseCard(
-                            templateExericse: exercise,
-                            selectedExercise: $selectedExercise,
-                            selectedExerciseScale: $selectedExerciseScale,
-                            selectedExerciseFrame: $selectedExerciseFrame,
-                            offset: $offset,
-                            hapticsTrigger: $hapticsTrigger,
-                            initialScrollOffset: $initialScrollOffset,
-                            lastActiveScrollId: $lastActiveScrollId,
-                            dragging: $dragging,
-                            parentBounds: $parentFrame,
-                            exerciseFrames: $exerciseFrames,
-                            onScroll: checkAndScroll,
-                            onSwap: checkAndSwapItems
-                        )
-                        .id(exercise.id)
-                        .opacity(selectedExercise?.id == exercise.id ? 0 : 1)
-                        .onGeometryChange(for: CGRect.self) {
-                            $0.frame(in: .global)
-                        } action: { newValue in
-                            if selectedExercise?.id == exercise.id {
-                                selectedExerciseFrame = newValue
+                        TemplateExerciseCard(templateExercise: exercise)
+                            .id(exercise.id)
+                            .opacity(dragState.selectedExercise?.id == exercise.id ? 0 : 1)
+                            .measureFrame { newFrame in
+                                dragState.itemFrames[exercise.id] = newFrame
+                                if dragState.selectedExercise?.id == exercise.id {
+                                    dragState.selectedItemFrame = newFrame
+                                }
                             }
-                            exerciseFrames[exercise.id] = newValue
-                        }
                     }
                     
-                    CancelFinishAddView(
-                        item: editableTemplate,
-                        originalItem: originalTemplate,
-                        show: .constant(true),
-                        isNew: isNew,
-                        onSave: saveChanges
-                    )
-                    .opacity(dragging ? 0 : 1)
+                    if !dragState.isDragging {
+                        CancelFinishAddView(
+                            item: editableTemplate,
+                            originalItem: originalTemplate,
+                            show: .constant(true),
+                            isNew: isNew,
+                            onSave: saveChanges
+                        )
+                    }
                 }
                 .scrollTargetLayout()
             },
-            items: sortedExercises,
-            selectedItem: $selectedExercise,
-            selectedItemScale: $selectedExerciseScale,
-            selectedItemFrame: $selectedExerciseFrame,
-            offset: $offset,
-            hapticsTrigger: $hapticsTrigger,
-            initialScrollOffset: $initialScrollOffset,
-            scrolledItem: $scrolledExercise,
-            lastActiveScrollId: $lastActiveScrollId,
-            dragging: $dragging,
-            parentFrame: $parentFrame,
-            itemFrames: $exerciseFrames,
-            topRegion: $topRegion,
-            bottomRegion: $bottomRegion,
-            onScroll: checkAndScroll,
-            onSwap: checkAndSwapItems
+            items: sortedExercises
         )
-
     }
+    
     // MARK: - Methods
     private func saveChanges() {
         if isNew {
@@ -211,71 +174,33 @@ struct EditOrCreateTemplateView: View {
         try? modelContext.save()
         dismiss()
     }
-    func checkAndScroll(_ location: CGPoint) {
-        let centeredLocation = CGPoint(
-            x: parentFrame.midX,
-            y: location.y
-        )
-        
-        let topStatus = topRegion.contains(centeredLocation)
-        let bottomStatus = bottomRegion.contains(centeredLocation)
-        
-        if !topStatus && !bottomStatus {
-            scrollTimer?.invalidate()
-            scrollTimer = nil
-            return
-        }
-        
-        guard scrollTimer == nil else { return }
-        
-        scrollTimer = Timer.scheduledTimer(withTimeInterval: 0.05, repeats: true) { _ in
-            guard let currentIndex = sortedExercises.firstIndex(where: { $0.id == selectedExercise?.id }) else { return }
-            
-            var nextIndex = currentIndex
-            
-            if topStatus {
-                nextIndex = max(currentIndex - 1, 0)
-            } else {
-                nextIndex = min(currentIndex + 1, sortedExercises.count - 1)
-            }
-            
-            guard nextIndex != currentIndex else {
-                scrollTimer?.invalidate()
-                scrollTimer = nil
-                return
-            }
-            
-            lastActiveScrollId = sortedExercises[nextIndex].id
-            withAnimation(.smooth(duration: 0.1)) {
-                scrolledExercise = lastActiveScrollId
-            }
-        }
-    }
     
     func checkAndSwapItems(_ location: CGPoint) {
-        guard let currentExercise = editableTemplate.exercises.first(where: { $0.id == selectedExercise?.id }) else { return }
+        guard let selectedExercise = dragState.selectedExercise as? TemplateExercise else { return }
         
         let centeredLocation = CGPoint(
-            x: parentFrame.midX,
+            x: dragState.parentFrame.midX,
             y: location.y
         )
         
-        let fallingExercise = editableTemplate.exercises.first { exercise in
-            guard exercise.id != currentExercise.id else { return false }
-            let frame = exerciseFrames[exercise.id] ?? .zero
+        let targetExercise = editableTemplate.exercises.first { exercise in
+            guard exercise.id != selectedExercise.id else { return false }
+            let frame = dragState.itemFrames[exercise.id] ?? .zero
             return centeredLocation.y >= frame.minY && centeredLocation.y <= frame.maxY
         }
         
-        guard let fallingExercise = fallingExercise else { return }
+        guard let targetExercise = targetExercise else { return }
         
-        let currentIndex = currentExercise.order
-        let fallingIndex = fallingExercise.order
+        let currentIndex = selectedExercise.order
+        let targetIndex = targetExercise.order
         
-        guard currentIndex != fallingIndex else { return }
-        hapticsTrigger.toggle()
+        guard currentIndex != targetIndex else { return }
+        
+        dragState.hapticFeedback.toggle()
+        
         withAnimation(.snappy(duration: 0.25, extraBounce: 0)) {
-            currentExercise.order = fallingIndex
-            fallingExercise.order = currentIndex
+            selectedExercise.order = targetIndex
+            targetExercise.order = currentIndex
         }
     }
 }

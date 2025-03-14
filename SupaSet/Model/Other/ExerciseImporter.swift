@@ -56,7 +56,8 @@ class ExerciseViewModel {
     private(set) var exercises: [Exercise] = []
     private(set) var isLoading = false
     private var modelContext: ModelContext
-    private var newExercises: [Exercise] = []
+    private var _newExercises: [Exercise] = []
+    private var _confirmedNewExercises: [Exercise] = []
     init(modelContext: ModelContext) {
         self.modelContext = modelContext
         Task {
@@ -68,7 +69,7 @@ class ExerciseViewModel {
         exercises.first(where: { $0.id == exerciseId })?.name ?? ""
     }
     func findOrCreateExerciseID(for name: String) -> String {
-        let threshold: Double = 0.75  // Adjust this for better accuracy
+        let threshold: Double = 0.85  // Adjust this for better accuracy
         var bestMatch: (id: String, similarity: Double)? = nil
         for exercise in exercises {
             let similarity = name.similarity(to: exercise.name)
@@ -80,7 +81,6 @@ class ExerciseViewModel {
         if let bestMatch = bestMatch {
             return bestMatch.id
         } else {
-            print("Not found for \(name) ")
             return createNewExercise(with: name)
         }
     }
@@ -100,17 +100,20 @@ class ExerciseViewModel {
             frequency: nil
         )
         exercises.append(newExercise)
-        newExercises.append(newExercise)
-//        saveExercisesToJSON()  // Save updated list to file
+        _newExercises.append(newExercise)
         
         return newExercise.id
     }
+
+    // Update the addNewExercisesToStore method in ExerciseViewModel
     func addNewExercisesToStore() {
-        for exercise in newExercises {
+        // This is now just for compatibility - we'll use addConfirmedExercisesToStore instead
+        for exercise in _newExercises {
             let entity = ExerciseEntity(from: exercise)
             modelContext.insert(entity)
         }
         try? modelContext.save()
+        _newExercises.removeAll()
     }
     // Search and filter
     func exercises(matching query: String) -> [Exercise] {
@@ -183,6 +186,71 @@ enum ExerciseError: LocalizedError {
         switch self {
         case .fileNotFound:
             return "Exercise data file not found in bundle"
+        }
+    }
+}
+extension ExerciseViewModel {
+    var newExercises: [Exercise] {
+            get { _newExercises }
+        }
+    func mapExerciseToExisting(fromId: String, toId: String) {
+        // Update all workouts that use fromId to use toId instead
+        Task {
+            await performExerciseMapping(fromId: fromId, toId: toId)
+        }
+        
+        // Remove the new exercise from our tracking lists
+        _newExercises.removeAll(where: { $0.id == fromId })
+        exercises.removeAll(where: { $0.id == fromId })
+    }
+    
+    func confirmNewExercise(_ exerciseId: String) {
+        // Mark this exercise as confirmed to be added
+        if let index = _newExercises.firstIndex(where: { $0.id == exerciseId }) {
+            _confirmedNewExercises.append(_newExercises[index])
+        }
+    }
+    
+    func clearNewExercises() {
+        // Clear all new exercises (used when canceling)
+        exercises.removeAll(where: { exercise in
+            _newExercises.contains(where: { $0.id == exercise.id })
+        })
+        _newExercises.removeAll()
+        _confirmedNewExercises.removeAll()
+    }
+    
+    func addConfirmedExercisesToStore() {
+        // Add only the confirmed new exercises to the store
+        for exercise in _confirmedNewExercises {
+            let entity = ExerciseEntity(from: exercise)
+            modelContext.insert(entity)
+        }
+        try? modelContext.save()
+        
+        // Clear lists
+        _newExercises.removeAll()
+        _confirmedNewExercises.removeAll()
+    }
+    
+    @MainActor
+    private func performExerciseMapping(fromId: String, toId: String) async {
+        do {
+            // Fetch all workout exercises that use the fromId
+            let descriptor = FetchDescriptor<WorkoutExercise>(predicate: #Predicate<WorkoutExercise> {
+                $0.exerciseID == fromId
+            })
+            
+            let workoutExercises = try modelContext.fetch(descriptor)
+            
+            // Update all references to use the toId
+            for workoutExercise in workoutExercises {
+                workoutExercise.exerciseID = toId
+            }
+            
+            try modelContext.save()
+        } catch {
+            print("Error mapping exercise: \(error.localizedDescription)")
         }
     }
 }

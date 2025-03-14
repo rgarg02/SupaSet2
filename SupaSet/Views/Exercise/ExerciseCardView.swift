@@ -9,119 +9,155 @@ import SwiftUI
 import SwiftData
 
 struct ExerciseCardView: View {
-    let workoutExercise: WorkoutExercise
+    let exercise: WorkoutExercise
     @Environment(\.modelContext) private var modelContext
-    @State private var offsets = [CGSize](repeating: CGSize.zero, count: 6)
-    // New bindings for gesture handling
-    @Binding var selectedExercise: WorkoutExercise?
-    @Binding var selectedExerciseScale: CGFloat
-    @Binding var selectedExerciseFrame: CGRect
-    @Binding var offset: CGSize
-    @Binding var hapticsTrigger: Bool
-    @Binding var initialScrollOffset: CGRect
-    @Binding var lastActiveScrollId: UUID?
-    @Binding var dragging: Bool
-    @Binding var parentBounds: CGRect
-    @Binding var exerciseFrames: [UUID: CGRect]
-    let onScroll: (CGPoint) -> Void
-    let onSwap: (CGPoint) -> Void
+    @EnvironmentObject var dragState: DragState
     private let columns = [
-        GridItem(.fixed(40)), // Smaller column for set number
-        GridItem(.flexible()), // Flexible for weight
-        GridItem(.flexible()), // Flexible for reps
-        GridItem(.fixed(80))  // Smaller column for checkbox
+        GridItem(.fixed(40)),
+        GridItem(.flexible()),
+        GridItem(.flexible()),
+        GridItem(.fixed(80))
     ]
+    
     var body: some View {
         VStack(alignment: .leading, spacing: 8) {
-            ExerciseTopControls(exercise: workoutExercise, dragging: $dragging)
+            ExerciseTopControls(exercise: exercise, dragging: $dragState.isDragging)
                 .frame(maxWidth: .infinity)
-                .gesture(
-                    DraggableGestureHandler(item: workoutExercise, selectedExercise: $selectedExercise, selectedExerciseScale: $selectedExerciseScale, selectedExerciseFrame: $selectedExerciseFrame, offset: $offset, hapticsTrigger: $hapticsTrigger, initialScrollOffset: $initialScrollOffset, lastActiveScrollId: $lastActiveScrollId, dragging: $dragging, parentBounds: $parentBounds, exerciseFrames: $exerciseFrames, onScroll: onScroll, onSwap: onSwap)
-                        .gesture
-                )
-            if !dragging{
-                VStack(spacing: 8) {
-                    ScrollView(.vertical){
-                        SetColumnNamesView(exerciseID: workoutExercise.exerciseID, isTemplate: false)
-                            .onChange(of: workoutExercise.exerciseID) { oldValue, newValue in
-                                if let workout = workoutExercise.workout {
-                                    WorkoutActivityManager.shared.updateWorkoutActivity(workout: workout)
-                                }
-                            }
-                        ForEach(workoutExercise.sortedSets, id: \.self) { set in
-                            @Bindable var set = set
-                            SwipeAction(cornerRadius: 8, direction: .trailing){
-                                SetRowViewCombined(order: set.order, isTemplate: false, weight: $set.weight, reps: $set.reps, isDone: $set.isDone)
-                                    .onChange(of: set.weight) { oldValue, newValue in
-                                        if let workout = workoutExercise.workout {
-                                            WorkoutActivityManager.shared.updateWorkoutActivity(workout: workout)
-                                        }
-                                    }
-                                    .onChange(of: set.isDone, { oldValue, newValue in
-                                        if let workout = workoutExercise.workout {
-                                            WorkoutActivityManager.shared.updateWorkoutActivity(workout: workout)
-                                        }
-                                    })
-                                    .onChange(of: set.reps) { oldValue, newValue in
-                                        if let workout = workoutExercise.workout {
-                                            WorkoutActivityManager.shared.updateWorkoutActivity(workout: workout)
-                                        }
-                                    }
-                                    .onChange(of: set.isDone) { oldValue, newValue in
-                                        if let workout = workoutExercise.workout {
-                                            WorkoutActivityManager.shared.updateWorkoutActivity(workout: workout)
-                                        }
-                                    }
-                            } actions:{
-                                Action(tint: .red, icon: "trash.fill") {
-                                    withAnimation(.easeInOut){
-                                        if let workout = workoutExercise.workout {
-                                            WorkoutActivityManager.shared.updateWorkoutActivity(workout: workout)
-                                        }
-                                        workoutExercise.deleteSet(set)
-                                        modelContext.delete(set)
-                                    }
-                                }
-                            }
-                        }
-                        PlaceholderSetRowView(templateSet: false)
-                            .onTapGesture {
-                                withAnimation(.snappy(duration: 0.25)) {
-                                    workoutExercise.insertSet(reps: workoutExercise.sortedSets.last?.reps ?? 0, weight: workoutExercise.sortedSets.last?.weight ?? 0)
-                                }
-                                if let workout = workoutExercise.workout {
-                                    WorkoutActivityManager.shared.updateWorkoutActivity(workout: workout)
-                                }
-                            }
-                    }
-                }
-                .frame(minHeight: 240)
-                Spacer()
+                .contentShape(Rectangle())
+                .gesture(dragGesture)
+            
+            if !dragState.isDragging {
+                exerciseSetsView
             }
         }
         .padding(.vertical)
     }
+    
+    private var exerciseSetsView: some View {
+        VStack(spacing: 8) {
+            ScrollView(.vertical) {
+                SetColumnNamesView(exerciseID: exercise.exerciseID, isTemplate: false)
+                    .onChange(of: exercise.exerciseID) { _, _ in
+                        updateActivityIfNeeded()
+                    }
+                
+                ForEach(exercise.sortedSets, id: \.self) { set in
+                    @Bindable var set = set
+                    setRow(for: set)
+                }
+                
+                addSetButton
+            }
+        }
+    }
+    
+    private func setRow(for set: ExerciseSet) -> some View {
+        @Bindable var set = set
+        return SwipeAction(cornerRadius: 8, direction: .trailing) {
+            SetRowViewCombined(
+                order: set.order,
+                isTemplate: false,
+                weight: $set.weight,
+                reps: $set.reps,
+                isDone: $set.isDone
+            )
+            .onChange(of: set.weight) { _, _ in updateActivityIfNeeded() }
+            .onChange(of: set.reps) { _, _ in updateActivityIfNeeded() }
+            .onChange(of: set.isDone) { _, _ in updateActivityIfNeeded() }
+        } actions: {
+            Action(tint: .red, icon: "trash.fill") {
+                withAnimation(.easeInOut) {
+                    updateActivityIfNeeded()
+                    exercise.deleteSet(set)
+                    modelContext.delete(set)
+                }
+            }
+        }
+    }
+    
+    private var addSetButton: some View {
+        PlaceholderSetRowView(templateSet: false)
+            .onTapGesture {
+                withAnimation(.snappy(duration: 0.25)) {
+                    exercise.insertSet(
+                        reps: exercise.sortedSets.last?.reps ?? 0,
+                        weight: exercise.sortedSets.last?.weight ?? 0
+                    )
+                }
+                updateActivityIfNeeded()
+            }
+    }
+    
+    private var dragGesture: some Gesture {
+        LongPressGesture(minimumDuration: 0.25)
+            .sequenced(before: DragGesture(minimumDistance: 0, coordinateSpace: .global))
+            .onChanged { value in
+                switch value {
+                case .second(let status, let dragValue):
+                    if status {
+                        if dragState.selectedExercise == nil {
+                            dragState.startDrag(
+                                item: exercise,
+                                initialFrame: dragState.itemFrames[exercise.id] ?? .zero
+                            )
+                            dragState.hapticFeedback.toggle()
+                        }
+                        
+                        if let dragValue {
+                            dragState.updateDrag(
+                                translation: dragValue.translation,
+                                location: dragValue.location
+                            )
+                            
+                            // Use new scroll function
+                            dragState.checkAndScroll(dragValue.location)
+                            checkAndSwapItems(at: dragValue.location)
+                        }
+                    }
+                default: break
+                }
+            }
+            .onEnded { _ in
+                dragState.endDrag()
+            }
+    }
+    
+    func checkAndSwapItems(at location: CGPoint) {
+        guard let selectedExercise = dragState.selectedExercise as? WorkoutExercise,
+              let workout = exercise.workout else { return }
+        
+        let sortedExercises = workout.exercises.sorted(by: { $0.order < $1.order })
+        guard let draggedIndex = sortedExercises.firstIndex(where: { $0.id == selectedExercise.id }) else { return }
+        
+        for (index, exercise) in sortedExercises.enumerated() {
+            if index != draggedIndex,
+               let frame = dragState.itemFrames[exercise.id],
+               frame.contains(location) {
+                withAnimation(.snappy(duration: 0.2)) {
+                    let tempOrder = exercise.order
+                    exercise.order = selectedExercise.order
+                    selectedExercise.order = tempOrder
+                    dragState.hapticFeedback.toggle()
+                }
+                break
+            }
+        }
+    }
+    
+    private func updateActivityIfNeeded() {
+        if let workout = exercise.workout {
+            WorkoutActivityManager.shared.updateWorkoutActivity(workout: workout)
+        }
+    }
 }
 
 #Preview {
+    @Previewable @StateObject var dragState = DragState()
     let preview = PreviewContainer.preview
     let workout = preview.workout
     let exercise = workout.exercises.first!
-    ExerciseCardView(
-        workoutExercise: exercise,
-        selectedExercise: .constant(nil),
-        selectedExerciseScale: .constant(1.0),
-        selectedExerciseFrame: .constant(.zero),
-        offset: .constant(.zero),
-        hapticsTrigger: .constant(false),
-        initialScrollOffset: .constant(.zero),
-        lastActiveScrollId: .constant(nil),
-        dragging: .constant(false),
-        parentBounds: .constant(.zero),
-        exerciseFrames: .constant([:]),
-        onScroll: { _ in },
-        onSwap: { _ in }
-    )
-    .modelContainer(preview.container)
-    .environment(preview.viewModel)
+    ExerciseCardView(exercise: exercise)
+        .environmentObject(dragState)
+        .modelContainer(preview.container)
+        .environment(preview.viewModel)
 }

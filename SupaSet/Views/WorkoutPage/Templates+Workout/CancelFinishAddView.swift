@@ -18,7 +18,6 @@ struct CancelFinishAddView<T: Nameable>: View {
     @Environment(\.alertController) private var alertController
     var body: some View {
         VStack {
-            // Add Exercises Button
             NavigationLink {
                 Group {
                     if let workout = item as? Workout {
@@ -141,7 +140,7 @@ struct CancelFinishAddView<T: Nameable>: View {
             if let workout = item as? Workout {
                 deleteWorkout(workout)
             } else if let template = item as? Template {
-               deleteTemplate(template)
+                deleteTemplate(template)
             }
         } else {
             if let originalItem {

@@ -104,7 +104,7 @@ struct CalendarHeatmap: View {
                                         .cornerRadius(3)
                                         .overlay(
                                             ZStack {
-                                                if isToday {
+                                                if isToday || selectedDate == date {
                                                     RoundedRectangle(cornerRadius: 3)
                                                         .stroke(Color.primary, lineWidth: 1.5)
                                                 } else {
@@ -119,9 +119,6 @@ struct CalendarHeatmap: View {
                                                 selectedDate = nil
                                             } else {
                                                 selectedDate = date
-                                                // Add haptic feedback
-                                                let generator = UIImpactFeedbackGenerator(style: .light)
-                                                generator.impactOccurred()
                                             }
                                         }
                                 }
@@ -240,6 +237,7 @@ struct CalendarHeatmap: View {
                     )
                 }
             }
+            .sensoryFeedback(.impact, trigger: selectedDate)
         }
     }
     
@@ -247,15 +245,16 @@ struct CalendarHeatmap: View {
     
     // Calculate days to show based on period - only called during initialization and period changes
     private func calculateDaysToShow(for period: StatsPeriod, workouts: [SupaSetSchemaV1.Workout]) -> Int {
+        let calendar = Calendar.current
         switch period {
         case .week: return 7
         case .month: return 31
         case .threeMonths: return 90
         case .year: return 365
         case .allTime:
-            // Find the earliest workout date and calculate days between that and today
             if let earliestDate = workouts.map({ $0.date }).min() {
-                let days = Calendar.current.dateComponents([.day], from: earliestDate, to: Date()).day ?? 365
+                let today = calendar.startOfDay(for: Date())
+                let days = calendar.dateComponents([.day], from: earliestDate, to: today).day ?? 365
                 return max(days + 1, 30) // Ensure we have at least 30 days to display
             }
             return 365
@@ -264,12 +263,17 @@ struct CalendarHeatmap: View {
     
     // Calculate start date - only called during initialization and period changes
     private func calculateStartDate(for days: Int, period: StatsPeriod, workouts: [SupaSetSchemaV1.Workout]) -> Date {
+        let calendar = Calendar.current
+        let today = calendar.startOfDay(for: Date())
+        
         if period == .allTime, let earliestDate = workouts.map({ $0.date }).min() {
-            // For allTime, start from the earliest workout date
-            return Calendar.current.startOfDay(for: earliestDate)
+            // For allTime, calculate days needed to include both earliest workout and today
+            let daysToEarliest = calendar.dateComponents([.day], from: earliestDate, to: today).day ?? 0
+            let startDate = calendar.date(byAdding: .day, value: -daysToEarliest, to: today) ?? today
+            return calendar.startOfDay(for: startDate)
         } else {
             // For other periods, count back from today
-            return Calendar.current.date(byAdding: .day, value: -days + 1, to: Date()) ?? Date()
+            return calendar.date(byAdding: .day, value: -days + 1, to: today) ?? today
         }
     }
     
@@ -312,7 +316,6 @@ struct CalendarHeatmap: View {
         return results
     }
     
-    // Remove unused helper methods
     private func colorForCount(_ count: Int) -> Color {
         return count > 0 ? heatColors[1] : heatColors[0]
     }

@@ -18,9 +18,6 @@ struct ScrollContentView: View {
     @State internal var offset: CGSize = .zero
     @State internal var hapticsTrigger: Bool = false
     @State internal var initialScrollOffset: CGRect = .zero
-    @State internal var scrolledExercise: WorkoutExercise.ID?
-    @State internal var currentScrollId: UUID?
-    @State internal var scrollTimer: Timer?
     @State internal var topRegion: CGRect = .zero
     @State internal var bottomRegion: CGRect = .zero
     @State internal var lastActiveScrollId: UUID?
@@ -29,8 +26,21 @@ struct ScrollContentView: View {
     @State internal var scrollPosition: ScrollPosition = .init()
     @State internal var currentScrollOffset: CGFloat = 0
     @State internal var lastActiveScrollOffset: CGFloat = 0
+    @StateObject internal var dragState = DragState()
     var sortedExercises: [WorkoutExercise] {
         exercises.sorted { $0.order < $1.order }
+    }
+    var sortedExercisesBinding: Binding<[WorkoutExercise]> {
+        Binding(
+            get: {
+                exercises.sorted { $0.order < $1.order }
+            },
+            set: { newSortedExercises in
+                // You must decide how to update your original array.
+                // For example, if the sorted order represents the new desired order:
+                exercises = newSortedExercises
+            }
+        )
     }
 }
 //#Preview {
