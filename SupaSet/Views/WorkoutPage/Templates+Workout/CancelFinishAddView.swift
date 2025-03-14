@@ -16,29 +16,35 @@ struct CancelFinishAddView<T: Nameable>: View {
     @Environment(\.dismiss) private var dismiss
     @Environment(\.modelContext) private var modelContext
     @Environment(\.alertController) private var alertController
+    @State private var showExercisePicker = false
     var body: some View {
-        VStack {
-            NavigationLink {
-                Group {
-                    if let workout = item as? Workout {
-                        ExerciseListPickerView(workout: workout)
-                    } else if let template = item as? Template {
-                        ExerciseListPickerView(template: template)
+        ZStack {
+            VStack {
+                Button {
+                    showExercisePicker = true
+                } label: {
+                    HStack(spacing: 8) {
+                        Image(systemName: "plus")
+                            .font(.title3)
+                            .foregroundColor(.theme.background)
+                        
+                        Text("Add Exercises")
+                            .font(.headline)
+                            .foregroundColor(.theme.background)
+                    }
+                    .modifier(LongButtonModifier())
+                }
+                .universalOverlay(show: $showExercisePicker) {
+                    Group {
+                        if let workout = item as? Workout {
+                            ExerciseListPickerView(workout: workout, show: $showExercisePicker)
+                        } else if let template = item as? Template {
+                            ExerciseListPickerView(template: template, show: $showExercisePicker)
+                        }
                     }
                 }
-            } label: {
-                HStack(spacing: 8) {
-                    Image(systemName: "plus")
-                        .font(.title3)
-                        .foregroundColor(.theme.background)
-                    
-                    Text("Add Exercises")
-                        .font(.headline)
-                        .foregroundColor(.theme.background)
-                }
-                .modifier(LongButtonModifier())
+                CancelFinishButtons
             }
-            CancelFinishButtons
         }
     }
     private var CancelFinishButtons: some View {
@@ -174,4 +180,3 @@ struct CancelFinishAddView<T: Nameable>: View {
         }
     }
 }
-

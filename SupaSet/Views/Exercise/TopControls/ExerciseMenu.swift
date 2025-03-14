@@ -9,48 +9,29 @@ import SwiftUI
 import SwiftData
 struct ExerciseMenu<T: ExerciseMenuType>: View {
     let exercise: T
-    @State private var changeExercise: Bool = false
+    @Binding var showExercisePicker: Bool
     @State private var deleteExercise: Bool = false
     @Environment(\.dismiss) private var dismiss
     @Environment(\.modelContext) private var modelContext
     @Environment(ExerciseViewModel.self) private var viewModel
     @Environment(\.alertController) private var alertController
     var body: some View {
-        MenuButtons(exerciseID: exercise.exerciseID, changeExercise: $changeExercise, deleteExercise: $deleteExercise)
-        .padding()
-        .fullScreenCover(isPresented: $changeExercise) {
-            NavigationStack{
-                Group {
-                    if let workoutExercise = exercise as? WorkoutExercise {
-                        ExerciseListPickerView(workoutExercise: workoutExercise)
-                    } else if let templateExercise = exercise as? TemplateExercise {
-                        ExerciseListPickerView(templateExercise: templateExercise)
-                    }
+        MenuButtons(exerciseID: exercise.exerciseID, changeExercise: $showExercisePicker, deleteExercise: $deleteExercise)
+            .padding()
+            .onChange(of: deleteExercise) { oldValue, newValue in
+                if newValue {
+                    let buttons = [
+                        AlertButton(title: "Delete", role: .destructive, action: {
+                            delete()
+                        }),
+                        AlertButton(title: "Cancel", role: .cancel, action: {
+                            deleteExercise = false
+                        })
+                    ]
+                    alertController.present(.alert, title: "Delete Exercise?", message: "Confirm delete \(viewModel.getExerciseName(for: exercise.exerciseID))", buttons: buttons)
+                    dismiss()
                 }
-                    .toolbar{
-                        ToolbarItem(placement: .cancellationAction) {
-                            Button("Cancel") {
-                                changeExercise = false
-                            }
-                            .foregroundColor(.theme.accent)
-                        }
-                    }
             }
-        }
-        .onChange(of: deleteExercise) { oldValue, newValue in
-            if newValue {
-                let buttons = [
-                    AlertButton(title: "Delete", role: .destructive, action: {
-                        delete()
-                    }),
-                    AlertButton(title: "Cancel", role: .cancel, action: {
-                        deleteExercise = false
-                    })
-                ]
-                alertController.present(.alert, title: "Delete Exercise?", message: "Confirm delete \(viewModel.getExerciseName(for: exercise.exerciseID))", buttons: buttons)
-                dismiss()
-            }
-        }
     }
     func delete() {
         switch exercise {
@@ -78,7 +59,7 @@ struct ExerciseMenu<T: ExerciseMenuType>: View {
 #Preview {
     let preview = PreviewContainer.preview
     NavigationView {
-        ExerciseMenu(exercise: preview.workout.sortedExercises[0])
+        ExerciseMenu(exercise: preview.workout.sortedExercises[0], showExercisePicker: .constant(false))
             .modelContainer(preview.container)
             .environment(preview.viewModel)
     }

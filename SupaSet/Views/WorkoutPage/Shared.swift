@@ -32,7 +32,6 @@ class DragState: ObservableObject {
     @Published var parentFrame: CGRect = .zero
     @Published var topRegion: CGRect = .zero
     @Published var bottomRegion: CGRect = .zero
-    @Published var scrolledItemId: UUID?
     @Published var hapticFeedback = false
     @Published var isAutoScrolling = false
     
@@ -121,7 +120,6 @@ class DragState: ObservableObject {
                     $0.value.contains(CGPoint(x: self.parentFrame.midX, y: newOffset + self.parentFrame.midY))
                 })?.key,
                    fallingId != currentId {
-                    self.scrolledItemId = fallingId
                     self.lastActiveScrollId = fallingId
                     self.hapticFeedback.toggle()
                 }
@@ -162,7 +160,7 @@ class DragState: ObservableObject {
 struct DraggableScrollContainer<Content: View, Item: ExerciseItem>: View {
     @Environment(ExerciseViewModel.self) var viewModel
     @EnvironmentObject var dragState: DragState
-    
+    @State private var scrollItem: Item.ID?
     // MARK: - Properties
     let content: () -> Content
     let items: [Item]
@@ -172,12 +170,15 @@ struct DraggableScrollContainer<Content: View, Item: ExerciseItem>: View {
         VStack{
             ZStack(alignment: .topLeading) {
                 ScrollView {
-                    content()
-                        .padding(.bottom, items.last.flatMap { (dragState.itemFrames[$0.id]?.height ?? 0)/2 } ?? 0)
+                    LazyVStack(spacing: 0) {
+                        content()
+                    }
+                    .padding(.bottom, items.last.flatMap { (dragState.itemFrames[$0.id]?.height ?? 0)/2 } ?? 0)
                 }
                 .scrollIndicators(.hidden)
                 .scrollPosition($dragState.scrollPosition)
-                .contentMargins(.vertical, 30)
+                .scrollPosition(id: $scrollItem)
+                .contentMargins(.vertical, 30, for: .scrollContent)
                 .scrollTargetBehavior(.viewAligned)
                 .onScrollGeometryChange(for: CGFloat.self, of: {
                     $0.contentOffset.y + $0.contentInsets.top
@@ -191,7 +192,7 @@ struct DraggableScrollContainer<Content: View, Item: ExerciseItem>: View {
                 })
                 .padding(.horizontal)
                 .overlay(alignment: .trailing) {
-                    ProgressOverlay(items: items, dragState: dragState)
+                    ProgressOverlay(items: items, dragState: dragState, scrolledItemId: scrollItem)
                 }
                 .measureFrame { dragState.parentFrame = $0 }
                 .overlay(alignment: .top) {
@@ -221,7 +222,7 @@ struct DraggableScrollContainer<Content: View, Item: ExerciseItem>: View {
 struct ProgressOverlay<Item: ExerciseItem>: View {
     let items: [Item]
     @ObservedObject var dragState: DragState
-    
+    let scrolledItemId: Item.ID?
     var body: some View {
         if dragState.isDragging {
             if let selectedItem = dragState.selectedExercise {
@@ -234,7 +235,7 @@ struct ProgressOverlay<Item: ExerciseItem>: View {
         } else {
             WorkoutProgressDots(
                 totalExercises: items.count,
-                currentExerciseIndex: items.firstIndex(where: { $0.id == dragState.scrolledItemId }) ?? 0
+                currentExerciseIndex: items.firstIndex(where: { $0.id == scrolledItemId }) ?? 0
             )
             .padding(.trailing, 3)
         }

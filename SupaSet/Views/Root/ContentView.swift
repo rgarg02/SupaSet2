@@ -8,6 +8,7 @@ struct ContentView: View {
     @State private var hideWorkoutOverlay: Bool = false
     @State private var currentWorkout: Workout?
     @State private var hasActiveWorkout: Bool = false
+    @State private var mainWindow: UIWindow?
     @Query(filter: #Predicate<Workout>{$0.isFinished == false}) private var ongoingWorkout: [Workout]
     init() {
         let appearance = UITabBarAppearance()
@@ -51,10 +52,25 @@ struct ContentView: View {
             }
             .universalOverlay(show: $showWorkoutOverlay) {
                 if let workout = currentWorkout {
-                    ExpandableWorkout(show: $showWorkoutOverlay, workout: workout)
+                    ExpandableWorkout(show: $showWorkoutOverlay, workout: workout, mainWindow: $mainWindow)
                 }
             }
-            .onAppear{
+            .onChange(of: showWorkoutOverlay) { oldValue, newValue in
+                if !newValue {
+                    // Reset mainWindow when workout is finished
+                    if let mainWindow = mainWindow?.subviews.first {
+                        UIView.animate(withDuration: 0.3) {
+                            mainWindow.layer.cornerRadius = 0
+                            mainWindow.transform = .identity
+                        }
+                    }
+                }
+            }
+            .onAppear {
+                if let window = (UIApplication.shared.connectedScenes.first as? UIWindowScene)?.keyWindow {
+                    mainWindow = window
+                }
+                
                 if ongoingWorkout.isEmpty == false {
                     hasActiveWorkout = true
                     showWorkoutOverlay = true

@@ -21,11 +21,16 @@ struct MenuButtons: View {
     }
     @Environment(\.alertController) private var alertController
     @Environment(ExerciseViewModel.self) private var viewModel
+    @Environment(\.dismiss) private var dismiss
+    
     var body: some View {
         VStack {
             Button{
-                withAnimation(.easeInOut(duration: 0.3)) {  // Added specific duration
-                    changeExercise = true
+                dismiss()
+                DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
+                    withAnimation(.easeInOut(duration: 0.3)) {
+                        changeExercise = true
+                    }
                 }
             } label: {
                 HStack{

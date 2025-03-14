@@ -13,7 +13,7 @@ struct ExpandableWorkout: View {
     @State private var offsetY: CGFloat = 0
     @State private var containerScale: CGFloat = 1.0
     @State private var containerCornerRadius: CGFloat = 0
-    @State private var mainWindow: UIWindow?
+    @Binding var mainWindow: UIWindow?
     @State private var windowProgress: CGFloat = 0
     var body: some View {
         GeometryReader {
@@ -24,7 +24,7 @@ struct ExpandableWorkout: View {
                     Rectangle()
                         .fill(Color.theme.primary)
                     Rectangle()
-                        .fill(.linearGradient(colors: [.accent,.primaryThemeColorTwo], startPoint: .top, endPoint: .bottom))
+                        .fill(Color.theme.background)
                         .opacity(expandWorkout ? 1 : 0)
                 }
                 .clipShape(.rect(cornerRadius: expandWorkout ? (safeArea.bottom == 0 ? 0 : 45) : 15))
@@ -76,9 +76,14 @@ struct ExpandableWorkout: View {
             )
             .ignoresSafeArea()
         }
-        .onAppear {
-            if let window = (UIApplication.shared.connectedScenes.first as? UIWindowScene)?.keyWindow, mainWindow == nil {
-                mainWindow = window
+        .onChange(of: show) { oldValue, newValue in
+            if !newValue {
+                // When workout is finished or cancelled
+                withAnimation(.smooth(duration: 0.3)) {
+                    expandWorkout = false
+                    windowProgress = 0
+                }
+                resetWindowWithAnimation()
             }
         }
     }
@@ -103,7 +108,7 @@ struct ExpandableWorkout: View {
                 .fill(Color.theme.accent)
         )
         .onTapGesture {
-            withAnimation(.smooth(duration: 0.3, extraBounce: 0)) {
+            withAnimation(.smooth(duration: 0.3)) {
                 expandWorkout = true
             }
             UIView.animate(withDuration: 0.3) {
@@ -146,8 +151,7 @@ struct ExpandableWorkout: View {
             }, items: workout.sortedExercises)
         }
         .environmentObject(dragState)
-        .padding(15)
-        .padding(.top, safeArea.top)
+        .padding(.top, safeArea.top + 5)
     }
     func resizeWindow(_ progress: CGFloat) {
         if let mainWindow = mainWindow?.subviews.first {
@@ -170,9 +174,9 @@ struct ExpandableWorkout: View {
         }
     }
 }
-#Preview{
-    let preview = PreviewContainer.preview
-    ExpandableWorkout(show: .constant(true), workout: preview.workout)
-        .modelContainer(preview.container)
-        .environment(preview.viewModel)
-}
+//#Preview{
+//    let preview = PreviewContainer.preview
+//    ExpandableWorkout(show: .constant(true), workout: preview.workout)
+//        .modelContainer(preview.container)
+//        .environment(preview.viewModel)
+//}

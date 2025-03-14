@@ -15,6 +15,7 @@ struct ExerciseTopControls<T: ExerciseMenuType>: View {
     let exercise: T
     @Environment(ExerciseViewModel.self) var viewModel
     @State private var showMenuOptions = false
+    @State private var showExercisePicker = false
     @Binding var dragging: Bool
     var body: some View {
         VStack{
@@ -35,7 +36,7 @@ struct ExerciseTopControls<T: ExerciseMenuType>: View {
                     }
                     .sheet(isPresented: $showMenuOptions) {
                         NavigationView{
-                            ExerciseMenu(exercise: exercise)
+                            ExerciseMenu(exercise: exercise, showExercisePicker: $showExercisePicker)
                                 .foregroundColor(.theme.text)
                         }
                         .presentationDetents([.fraction(0.5)])
@@ -47,6 +48,13 @@ struct ExerciseTopControls<T: ExerciseMenuType>: View {
             if !dragging{
                 ExerciseNotesView(exerciseID: exercise.exerciseID)
     
+            }
+        }
+        .universalOverlay(show: $showExercisePicker) {
+            if let workoutExercise = exercise as? WorkoutExercise {
+                ExerciseListPickerView(workoutExercise: workoutExercise, show: $showExercisePicker)
+            } else if let templateExercise = exercise as? TemplateExercise {
+                ExerciseListPickerView(templateExercise: templateExercise, show: $showExercisePicker)
             }
         }
     }
