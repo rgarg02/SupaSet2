@@ -22,12 +22,13 @@ struct WorkoutPageView: View {
     }
     
     var body: some View {
-        NavigationStack {
+        NavigationView {
             ZStack {
                 VStack(alignment: .leading){
-                    PageTitle(title: "Workouts")
+//                    PageTitle(title: "Workouts")
                     TemplateCarouselView()
                 }
+                .navigationTitle("Workouts")
             }
             .sheet(isPresented: $workoutIsFinished) {
                 if let workout {

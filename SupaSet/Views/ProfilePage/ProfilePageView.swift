@@ -10,7 +10,7 @@ struct ProfilePageView: View {
     @State private var signOutError: Error?
     
     var body: some View {
-        NavigationStack {
+        NavigationView {
             ScrollView {
                 VStack(spacing: 24) {
                     profileHeader
