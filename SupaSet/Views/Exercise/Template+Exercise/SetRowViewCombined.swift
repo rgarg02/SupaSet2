@@ -72,6 +72,7 @@ struct SetRowViewCombined: View {
                 }) {
                     Image(systemName: isDone ? "checkmark.circle.fill" : "circle")
                         .resizable()
+                        .contentTransition(.symbolEffect(.replace, options: .speed(1.5)))
                         .frame(width: 24, height: 24)
                         .foregroundColor(isDone ? .theme.secondarySecond : .gray)
                 }
