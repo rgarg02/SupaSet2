@@ -13,7 +13,6 @@ struct EditOrCreateTemplateView: View {
     @Environment(\.modelContext) private var modelContext
     @Environment(\.dismiss) private var dismiss
     @Environment(\.alertController) private var alertController
-    
     // MARK: - Properties
     let originalTemplate: Template?  // Original template for editing
     let isNew: Bool

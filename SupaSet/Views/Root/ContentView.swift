@@ -2,13 +2,12 @@ import SwiftUI
 import SwiftData
 struct ContentView: View {
     @Environment(\.modelContext) var modelContext
-    
+    @Environment(AuthenticationViewModel.self) var authViewModel
     // Add state for controlling the workout overlay
     @State private var showWorkoutOverlay: Bool = false
     @State private var hideWorkoutOverlay: Bool = false
     @State private var currentWorkout: Workout?
-    @State private var hasActiveWorkout: Bool = false
-    @State private var mainWindow: UIWindow?
+    @State private var showFAB: Bool = false
     @Query(filter: #Predicate<Workout>{$0.isFinished == false}) private var ongoingWorkout: [Workout]
     init() {
         let appearance = UITabBarAppearance()
@@ -25,62 +24,68 @@ struct ContentView: View {
     }
     
     var body: some View {
-        ZStack {
-            Color.theme.background
-            TabView {
-                WorkoutPageView()
-                    .tabItem({
-                        Image(systemName: "dumbbell")
-                        Text("Workout")
-                    })
-                WorkoutHistoryView()
-                    .tabItem {
-                        Image(systemName: "calendar")
-                        Text("History")
-                    }
-                ProfilePageView()
-                    .tabItem {
-                        Image(systemName: "person")
-                        Text("Profile")
-                    }
-            }
-            .universalOverlay(show: .constant(ongoingWorkout.isEmpty == false)) {
-                NewWorkoutFAB(
-                    showWorkoutOverlay: $showWorkoutOverlay,
-                    currentWorkout: $currentWorkout
-                )
-            }
-            .universalOverlay(show: $showWorkoutOverlay) {
-                if let workout = currentWorkout {
-                    ExpandableWorkout(show: $showWorkoutOverlay, workout: workout, mainWindow: $mainWindow)
+        NavigationStack {
+            ZStack {
+                Color.theme.background
+                TabView {
+                    WorkoutPageView()
+                        .tabItem({
+                            Image(systemName: "dumbbell")
+                            Text("Workout")
+                        })
+                        .safeAreaPadding(.bottom, 55)
+                    WorkoutHistoryView()
+                        .tabItem {
+                            Image(systemName: "calendar")
+                            Text("History")
+                        }
+                        .safeAreaPadding(.bottom, 55)
+                    ProfilePageView()
+                        .tabItem {
+                            Image(systemName: "person")
+                            Text("Profile")
+                        }
+                        .safeAreaPadding(.bottom, 55)
                 }
-            }
-            .onChange(of: showWorkoutOverlay) { oldValue, newValue in
-                if !newValue {
-                    // Reset mainWindow when workout is finished
-                    if let mainWindow = mainWindow?.subviews.first {
-                        UIView.animate(withDuration: 0.3) {
-                            mainWindow.layer.cornerRadius = 0
-                            mainWindow.transform = .identity
+                .overlay(alignment: .bottom, content: {
+                    if showWorkoutOverlay {
+                        if let workout = currentWorkout {
+                            ExpandableWorkout(show: $showWorkoutOverlay, workout: workout)
                         }
                     }
+                    if showFAB {
+                        NewWorkoutFAB(
+                            currentWorkout: $currentWorkout
+                        )
+                    }
+                })
+                .onChange(of: ongoingWorkout) { oldValue, newValue in
+                    if newValue.isEmpty {
+                        // No active workout
+                        showWorkoutOverlay = false
+                        currentWorkout = nil
+                        showFAB = true
+                    } else {
+                        // Has active workout
+                        showWorkoutOverlay = true
+                        showFAB = false
+                        currentWorkout = newValue.first
+                    }
+                }
+                .onAppear {
+                    
+                    // Initial state setup
+                    if !ongoingWorkout.isEmpty {
+                        showWorkoutOverlay = true
+                        showFAB = false
+                        currentWorkout = ongoingWorkout.first
+                    } else {
+                        showWorkoutOverlay = false
+                        showFAB = true
+                        currentWorkout = nil
+                    }
                 }
             }
-            .onAppear {
-                if let window = (UIApplication.shared.connectedScenes.first as? UIWindowScene)?.keyWindow {
-                    mainWindow = window
-                }
-                
-                if ongoingWorkout.isEmpty == false {
-                    hasActiveWorkout = true
-                    showWorkoutOverlay = true
-                    currentWorkout = ongoingWorkout.first
-                } else {
-                    showWorkoutOverlay = false
-                    hasActiveWorkout = false
-                }
-            }
-            
         }
     }
 }

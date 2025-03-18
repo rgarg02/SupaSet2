@@ -10,8 +10,13 @@ import SwiftUI
 // Workout History Card Component
 struct WorkoutHistoryCard: View {
     let workout: Workout
+    @Environment(\.isChildPresenting) private var isChildPresenting
     var body: some View {
-        NavigationLink(destination: WorkoutDetailView(workout: workout)) {
+        NavigationLink(destination: WorkoutDetailView(workout: workout)
+            .onAppear{
+                isChildPresenting.wrappedValue = true
+            }
+        ) {
             VStack(alignment: .leading, spacing: 12) {
                 // Header
                 HStack {

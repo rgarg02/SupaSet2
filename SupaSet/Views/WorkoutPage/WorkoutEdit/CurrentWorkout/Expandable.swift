@@ -11,10 +11,8 @@ struct ExpandableWorkout: View {
     @State private var dragState = DragState()
     @State private var expandWorkout = false
     @State private var offsetY: CGFloat = 0
-    @State private var containerScale: CGFloat = 1.0
-    @State private var containerCornerRadius: CGFloat = 0
-    @Binding var mainWindow: UIWindow?
     @State private var windowProgress: CGFloat = 0
+    @Namespace private var animation
     var body: some View {
         GeometryReader {
             let size = $0.size
@@ -22,19 +20,19 @@ struct ExpandableWorkout: View {
             ZStack(alignment: .top) {
                 ZStack{
                     Rectangle()
-                        .fill(Color.theme.primary)
+                        .fill(.primaryThemeColorTwo)
                     Rectangle()
-                        .fill(Color.theme.background)
+                        .fill(.primaryThemeColorTwo)
                         .opacity(expandWorkout ? 1 : 0)
                 }
                 .clipShape(.rect(cornerRadius: expandWorkout ? (safeArea.bottom == 0 ? 0 : 45) : 15))
                 .frame(height: expandWorkout ? nil : 55)
                 .shadow(color: .primary.opacity(0.06), radius: 5, x: 5, y: 5)
                 .shadow(color: .primary.opacity(0.05), radius: 5, x: -5, y: -5)
-                    miniWorkout()
-                        .opacity(expandWorkout ? 0 : 1)
-                    ExpandedWorkout(size, safeArea)
-                        .opacity(expandWorkout ? 1 : 0)
+                miniWorkout()
+                    .opacity(expandWorkout ? 0 : 1)
+                ExpandedWorkout(size, safeArea)
+                    .opacity(expandWorkout ? 1 : 0)
             }
             .frame(height: expandWorkout ? nil : 55, alignment: .top)
             .frame(maxHeight: .infinity, alignment: .bottom)
@@ -47,27 +45,29 @@ struct ExpandableWorkout: View {
                     
                     let translation = max(value.translation.height, 0)
                     offsetY = translation
-                    windowProgress = max(min(translation / size.height, 1), 0) * 0.1
+                    let progress = min(translation / (UIScreen.main.bounds.height * 0.5), 1)
+                    windowProgress = progress * 0.1
                     
-                    resizeWindow(0.1 - windowProgress)
+//                    withAnimation(.interactiveSpring(duration: 0.01)) {
+//                        windowScale = 1 - (0.1 - windowProgress)
+//                        windowCorner = windowProgress * 300
+//                    }
                 } onEnd: { value in
                     guard expandWorkout else { return }
                     
                     let translation = max(value.translation.height, 0)
                     let velocity = value.velocity.height / 5
                     
-                    withAnimation(.smooth(duration: 0.3, extraBounce: 0)) {
-                        if (translation + velocity) > (size.height * 0.5) {
+                    withAnimation(.smooth(duration: 0.2)) {
+                        if (translation + velocity) > (UIScreen.main.bounds.height * 0.3) {
                             /// Closing View
                             expandWorkout = false
                             windowProgress = 0
                             /// Resetting Window To Identity With Animation
-                            resetWindowWithAnimation()
+//                            resetWindowWithAnimation()
                         } else {
-                            /// Reset Window To 0.1 With Animation
-                            UIView.animate(withDuration: 0.3) {
-                                resizeWindow(0.1)
-                            }
+                            windowProgress = 0.1
+//                            resizeWindow(0.1)
                         }
                         
                         offsetY = 0
@@ -83,50 +83,72 @@ struct ExpandableWorkout: View {
                     expandWorkout = false
                     windowProgress = 0
                 }
-                resetWindowWithAnimation()
+//                resetWindowWithAnimation()
             }
         }
     }
     @ViewBuilder
     func miniWorkout() -> some View {
         HStack(spacing: 12) {
-            Image(systemName: "plus")
-                .foregroundColor(.theme.text)
-                .font(.title3)
-            
-            Text("Workout")
-                .foregroundColor(.theme.text)
-                .font(.title3)
-            
-            Spacer(minLength: 0)
+            if !expandWorkout {
+                HStack(spacing: 12) {
+                    // Workout progress indicator
+                    CircularProgressView(progress: workout.progress)
+                        .frame(width: 32, height: 32)
+                        .matchedGeometryEffect(id: "Progress", in: animation)
+                    
+                    VStack(alignment: .leading, spacing: 2) {
+                        Text(workout.name)
+                            .multilineTextAlignment(.leading)
+                            .font(.headline)
+                            .lineLimit(1)
+                            .matchedGeometryEffect(id: "Name", in: animation)
+                        
+                        Text("\(workout.sortedExercises.count) exercises")
+                            .font(.caption)
+                            .foregroundStyle(.secondary)
+                            .matchedGeometryEffect(id: "ExerciseCount", in: animation)
+                    }
+                }
+            }
+            Spacer()
+            WorkoutTimer(workout: workout)
         }
         .padding(.horizontal, 10)
         .frame(height: 55)
         .contentShape(.rect)
-        .background(
-            RoundedRectangle(cornerRadius: 30)
-                .fill(Color.theme.accent)
-        )
         .onTapGesture {
             withAnimation(.smooth(duration: 0.3)) {
                 expandWorkout = true
             }
-            UIView.animate(withDuration: 0.3) {
-                resizeWindow(0.1)
-            }
+//            UIView.animate(withDuration: 0.3) {
+//                resizeWindow(0.1)
+//            }
         }
     }
     
     @ViewBuilder
     func ExpandedWorkout(_ size: CGSize, _ safeArea: EdgeInsets) -> some View {
         VStack {
-            Capsule()
-                .fill(.white.secondary)
-                .frame(width: 35, height: 5)
-                .offset(y: -10)
+            VStack{
+                Capsule()
+                    .fill(.white.secondary)
+                    .frame(width: 35, height: 5)
+                    .offset(y: -10)
+                ZStack {
+                    if expandWorkout{
+                        NameSection(item: workout)
+                            .matchedGeometryEffect(id: "Name", in: animation)
+                    }
+                }
+            }
+            .frame(height: 50)
             DraggableScrollContainer(content: {
                 VStack(spacing: 10) {
-                    WorkoutInfoView(workout: workout)
+                    VStack(spacing: 20) {
+                        WorkoutTimeSection(workout: workout)
+                        NotesSection(item: workout)
+                    }
                     ForEach(workout.sortedExercises) { exercise in
                         ExerciseCardView(exercise: exercise)
                             .id(exercise.id)
@@ -149,34 +171,32 @@ struct ExpandableWorkout: View {
                 }
                 .scrollTargetLayout()
             }, items: workout.sortedExercises)
+            .background(Color.theme.background)
         }
         .environmentObject(dragState)
         .padding(.top, safeArea.top + 5)
     }
-    func resizeWindow(_ progress: CGFloat) {
-        if let mainWindow = mainWindow?.subviews.first {
-            let offsetY = (mainWindow.frame.height * progress) / 2
-            
-            /// Your Custom Corner Radius
-            mainWindow.layer.cornerRadius = (progress / 0.1) * 30
-            mainWindow.layer.masksToBounds = true
-            
-            mainWindow.transform = .identity.scaledBy(x: 1 - progress, y: 1 - progress).translatedBy(x: 0, y: offsetY)
-        }
-    }
-    
-    func resetWindowWithAnimation() {
-        if let mainWindow = mainWindow?.subviews.first {
-            UIView.animate(withDuration: 0.3) {
-                mainWindow.layer.cornerRadius = 0
-                mainWindow.transform = .identity
-            }
-        }
-    }
+//    func resizeWindow(_ progress: CGFloat) {
+//        let easedProgress = max(0, min(1, progress))
+//        let interpolatedScale = 1.0 - (easedProgress * 0.1)
+//        let interpolatedCorner = easedProgress * 30
+//
+//        withAnimation(.interactiveSpring(duration: 0.01)) {
+//            windowScale = interpolatedScale
+//            windowCorner = interpolatedCorner
+//        }
+//    }
+//
+//    func resetWindowWithAnimation() {
+//        withAnimation(.interactiveSpring(response: 0.8, dampingFraction: 0.8)) {
+//            windowScale = 1.0
+//            windowCorner = 0
+//        }
+//    }
 }
-//#Preview{
-//    let preview = PreviewContainer.preview
-//    ExpandableWorkout(show: .constant(true), workout: preview.workout)
-//        .modelContainer(preview.container)
-//        .environment(preview.viewModel)
-//}
+#Preview{
+    let preview = PreviewContainer.preview
+    ExpandableWorkout(show: .constant(true), workout: preview.workout)
+        .modelContainer(preview.container)
+        .environment(preview.viewModel)
+}

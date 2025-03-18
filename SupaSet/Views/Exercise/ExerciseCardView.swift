@@ -35,19 +35,17 @@ struct ExerciseCardView: View {
     
     private var exerciseSetsView: some View {
         VStack(spacing: 8) {
-            ScrollView(.vertical) {
-                SetColumnNamesView(exerciseID: exercise.exerciseID, isTemplate: false)
-                    .onChange(of: exercise.exerciseID) { _, _ in
-                        updateActivityIfNeeded()
-                    }
-                
-                ForEach(exercise.sortedSets, id: \.self) { set in
-                    @Bindable var set = set
-                    setRow(for: set)
+            SetColumnNamesView(exerciseID: exercise.exerciseID, isTemplate: false)
+                .onChange(of: exercise.exerciseID) { _, _ in
+                    updateActivityIfNeeded()
                 }
-                
-                addSetButton
+            
+            ForEach(exercise.sortedSets, id: \.self) { set in
+                @Bindable var set = set
+                setRow(for: set)
             }
+            
+            addSetButton
         }
     }
     

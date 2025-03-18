@@ -17,23 +17,36 @@ struct TemplateCarouselView: View {
     ]
     @State private var draggingTemplate: Template?
     @Environment(ExerciseViewModel.self) var exerciseViewModel
+    @Environment(\.isChildPresenting) private var isChildPresenting
     var body: some View {
-        VStack(alignment: .leading){
+        VStack(alignment: .leading) {
             TemplateTitle()
             ScrollView {
-                LazyVGrid(columns: columns, spacing: 16) {
+                LazyVGrid(columns: columns,
+                          spacing: 16) {
                     // Template Cards
                     ForEach(templates) { template in
-                        NavigationLink(destination: EditOrCreateTemplateView(template: template, isNew: false)) {
+                        NavigationLink(destination:
+                                        EditOrCreateTemplateView(template: template, isNew: false)
+                            .onAppear {
+                                isChildPresenting.wrappedValue = true
+                            }
+                                       
+                        ) {
                             ExistingTemplateCard(template: template)
                         }
+                        
                     }
                     // Add Template Card
-                    NavigationLink(destination: createNewTemplateView()) {
-                        AddTemplateCard()
-                    }
+                    NavigationLink(destination: createNewTemplateView()
+                        .onAppear {
+                            isChildPresenting.wrappedValue = true
+                        }
+                        ) {
+                            AddTemplateCard()
+                        }
                 }
-                .padding()
+                          .padding()
             }
         }
         .onDrop(of: [UTType.text], delegate: DropOutsideDelegate(current: $draggingTemplate))

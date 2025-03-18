@@ -40,7 +40,6 @@ struct RootViewWrapper<Content: View>: View {
                     let window = PassThroughWindow(windowScene: windowScene)
                     window.isHidden = false
                     window.isUserInteractionEnabled = true
-                    
                     // Create overlay view with all necessary environment values
                     let overlayView = UniversalOverlayViews()
                         .environment(properties)

@@ -78,3 +78,10 @@ extension SupaSetSchemaV1 {
         }
     }
 }
+extension Workout {
+    var progress: Double {
+        guard !sortedExercises.isEmpty else { return 0 }
+        let completedExercises = sortedExercises.filter { $0.isCompleted }.count
+        return Double(completedExercises) / Double(sortedExercises.count)
+    }
+}

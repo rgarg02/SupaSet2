@@ -332,9 +332,9 @@ struct PreviewContainer {
             Exercise(
                 id: UUID().uuidString,
                 name: "Treadmill",
-                force: .none,
+                force: nil,
                 level: .beginner,
-                mechanic: .none,
+                mechanic: nil,
                 equipment: .machine,
                 primaryMuscles: [.quadriceps],
                 secondaryMuscles: [.calves, .hamstrings],

@@ -24,6 +24,7 @@ struct RootView: View {
                     ProgressView()
                 case .unauthenticated:
                     AuthView()
+                    
                 case .authenticated:
                     if shouldShowOnboarding() {
                         OnboardingView(isOnboardingComplete: $isOnboardingComplete, modelContext: modelContext)

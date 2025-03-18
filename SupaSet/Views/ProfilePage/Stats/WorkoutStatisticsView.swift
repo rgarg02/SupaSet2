@@ -6,26 +6,24 @@ struct WorkoutStatsView: View {
     @State private var selectedStatsType: StatsType = .overview
     
     var body: some View {
-        NavigationStack {
-            ScrollView {
-                VStack(spacing: 20) {
-                    // Stats Type Selector
-                    statsTypePicker
-                    
-                    // Period Picker
-                    PeriodPicker(selectedPeriod: $selectedPeriod)
-                    
-                    // Dynamic content based on selected stats type
-                    switch selectedStatsType {
-                    case .overview:
-                        WorkoutStatsSection(selectedPeriod: selectedPeriod)
-                    }
+        ScrollView {
+            VStack(spacing: 20) {
+                // Stats Type Selector
+                statsTypePicker
+                
+                // Period Picker
+                PeriodPicker(selectedPeriod: $selectedPeriod)
+                
+                // Dynamic content based on selected stats type
+                switch selectedStatsType {
+                case .overview:
+                    WorkoutStatsSection(selectedPeriod: selectedPeriod)
                 }
-                .padding()
             }
-            .navigationTitle("Workout Stats")
-            .background(Color(.systemGroupedBackground))
+            .padding()
         }
+        .navigationTitle("Workout Stats")
+        .background(Color(.systemGroupedBackground))
     }
     
     // MARK: - UI Components

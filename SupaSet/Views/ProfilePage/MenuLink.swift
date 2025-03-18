@@ -11,10 +11,13 @@ struct MenuLink<Destination: View>: View {
     let title: String
     let icon: String
     let destination: Destination
-    
+    @Environment(\.isChildPresenting) private var isChildPresenting
     var body: some View {
         NavigationLink {
             destination
+                .onAppear{
+                    isChildPresenting.wrappedValue = true
+                }
         } label: {
             HStack {
                 Image(systemName: icon)

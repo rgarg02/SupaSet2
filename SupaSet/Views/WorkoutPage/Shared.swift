@@ -160,7 +160,6 @@ class DragState: ObservableObject {
 struct DraggableScrollContainer<Content: View, Item: ExerciseItem>: View {
     @Environment(ExerciseViewModel.self) var viewModel
     @EnvironmentObject var dragState: DragState
-    @State private var scrollItem: Item.ID?
     // MARK: - Properties
     let content: () -> Content
     let items: [Item]
@@ -177,7 +176,6 @@ struct DraggableScrollContainer<Content: View, Item: ExerciseItem>: View {
                 }
                 .scrollIndicators(.hidden)
                 .scrollPosition($dragState.scrollPosition)
-                .scrollPosition(id: $scrollItem)
                 .contentMargins(.vertical, 30, for: .scrollContent)
                 .scrollTargetBehavior(.viewAligned)
                 .onScrollGeometryChange(for: CGFloat.self, of: {
@@ -192,7 +190,7 @@ struct DraggableScrollContainer<Content: View, Item: ExerciseItem>: View {
                 })
                 .padding(.horizontal)
                 .overlay(alignment: .trailing) {
-                    ProgressOverlay(items: items, dragState: dragState, scrolledItemId: scrollItem)
+                    ProgressOverlay(items: items, dragState: dragState)
                 }
                 .measureFrame { dragState.parentFrame = $0 }
                 .overlay(alignment: .top) {
@@ -222,7 +220,6 @@ struct DraggableScrollContainer<Content: View, Item: ExerciseItem>: View {
 struct ProgressOverlay<Item: ExerciseItem>: View {
     let items: [Item]
     @ObservedObject var dragState: DragState
-    let scrolledItemId: Item.ID?
     var body: some View {
         if dragState.isDragging {
             if let selectedItem = dragState.selectedExercise {
@@ -232,12 +229,6 @@ struct ProgressOverlay<Item: ExerciseItem>: View {
                 )
                 .padding(.trailing, 3)
             }
-        } else {
-            WorkoutProgressDots(
-                totalExercises: items.count,
-                currentExerciseIndex: items.firstIndex(where: { $0.id == scrolledItemId }) ?? 0
-            )
-            .padding(.trailing, 3)
         }
     }
 }

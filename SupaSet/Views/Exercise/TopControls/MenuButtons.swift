@@ -11,6 +11,7 @@ struct MenuButtons: View {
     @Binding var deleteExercise: Bool
     let exerciseID: String
     @Query private var exerciseDetails: [ExerciseDetail]
+    @Environment(\.isChildPresenting) private var isChildPresenting
     init(exerciseID: String, changeExercise: Binding<Bool>, deleteExercise: Binding<Bool>) {
         self.exerciseID = exerciseID
         self._changeExercise = changeExercise
@@ -44,6 +45,9 @@ struct MenuButtons: View {
             if let exerciseDetail = exerciseDetails.first{
                 NavigationLink{
                     ChangeUnitView(exerciseDetail: exerciseDetail)
+                        .onAppear{
+                            isChildPresenting.wrappedValue = true
+                        }
                 }label: {
                     HStack{
                         Image(systemName: "scalemass")
@@ -56,6 +60,9 @@ struct MenuButtons: View {
                 .padding(.vertical, 5)
                 NavigationLink {
                     RestTimerView(exerciseDetail: exerciseDetail)
+                        .onAppear{
+                            isChildPresenting.wrappedValue = true
+                        }
                 } label: {
                     HStack{
                         Image(systemName: "timer")
