@@ -51,7 +51,7 @@ class WorkoutActivityManager {
             totalSets: currentExercise?.sets.count ?? 0,
             weight: currentSet?.weight ?? 0,
             targetReps: currentSet?.reps ?? 0,
-            isWarmupSet: currentSet?.isWarmupSet ?? false,
+            type: currentSet?.type ?? .working,
             exerciseNumber: workout.currentExerciseOrder + 1,
             totalExercises: workout.exercises.count
         )
@@ -99,7 +99,7 @@ class WorkoutActivityManager {
             totalSets: currentExercise.sets.count,
             weight: currentSet.weight,
             targetReps: currentSet.reps,
-            isWarmupSet: currentSet.isWarmupSet,
+            type: currentSet.type,
             exerciseNumber: workout.currentExerciseOrder + 1,
             totalExercises: workout.exercises.count
         )
@@ -168,7 +168,7 @@ class WorkoutActivityManager {
         let updatedSet = ExerciseSet(
             reps: currentSet.reps,
             weight: currentSet.weight + amount,
-            isWarmupSet: currentSet.isWarmupSet,
+            type: currentSet.type,
             rpe: currentSet.rpe,
             notes: currentSet.notes,
             order: currentSet.order,
@@ -187,7 +187,7 @@ class WorkoutActivityManager {
         let updatedSet = ExerciseSet(
             reps: currentSet.reps,
             weight: max(0, currentSet.weight - amount),
-            isWarmupSet: currentSet.isWarmupSet,
+            type: currentSet.type,
             rpe: currentSet.rpe,
             notes: currentSet.notes,
             order: currentSet.order,
@@ -206,7 +206,7 @@ class WorkoutActivityManager {
         let updatedSet = ExerciseSet(
             reps: currentSet.reps + 1,
             weight: currentSet.weight,
-            isWarmupSet: currentSet.isWarmupSet,
+            type: currentSet.type,
             rpe: currentSet.rpe,
             notes: currentSet.notes,
             order: currentSet.order,
@@ -225,7 +225,7 @@ class WorkoutActivityManager {
         let updatedSet = ExerciseSet(
             reps: max(1, currentSet.reps - 1),
             weight: currentSet.weight,
-            isWarmupSet: currentSet.isWarmupSet,
+            type: currentSet.type,
             rpe: currentSet.rpe,
             notes: currentSet.notes,
             order: currentSet.order,

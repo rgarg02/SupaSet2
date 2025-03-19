@@ -20,7 +20,7 @@ struct WorkoutAttributes: ActivityAttributes {
         var totalSets: Int
         var weight: Double
         var targetReps: Int
-        var isWarmupSet: Bool
+        var type: SetType
         var exerciseNumber: Int
         var totalExercises: Int
     }

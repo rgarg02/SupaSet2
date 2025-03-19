@@ -6,7 +6,7 @@ struct WorkoutHistoryView: View {
     @Query(filter: #Predicate<Workout>{$0.isFinished == true},sort: \Workout.date, order: .reverse) private var workouts: [Workout]
     
     var body: some View {
-        NavigationView {
+        NavigationStack {
             ScrollView {
                 LazyVStack(spacing: 16) {
                     // Stats Card
@@ -20,7 +20,7 @@ struct WorkoutHistoryView: View {
                 .padding()
             }
             .background(Color.theme.background)
-            .navigationTitle("Workout History")
+            .customNavBarTitle("History")
         }
     }
     // Stats Card View

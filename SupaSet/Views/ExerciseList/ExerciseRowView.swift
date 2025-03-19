@@ -33,7 +33,6 @@ struct ExerciseRowView: View {
                         .imageScale(.small)
                     Text(equipment.rawValue.capitalized)
                         .font(.subheadline)
-                        .foregroundColor(.secondary)
                 }
             }
             
@@ -60,15 +59,15 @@ struct Badge<T: RawRepresentable>: View where T.RawValue == String {
    let backgroundColor: Color
    let textColor: Color
    
-   init(for value: T, backgroundColor: Color = .gray, textColor: Color? = nil) {
+    init(for value: T, backgroundColor: Color = .secondaryTheme, textColor: Color? = nil) {
        self.text = value.rawValue.capitalized
        
        if let level = value as? Level {
-           self.backgroundColor = level.color.lighter()
-           self.textColor = level.color
+           self.backgroundColor = level.color.shade(50)
+           self.textColor = level.color.shade(50).bestTextColor()
        } else {
-           self.backgroundColor = backgroundColor.lighter()
-           self.textColor = textColor ?? backgroundColor
+           self.backgroundColor = backgroundColor
+           self.textColor = backgroundColor.bestTextColor()
        }
    }
    
@@ -105,6 +104,10 @@ struct Badge<T: RawRepresentable>: View where T.RawValue == String {
                 ExerciseRowView(exercise: exercise, selectedExercise: $exercise,
                                 isShowingDetail: .constant(false))
                 .padding()
+                ExerciseRowView(exercise: exercise, selectedExercise: $exercise,
+                                isShowingDetail: .constant(false))
+                .padding()
+                .colorScheme(.dark)
             }
         }
     }

@@ -22,30 +22,29 @@ struct WorkoutPageView: View {
     }
     
     var body: some View {
-        NavigationView {
+        NavigationStack {
             ZStack {
                 VStack(alignment: .leading){
 //                    PageTitle(title: "Workouts")
                     TemplateCarouselView()
                 }
-                .navigationTitle("Workouts")
+                .customNavBarTitle("Workouts")
             }
+            .background(Color.background)
             .sheet(isPresented: $workoutIsFinished) {
                 if let workout {
                     WorkoutFinishedView(workout: workout)
                 }
             }
         }
+        .background()
     }
     
 }
 
 #Preview {
     let container = PreviewContainer.preview
-    RootViewWrapper{
-        WorkoutPageView()
-            .environment(container.viewModel)
-            .modelContainer(container.container)
-    }
+    WorkoutPageView()
+        .environment(container.viewModel)
+        .modelContainer(container.container)
 }
-

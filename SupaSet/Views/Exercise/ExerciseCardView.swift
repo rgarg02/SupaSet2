@@ -51,13 +51,18 @@ struct ExerciseCardView: View {
     
     private func setRow(for set: ExerciseSet) -> some View {
         @Bindable var set = set
+        // count working sets
+        let workingSetOrder = exercise.sortedSets
+                .prefix(while: { $0.order < set.order })
+                .filter { $0.type == .working }
+                .count
         return SwipeAction(cornerRadius: 8, direction: .trailing) {
             SetRowViewCombined(
-                order: set.order,
+                order: workingSetOrder,
                 isTemplate: false,
                 weight: $set.weight,
                 reps: $set.reps,
-                isDone: $set.isDone
+                isDone: $set.isDone, type: $set.type
             )
             .onChange(of: set.weight) { _, _ in updateActivityIfNeeded() }
             .onChange(of: set.reps) { _, _ in updateActivityIfNeeded() }

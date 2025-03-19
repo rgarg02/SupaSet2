@@ -47,8 +47,8 @@ struct WorkoutLiveActivityView: View {
                         .background(Color.theme.secondary.opacity(0.5))
                         .clipShape(Capsule())
                     
-                    if context.state.isWarmupSet {
-                        Text("Warm-up")
+                    if context.state.type != .working {
+                        Text(context.state.type.description)
                             .padding(.horizontal, 6)
                             .padding(.vertical, 2)
                             .background(.orange.opacity(0.15))
@@ -135,23 +135,3 @@ struct WorkoutLiveActivityView: View {
         .padding(12)
     }
 }
-#if DEBUG
-// MARK: - Live Activity Previews
-#Preview("Live Activity - Regular Set", as: .content, using: WorkoutAttributes.previewAttributes) {
-    LiveActivityWidget()
-} contentStates: {
-    WorkoutAttributes.previewRegularSet
-}
-
-#Preview("Live Activity - Warmup Set", as: .content, using: WorkoutAttributes.previewAttributes) {
-    LiveActivityWidget()
-} contentStates: {
-    WorkoutAttributes.previewWarmupSet
-}
-
-#Preview("Live Activity - Middle Exercise", as: .content, using: WorkoutAttributes.previewAttributes) {
-    LiveActivityWidget()
-} contentStates: {
-    WorkoutAttributes.previewMiddleExercise
-}
-#endif

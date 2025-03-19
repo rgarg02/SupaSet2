@@ -1,5 +1,7 @@
 import SwiftUI
 import SwiftData
+
+
 struct ContentView: View {
     @Environment(\.modelContext) var modelContext
     @Environment(AuthenticationViewModel.self) var authViewModel
@@ -25,7 +27,7 @@ struct ContentView: View {
     
     var body: some View {
         ZStack {
-            Color.theme.background
+            Color.background
             TabView {
                 WorkoutPageView()
                     .tabItem({
@@ -38,13 +40,13 @@ struct ContentView: View {
                         Image(systemName: "calendar")
                         Text("History")
                     }
-                    .safeAreaPadding(.bottom, 55)
+                    .padding(.bottom, 55)
                 ProfilePageView()
                     .tabItem {
                         Image(systemName: "person")
                         Text("Profile")
                     }
-                    .safeAreaPadding(.bottom, 55)
+                    .padding(.bottom, 55)
             }
             .overlay(alignment: .bottom, content: {
                 if showWorkoutOverlay {

@@ -84,4 +84,7 @@ extension Workout {
         let completedExercises = sortedExercises.filter { $0.isCompleted }.count
         return Double(completedExercises) / Double(sortedExercises.count)
     }
+    var timeLapsed: TimeInterval {
+        return Date().timeIntervalSince(date)
+    }
 }

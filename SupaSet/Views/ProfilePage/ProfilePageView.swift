@@ -10,7 +10,7 @@ struct ProfilePageView: View {
     @State private var signOutError: Error?
     
     var body: some View {
-        NavigationView {
+        NavigationStack {
             ScrollView {
                 VStack(spacing: 24) {
                     profileHeader
@@ -19,10 +19,7 @@ struct ProfilePageView: View {
                     signOutButton
                 }
                 .padding()
-                .background(Color("BackgroundColor"))
             }
-            .navigationTitle("Profile")
-            .navigationBarTitleDisplayMode(.large)
             .toolbar {
                 ToolbarItem(placement: .topBarTrailing) {
                     Button {
@@ -33,6 +30,8 @@ struct ProfilePageView: View {
                     }
                 }
             }
+            .customNavBarTitle("Profile")
+            .background(Color.background)
         }
         .sheet(isPresented: $showSettingsSheet) {
             SettingsView()
@@ -145,7 +144,6 @@ struct ProfilePageView: View {
         VStack(spacing: 8) {
             MenuLink(title: "Progress", icon: "chart.bar.xaxis", destination: WorkoutStatsView())
         }
-        .foregroundColor(.text)
     }
     
     private var signOutButton: some View {

@@ -4,6 +4,7 @@
 //
 //  Created by Rishi Garg on 1/23/25.
 //
+
 import SwiftUI
 
 // create custom view modifier for the textfield
@@ -29,6 +30,7 @@ struct SetRowViewCombined: View {
     @Binding var weight: Double
     @Binding var reps: Int
     @Binding var isDone: Bool
+    @Binding var type: SetType
     @FocusState private var focused: Bool
     private var columns: [GridItem] {
         if isTemplate {
@@ -49,9 +51,10 @@ struct SetRowViewCombined: View {
     var body: some View {
         LazyVGrid(columns: columns, alignment: .center) {
             // Set Number
-            Text("\(order+1)")
-                .font(.headline)
+            SetTypeButton(type: $type, order: order)
                 .frame(maxWidth: .infinity, alignment: .leading)
+                .frame(height: 30)
+                .padding(.horizontal, 4)
             
             // Weight Input
             TextField("0", value: $weight, format: .number)
@@ -105,8 +108,21 @@ struct SetRowViewCombined: View {
         )
         .overlay(
             RoundedRectangle(cornerRadius: 8)
-                .stroke(Color.theme.accent, lineWidth: 1)
+                .stroke(isDone ? Color.theme.accent : typeColor, lineWidth: 1)
         )
+    }
+    
+    private var typeColor: Color {
+        switch type {
+        case .working:
+            return .blue.opacity(0.3)
+        case .warmup:
+            return .orange.opacity(0.3)
+        case .drop:
+            return .purple.opacity(0.3)
+        case .failure:
+            return .red.opacity(0.3)
+        }
     }
 }
 
@@ -118,7 +134,8 @@ struct SetRowViewCombined: View {
             isTemplate: false,
             weight: .constant(999),
             reps: .constant(99),
-            isDone: .constant(false)
+            isDone: .constant(false),
+            type: .constant(.working)
         )
     }
     .modelContainer(PreviewContainer.preview.container)

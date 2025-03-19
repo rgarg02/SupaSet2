@@ -262,7 +262,7 @@ struct PreviewContainer {
                 let warmupSet = ExerciseSet(
                     reps: 10,
                     weight: 95,
-                    isWarmupSet: true,
+                    type: .working,
                     order: 0,
                     isDone: true
                 )

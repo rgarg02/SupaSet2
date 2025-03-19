@@ -64,7 +64,6 @@ struct ExerciseListPickerView: View {
             return true
         }
     }
-    
     var filteredExercises: [Exercise] {
         let searchTokens = searchText.lowercased().split(separator: " ").map(String.init)
         
@@ -192,7 +191,8 @@ struct ExerciseListPickerView: View {
                                     trailing: 16
                                 ))
                                 .listRowSeparator(.hidden)
-                                .background(selectedExercises.contains(exercise) ? Color.theme.secondary : Color.theme.background)
+                                .background(selectedExercises.contains(exercise) ? Color.themePrimarySecond : Color.theme.background)
+                                .foregroundStyle(selectedExercises.contains(exercise) ? Color.themePrimarySecond.bestTextColor() : Color.theme.background.bestTextColor())
                                 .contentShape(Rectangle())
                                 .onTapGesture {
                                     handleExerciseSelection(exercise)

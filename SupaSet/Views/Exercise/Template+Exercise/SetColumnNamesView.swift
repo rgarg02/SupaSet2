@@ -71,7 +71,7 @@ struct SetColumnNamesView: View {
             isTemplate: true,
             weight: .constant(999),
             reps: .constant(99),
-            isDone: .constant(false)
+            isDone: .constant(false), type: .constant(.warmup)
         )
     }
     .modelContainer(PreviewContainer.preview.container)

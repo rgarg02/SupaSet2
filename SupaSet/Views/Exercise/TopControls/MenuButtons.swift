@@ -82,7 +82,7 @@ struct MenuButtons: View {
             } label: {
                 HStack{
                     Image(systemName: "trash")
-                        .foregroundColor(.cancel)
+                        .foregroundColor(.red)
                     Text("Delete Exercise")
                         .bold()
                     Spacer()

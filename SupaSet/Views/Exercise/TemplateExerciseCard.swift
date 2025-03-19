@@ -51,7 +51,7 @@ struct TemplateExerciseCard: View {
                 isTemplate: true,
                 weight: $set.weight,
                 reps: $set.reps,
-                isDone: .constant(false)
+                isDone: .constant(false), type: $set.type
             )
         } actions: {
             Action(tint: .red, icon: "trash.fill") {

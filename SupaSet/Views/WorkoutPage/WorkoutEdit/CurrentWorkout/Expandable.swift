@@ -20,9 +20,9 @@ struct ExpandableWorkout: View {
             ZStack(alignment: .top) {
                 ZStack{
                     Rectangle()
-                        .fill(.primaryThemeColorTwo)
+                        .fill(Color.primaryTheme)
                     Rectangle()
-                        .fill(.primaryThemeColorTwo)
+                        .fill(Color.primaryTheme)
                         .opacity(expandWorkout ? 1 : 0)
                 }
                 .clipShape(.rect(cornerRadius: expandWorkout ? (safeArea.bottom == 0 ? 0 : 45) : 15))
@@ -106,7 +106,6 @@ struct ExpandableWorkout: View {
                         
                         Text("\(workout.sortedExercises.count) exercises")
                             .font(.caption)
-                            .foregroundStyle(.secondary)
                             .matchedGeometryEffect(id: "ExerciseCount", in: animation)
                     }
                 }
@@ -114,6 +113,7 @@ struct ExpandableWorkout: View {
             Spacer()
             WorkoutTimer(workout: workout)
         }
+        .foregroundStyle(Color.primaryTheme.bestTextColor())
         .padding(.horizontal, 10)
         .frame(height: 55)
         .contentShape(.rect)
@@ -138,6 +138,8 @@ struct ExpandableWorkout: View {
                 ZStack {
                     if expandWorkout{
                         NameSection(item: workout)
+                            .foregroundStyle(Color.primaryTheme.bestTextColor())
+                        
                             .matchedGeometryEffect(id: "Name", in: animation)
                     }
                 }
@@ -176,27 +178,16 @@ struct ExpandableWorkout: View {
         .environmentObject(dragState)
         .padding(.top, safeArea.top + 5)
     }
-//    func resizeWindow(_ progress: CGFloat) {
-//        let easedProgress = max(0, min(1, progress))
-//        let interpolatedScale = 1.0 - (easedProgress * 0.1)
-//        let interpolatedCorner = easedProgress * 30
-//
-//        withAnimation(.interactiveSpring(duration: 0.01)) {
-//            windowScale = interpolatedScale
-//            windowCorner = interpolatedCorner
-//        }
-//    }
-//
-//    func resetWindowWithAnimation() {
-//        withAnimation(.interactiveSpring(response: 0.8, dampingFraction: 0.8)) {
-//            windowScale = 1.0
-//            windowCorner = 0
-//        }
-//    }
 }
 #Preview{
+    @Previewable @State var properties = UniversalOverlayProperties()
+    @Previewable @State var authenticationViewModel = AuthenticationViewModel()
     let preview = PreviewContainer.preview
-    ExpandableWorkout(show: .constant(true), workout: preview.workout)
-        .modelContainer(preview.container)
-        .environment(preview.viewModel)
+    RootViewWrapper {
+        ExpandableWorkout(show: .constant(true), workout: preview.workout)
+    }
+    .environment(properties)
+    .modelContainer(preview.container)
+    .environment(preview.viewModel)
+    .environment(authenticationViewModel)
 }

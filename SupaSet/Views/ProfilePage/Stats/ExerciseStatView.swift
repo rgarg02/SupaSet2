@@ -68,7 +68,7 @@ struct ExerciseStatView: View {
                     }
                     
                     // Find the best working set (highest weight × reps)
-                    let workingSets = exercise.sets.filter { !$0.isWarmupSet }
+                    let workingSets = exercise.sets.filter { $0.type == .working }
                     guard let bestSet = workingSets.max(by: {
                         $0.weight * Double($0.reps) < $1.weight * Double($1.reps)
                     }) else {
@@ -93,7 +93,7 @@ struct ExerciseStatView: View {
                     }
                     
                     // Find the best working set (highest weight × reps)
-                    let workingSets = exercise.sets.filter { !$0.isWarmupSet }
+                    let workingSets = exercise.sets.filter { $0.type == .working }
                     guard let bestSet = workingSets.max(by: {
                         $0.weight * Double($0.reps) < $1.weight * Double($1.reps)
                     }) else {
@@ -495,5 +495,3 @@ struct RecordCard: View {
         }
     }
 }
-
-

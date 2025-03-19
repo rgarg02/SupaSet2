@@ -19,7 +19,6 @@ struct TemplateCard: View {
             Text(template.name)
                 .lineLimit(1)
                 .font(.headline)
-                .foregroundStyle(Color.theme.text)
                 .padding(.vertical, 3)
             // Creation Date
             Text("Created: \(formattedDate(template.createdAt))")
@@ -33,9 +32,8 @@ struct TemplateCard: View {
                         Text("\(exercise.sets.count)x")
                             .font(.caption)
                             .lineLimit(1)
-                            .foregroundStyle(Color.theme.accent)
+                            .foregroundStyle(Color.accent.adjusted(by: -25))
                         Text(exerciseViewModel.getExerciseName(for: exercise.exerciseID))
-                            .foregroundStyle(Color.theme.text)
                             .font(.caption)
                             .lineLimit(1)
                     }
@@ -51,12 +49,14 @@ struct TemplateCard: View {
                 .frame(maxWidth: .infinity)
         }
         .frame(height: 165)
-        .foregroundStyle(Color.theme.text)
         .frame(maxWidth: .infinity, alignment: .leading)
         .padding(10)
-        .background(Color.theme.primarySecond)
-        .clipShape(RoundedRectangle(cornerRadius: 8))
-        .shadow(color: .black.opacity(0.1), radius: 5, x: 0, y: 2)
+        .primarySecondStyle(adjustPercentage: 75)
+        .cornerRadius(12)
+        .overlay(
+            RoundedRectangle(cornerRadius: 12)
+                .stroke(Color.themePrimarySecond, lineWidth: 2)
+            )
     }
     
     private func formattedDate(_ date: Date) -> String {
@@ -68,18 +68,17 @@ struct TemplateCard: View {
     private func StartWorkoutButton(template: Template) -> some View {
         Button {
             startWorkout(with: template)
-            
         } label: {
             HStack {
                 Spacer()
                 Text("Start Workout")
                     .fontWeight(.medium)
                     .font(.caption)
-                    .foregroundColor(.theme.accent)
+                    .foregroundStyle(Color.secondaryTheme.bestTextColor())
                 Spacer()
             }
             .padding(.vertical, 4)
-            .background(Color.theme.accent.opacity(0.1))
+            .background(Color.secondaryTheme)
             .clipShape(RoundedRectangle(cornerRadius: 8))
         }
         .buttonStyle(.plain)

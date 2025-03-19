@@ -17,7 +17,6 @@ struct TemplateCarouselView: View {
     ]
     @State private var draggingTemplate: Template?
     @Environment(ExerciseViewModel.self) var exerciseViewModel
-    @Environment(\.isChildPresenting) private var isChildPresenting
     var body: some View {
         VStack(alignment: .leading) {
             TemplateTitle()
@@ -28,9 +27,6 @@ struct TemplateCarouselView: View {
                     ForEach(templates) { template in
                         NavigationLink(destination:
                                         EditOrCreateTemplateView(template: template, isNew: false)
-                            .onAppear {
-                                isChildPresenting.wrappedValue = true
-                            }
                                        
                         ) {
                             ExistingTemplateCard(template: template)
@@ -39,9 +35,6 @@ struct TemplateCarouselView: View {
                     }
                     // Add Template Card
                     NavigationLink(destination: createNewTemplateView()
-                        .onAppear {
-                            isChildPresenting.wrappedValue = true
-                        }
                         ) {
                             AddTemplateCard()
                         }
@@ -75,6 +68,7 @@ struct TemplateCarouselView: View {
                     .onAppear{
                         draggingTemplate = template
                     }
+                    .cornerRadius(12)
             }
             .opacity(draggingTemplate?.id == template.id ? 0 : 1)
             .onDrop(

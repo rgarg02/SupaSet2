@@ -270,12 +270,13 @@ struct CSVImportView: View {
         
         do {
             importStatus = .importing(progress: 0.1, stage: .readingFile)
-            let content = try String(contentsOf: file)
+            let content = try Data(contentsOf: file)
+            let contentString = String(decoding: content, as: UTF8.self)
             
             importStatus = .importing(progress: 0.2, stage: .parsingCSV)
             
             // Check which type of file we're processing based on headers
-            let firstLine = content.components(separatedBy: .newlines).first ?? ""
+            let firstLine = contentString.components(separatedBy: .newlines).first ?? ""
             let isHevyFile = firstLine.contains("title") && firstLine.contains("start_time") ||
             firstLine.contains("exercise_title") && firstLine.contains("set_index")
             
@@ -289,10 +290,10 @@ struct CSVImportView: View {
             
             switch dataFrom {
             case .strong:
-                let rows = await parseCSVFromStrong(content)
+                let rows = await parseCSVFromStrong(contentString)
                 await processStrongWorkouts(from: rows)
             case .hevy:
-                let rows = await parseCSVFromHevy(content)
+                let rows = await parseCSVFromHevy(contentString)
                 await processHevyWorkouts(from: rows)
             }
             
@@ -611,10 +612,23 @@ struct CSVImportView: View {
                     )
                     
                     workoutExercise.sets = exerciseRows.map { row in
-                        ExerciseSet(
+                        let setType: SetType = {
+                            switch row.setType.lowercased() {
+                            case "warmup":
+                                return .warmup
+                            case "failure":
+                                return .failure
+                            case "drop":
+                                return .drop
+                            default:
+                                return .working
+                            }
+                        }()
+                        
+                        return ExerciseSet(
                             reps: row.reps,
                             weight: row.weightLbs,
-                            isWarmupSet: row.setType.lowercased() == "warmup",
+                            type: setType,
                             rpe: row.rpe,
                             notes: nil,
                             order: row.setIndex,

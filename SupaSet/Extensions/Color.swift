@@ -38,3 +38,20 @@ extension Color {
                     brightness: Double(b) + ((1.0 - Double(b)) * 0.4)) // Increase brightness
     }
 }
+extension Color {
+    
+    /// Returns a lighter or darker shade of the color.
+    /// - Parameter percentage: The percentage to adjust the brightness (-100 to 100).
+    /// - Returns: A new `Color` with the adjusted brightness.
+    func shade(by percentage: Double) -> Color {
+        let uiColor = UIColor(self)
+        var hue: CGFloat = 0, saturation: CGFloat = 0, brightness: CGFloat = 0, alpha: CGFloat = 0
+
+        if uiColor.getHue(&hue, saturation: &saturation, brightness: &brightness, alpha: &alpha) {
+            let adjustedBrightness = max(min(brightness + CGFloat(percentage) / 100, 1.0), 0.0)
+            return Color(UIColor(hue: hue, saturation: saturation, brightness: adjustedBrightness, alpha: alpha))
+        }
+        
+        return self
+    }
+}
