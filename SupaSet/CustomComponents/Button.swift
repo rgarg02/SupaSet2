@@ -11,10 +11,10 @@ struct LongButtonModifier: ViewModifier {
     func body(content: Content) -> some View {
         content
             .frame(maxWidth: .infinity)
-            .padding()
-            .background(Color.theme.accent) // Background color
-            .cornerRadius(25) // Medium size dimension divided by 2
-            .frame(height: 50) // Medium size dimension
+            .padding(.horizontal, 16)
+            .padding(.vertical, 12)
+            .background(Color.theme.accent)
+            .cornerRadius(8)
     }
 }
 struct CustomButtonStyle {
@@ -137,9 +137,9 @@ struct CustomButton: View {
             width: title == nil ? size.dimension : nil,
             height: size.dimension
         )
-        .cornerRadius(size.dimension / 2)
+        .cornerRadius(8)
         .overlay(
-            RoundedRectangle(cornerRadius: size.dimension / 2)
+            RoundedRectangle(cornerRadius: 8)
                 .stroke(style.borderColor, lineWidth: 2)
         )
     }

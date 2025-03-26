@@ -3,6 +3,15 @@ import SwiftData
 import Charts
 
 struct MuscleRadarChartView: View {
+    // Color properties for customization
+    let currentPeriodColor: Color
+    let previousPeriodColor: Color
+    let currentPeriodFillColor: Color
+    let previousPeriodFillColor: Color
+    let gridLineColor: Color
+    let axisLineColor: Color
+    let labelColor: Color
+    
     let period: StatsPeriod
     @Query private var currentWorkouts: [SupaSetSchemaV1.Workout]
     @Query private var previousWorkouts: [SupaSetSchemaV1.Workout]
@@ -13,8 +22,24 @@ struct MuscleRadarChartView: View {
     @Environment(\.modelContext) private var modelContext
     @Environment(ExerciseViewModel.self) private var exerciseViewModel
     
-    init(period: StatsPeriod) {
+    init(
+        period: StatsPeriod,
+        currentPeriodColor: Color = .accentColor,
+        previousPeriodColor: Color = .secondaryTheme,
+        currentPeriodFillColor: Color = .accentColor.opacity(0.4),
+        previousPeriodFillColor: Color = Color.secondaryTheme.opacity(0.4),
+        gridLineColor: Color = Color.gray.opacity(0.2),
+        axisLineColor: Color = Color.gray.opacity(0.4),
+        labelColor: Color = .secondary
+    ) {
         self.period = period
+        self.currentPeriodColor = currentPeriodColor
+        self.previousPeriodColor = previousPeriodColor
+        self.currentPeriodFillColor = currentPeriodFillColor
+        self.previousPeriodFillColor = previousPeriodFillColor
+        self.gridLineColor = gridLineColor
+        self.axisLineColor = axisLineColor
+        self.labelColor = labelColor
         
         // Create predicates for current period
         let currentFromDate: Date?
@@ -68,7 +93,7 @@ struct MuscleRadarChartView: View {
                 Spacer()
                 Text("Consise")
                     .font(.footnote)
-                    .foregroundColor(.secondary)
+                    .foregroundColor(labelColor)
                 Toggle("", isOn: $showConsisedInfo)
                     .labelsHidden()
                     .padding(.trailing, 5)
@@ -76,7 +101,7 @@ struct MuscleRadarChartView: View {
             .frame(maxWidth: .infinity)
             if currentPeriodData.isEmpty {
                 Text("No workout data for this period")
-                    .foregroundColor(.secondary)
+                    .foregroundColor(labelColor)
                     .frame(maxWidth: .infinity, minHeight: 200)
             } else {
                 VStack(spacing: 8) {
@@ -84,7 +109,14 @@ struct MuscleRadarChartView: View {
                         ComparativeRadarChartView(
                             currentData: currentPeriodData,
                             previousData: previousPeriodData,
-                            selectedMuscle: $selectedMuscle
+                            selectedMuscle: $selectedMuscle,
+                            currentPeriodColor: currentPeriodColor,
+                            previousPeriodColor: previousPeriodColor,
+                            currentPeriodFillColor: currentPeriodFillColor,
+                            previousPeriodFillColor: previousPeriodFillColor,
+                            gridLineColor: gridLineColor,
+                            axisLineColor: axisLineColor,
+                            labelColor: labelColor
                         )
                         .animation(.easeInOut(duration: 0.6), value: showConsisedInfo)
                         .frame(height: 300)
@@ -92,7 +124,7 @@ struct MuscleRadarChartView: View {
                     HStack(spacing: 8) {
                         HStack(spacing: 8) {
                             Circle()
-                                .fill(Color.accentColor)
+                                .fill(currentPeriodColor)
                                 .frame(width: 8, height: 8)
                             Text("Current \(period.description)")
                                 .font(.caption)
@@ -101,7 +133,7 @@ struct MuscleRadarChartView: View {
                         if !previousPeriodData.isEmpty && period != .allTime {
                             HStack(spacing: 8) {
                                 Circle()
-                                    .fill(Color.purple)
+                                    .fill(previousPeriodColor)
                                     .frame(width: 8, height: 8)
                                 Text("Previous \(period.description)")
                                     .font(.caption)
@@ -122,14 +154,14 @@ struct MuscleRadarChartView: View {
                                     VStack(alignment: .leading) {
                                         Text("Current: \(Int(currentData.totalVolume)) sets")
                                             .font(.caption)
-                                            .foregroundColor(.accentColor)
+                                            .foregroundColor(currentPeriodColor)
                                     }
                                     
                                     if period != .allTime {
                                         VStack(alignment: .leading) {
                                             Text("Previous: \(Int(previousData.totalVolume)) sets")
                                                 .font(.caption)
-                                                .foregroundColor(.purple)
+                                                .foregroundColor(previousPeriodColor)
                                         }
                                     }
                                 }
@@ -139,7 +171,7 @@ struct MuscleRadarChartView: View {
                         } else {
                             Text("Tap a point to see details")
                                 .font(.caption)
-                                .foregroundColor(.secondary)
+                                .foregroundColor(labelColor)
                                 .padding(.vertical, 8)
                         }
                     }
@@ -180,9 +212,9 @@ struct MuscleRadarChartView: View {
             if !showConsisedInfo {
                 // Convert MuscleGroup enum to string representation
                 currentGroupedData = Dictionary(uniqueKeysWithValues:
-                    currentMuscleSets.map { (muscle, value) in
-                        (muscle.description, value)
-                    }
+                                                    currentMuscleSets.map { (muscle, value) in
+                    (muscle.description, value)
+                }
                 )
             } else {
                 // Group muscles by category
@@ -200,9 +232,9 @@ struct MuscleRadarChartView: View {
             let previousGroupedData: [String: Double]
             if !showConsisedInfo {
                 previousGroupedData = Dictionary(uniqueKeysWithValues:
-                    previousMuscleSets.map { (muscle, value) in
-                        (muscle.description, value)
-                    }
+                                                    previousMuscleSets.map { (muscle, value) in
+                    (muscle.description, value)
+                }
                 )
             } else {
                 previousGroupedData = groupMusclesByCategory(previousMuscleSets)
@@ -300,6 +332,15 @@ struct ComparativeRadarChartView: View {
     let previousData: [MuscleGroupData]
     @Binding var selectedMuscle: String?
     
+    // Color properties for customization
+    let currentPeriodColor: Color
+    let previousPeriodColor: Color
+    let currentPeriodFillColor: Color
+    let previousPeriodFillColor: Color
+    let gridLineColor: Color
+    let axisLineColor: Color
+    let labelColor: Color
+    
     private var maxVolume: Double {
         let currentMax = currentData.map(\.totalVolume).max() ?? 0
         let previousMax = previousData.map(\.totalVolume).max() ?? 0
@@ -343,7 +384,8 @@ struct ComparativeRadarChartView: View {
                     RadarGridCircle(
                         radius: radius,
                         scale: scale,
-                        isOutermost: index == 4
+                        isOutermost: index == 4,
+                        gridLineColor: gridLineColor
                     )
                 }
                 
@@ -351,13 +393,19 @@ struct ComparativeRadarChartView: View {
                 ForEach(0..<currentData.count, id: \.self) { index in
                     let angle = angleForIndex(index, totalCount: currentData.count)
                     
-                    RadarAxisLine(center: center, radius: radius, angle: angle)
+                    RadarAxisLine(
+                        center: center,
+                        radius: radius,
+                        angle: angle,
+                        axisLineColor: axisLineColor
+                    )
                     
                     RadarAxisLabel(
                         center: center,
                         radius: radius,
                         angle: angle,
-                        label: currentData[index].muscleGroup
+                        label: currentData[index].muscleGroup,
+                        labelColor: labelColor
                     )
                     .transition(.opacity)
                     .animation(.easeInOut(duration: 0.25), value: currentData.count)
@@ -367,29 +415,33 @@ struct ComparativeRadarChartView: View {
                 if !previousData.isEmpty {
                     RadarShape(dataPoints: normalizedPreviousData, center: center, radius: radius)
                         .fill(LinearGradient(
-                            gradient: Gradient(colors: [.purple.opacity(0.3), Color.clear]),
+                            gradient: Gradient(colors: [previousPeriodFillColor, Color.clear]),
                             startPoint: .top,
                             endPoint: .bottom
                         ))
                         .animation(.easeInOut(duration: 0.3), value: normalizedPreviousData)
+                        .opacity(selectedMuscle != nil ? 0.5 : 1)
                     
                     RadarShape(dataPoints: normalizedPreviousData, center: center, radius: radius)
-                        .stroke(Color.purple, lineWidth: 1.5)
+                        .stroke(previousPeriodColor, lineWidth: 1.5)
                         .animation(.easeInOut(duration: 0.3), value: normalizedPreviousData)
+                        .opacity(selectedMuscle != nil ? 0.5 : 1)
                 }
                 
                 // Draw current period radar shape
                 RadarShape(dataPoints: normalizedCurrentData, center: center, radius: radius)
                     .fill(LinearGradient(
-                        gradient: Gradient(colors: [.accentColor.opacity(0.3), Color.clear]),
+                        gradient: Gradient(colors: [currentPeriodFillColor, Color.clear]),
                         startPoint: .top,
                         endPoint: .bottom
                     ))
                     .animation(.easeInOut(duration: 0.3), value: normalizedCurrentData)
+                    .opacity(selectedMuscle != nil ? 0.5 : 1)
                 
                 RadarShape(dataPoints: normalizedCurrentData, center: center, radius: radius)
-                    .stroke(Color.accentColor, lineWidth: 2)
+                    .stroke(currentPeriodColor, lineWidth: 2)
                     .animation(.easeInOut(duration: 0.3), value: normalizedCurrentData)
+                    .opacity(selectedMuscle != nil ? 0.5 : 1)
                 
                 // Current period data points
                 ForEach(0..<normalizedCurrentData.count, id: \.self) { index in
@@ -403,7 +455,8 @@ struct ComparativeRadarChartView: View {
                         value: dataPoint.totalVolume,
                         muscleGroup: dataPoint.muscleGroup,
                         isSelected: selectedMuscle == dataPoint.muscleGroup,
-                        color: .accentColor
+                        anyPointSelected: selectedMuscle != nil,
+                        color: currentPeriodColor
                     ) {
                         // Toggle selection
                         if selectedMuscle == dataPoint.muscleGroup {
@@ -428,8 +481,8 @@ struct ComparativeRadarChartView: View {
                                 angle: angle,
                                 value: dataPoint.totalVolume,
                                 muscleGroup: dataPoint.muscleGroup,
-                                isSelected: selectedMuscle == dataPoint.muscleGroup,
-                                color: .purple
+                                isSelected: selectedMuscle == dataPoint.muscleGroup, anyPointSelected: selectedMuscle != nil,
+                                color: previousPeriodColor
                             ) {
                                 // Toggle selection
                                 if selectedMuscle == dataPoint.muscleGroup {
@@ -455,6 +508,7 @@ struct RadarDataPoint: View {
     let value: Double
     let muscleGroup: String
     let isSelected: Bool
+    let anyPointSelected: Bool
     let color: Color
     let action: () -> Void
     let circleFrame: CGFloat = 8
@@ -473,6 +527,7 @@ struct RadarDataPoint: View {
                     .opacity(isSelected ? 1 : 0)
                     .position(position)
             )
+            .opacity(anyPointSelected ? (isSelected ? 1 : 0.5) : 1)
             .onTapGesture(perform: action)
     }
     
@@ -489,10 +544,11 @@ struct RadarGridCircle: View {
     let radius: CGFloat
     let scale: Double
     let isOutermost: Bool
+    let gridLineColor: Color
     
     var body: some View {
         Circle()
-            .stroke(Color.gray.opacity(0.2), lineWidth: isOutermost ? 1.5 : 0.5)
+            .stroke(gridLineColor, lineWidth: isOutermost ? 1.5 : 0.5)
             .frame(width: radius * 2 * scale, height: radius * 2 * scale)
     }
 }
@@ -501,6 +557,7 @@ struct RadarAxisLine: View {
     let center: CGPoint
     let radius: CGFloat
     let angle: Double
+    let axisLineColor: Color
     
     var body: some View {
         Path { path in
@@ -508,7 +565,7 @@ struct RadarAxisLine: View {
             let endpoint = pointForAngle(angle: angle, value: 1.0)
             path.addLine(to: endpoint)
         }
-        .stroke(Color.gray.opacity(0.4), lineWidth: 0.5)
+        .stroke(axisLineColor, lineWidth: 0.5)
     }
     
     private func pointForAngle(angle: Double, value: Double) -> CGPoint {
@@ -524,7 +581,8 @@ struct RadarAxisLabel: View {
     let radius: CGFloat
     let angle: Double
     let label: String
-
+    let labelColor: Color
+    
     /// Adjust alignment based on angle.
     private var textAlignment: Alignment {
         let cosine = cos(angle)
@@ -536,11 +594,11 @@ struct RadarAxisLabel: View {
             return .center
         }
     }
-
+    
     var body: some View {
         Text(label.capitalized)
             .font(.system(size: 10))
-            .foregroundColor(.secondary)
+            .foregroundColor(labelColor)
             .frame(width: 70)
             .position(
                 x: center.x + (radius + 30) * CGFloat(cos(angle)),
@@ -607,11 +665,17 @@ struct RadarShape: Shape {
 
 
 // MARK: - Preview
-struct MuscleRadarChartView_Previews: PreviewProvider {
-    static var previews: some View {
-        MuscleRadarChartView(period: .month)
-            .frame(height: 400)
-            .padding()
-            .environment(ExerciseViewModel(modelContext: ModelContext(try! ModelContainer(for: ExerciseEntity.self))))
-    }
+#Preview {
+    let preview = PreviewContainer.preview
+    MuscleRadarChartView(
+        period: .month,
+        currentPeriodColor: .blue,
+        previousPeriodColor: .orange,
+        currentPeriodFillColor: .blue.opacity(0.3),
+        previousPeriodFillColor: .orange.opacity(0.3)
+    )
+    .frame(height: 400)
+    .padding()
+    .environment(preview.viewModel)
+    .modelContainer(preview.container)
 }

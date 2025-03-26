@@ -5,6 +5,7 @@
 //  Created by Rishi Garg on 11/21/24.
 //
 import SwiftUI
+import UniformTypeIdentifiers
 
 // MARK: - NameSection
 // First, update the protocol to use AnyObject to ensure reference types

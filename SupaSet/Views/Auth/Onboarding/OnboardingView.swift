@@ -46,7 +46,7 @@ struct OnboardingView: View {
                 // Background
                 LinearGradient(
                     gradient: Gradient(colors: [
-                        .primarySecond,
+                        .primaryThemeColorTwo,
                         .secondaryTheme,
                         .secondaryTheme.adjusted(by: 62.5)
                     ]),

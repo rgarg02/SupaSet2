@@ -21,7 +21,7 @@ struct ExerciseCardView: View {
     
     var body: some View {
         VStack(alignment: .leading, spacing: 8) {
-            ExerciseTopControls(exercise: exercise, dragging: $dragState.isDragging)
+            ExerciseTopControls(exercise: exercise, dragging: dragState.isDragging)
                 .frame(maxWidth: .infinity)
                 .contentShape(Rectangle())
                 .gesture(dragGesture)
@@ -79,21 +79,20 @@ struct ExerciseCardView: View {
     }
     
     private var addSetButton: some View {
-        PlaceholderSetRowView(templateSet: false)
-            .onTapGesture {
-                withAnimation(.snappy(duration: 0.25)) {
-                    exercise.insertSet(
-                        reps: exercise.sortedSets.last?.reps ?? 0,
-                        weight: exercise.sortedSets.last?.weight ?? 0
-                    )
-                }
-                updateActivityIfNeeded()
+        PlaceholderSetRowView(templateSet: false, action: {
+            withAnimation(.snappy(duration: 0.25)) {
+                exercise.insertSet(
+                    reps: exercise.sortedSets.last?.reps ?? 0,
+                    weight: exercise.sortedSets.last?.weight ?? 0
+                )
             }
+            updateActivityIfNeeded()
+        })
     }
     
     private var dragGesture: some Gesture {
         LongPressGesture(minimumDuration: 0.25)
-            .sequenced(before: DragGesture(minimumDistance: 0, coordinateSpace: .global))
+            .sequenced(before: DragGesture(minimumDistance: 25, coordinateSpace: .global))
             .onChanged { value in
                 switch value {
                 case .second(let status, let dragValue):

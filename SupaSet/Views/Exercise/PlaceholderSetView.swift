@@ -8,6 +8,7 @@ import SwiftUI
 
 struct PlaceholderSetRowView: View {
     let templateSet: Bool
+    let action: () -> Void
     private let columns = [
         GridItem(.fixed(40)), // Set number
         GridItem(.flexible()), // Weight
@@ -17,52 +18,41 @@ struct PlaceholderSetRowView: View {
 
     
     var body: some View {
-        LazyVGrid(columns: columns, alignment: .center) {
-            // Set Number
-            Text("+")
-                .font(.headline)
-            
-            // Weight placeholder
-            HStack(spacing: 4) {
-                Text("-")
-                    .frame(maxWidth: .infinity, alignment: .trailing)
-                Text("lbs")
-                    .font(.caption)
+        Button {
+            action()
+        } label: {
+            HStack(spacing: 8) {
+                Image(systemName: "plus.circle.fill")
+                    .font(.system(size: 16, weight: .medium))
+                
+                Text("Add Set")
+                    .font(.system(size: 16, weight: .semibold))
             }
-            
-            // Reps placeholder
-            HStack(spacing: 4) {
-                Text("-")
-                    .frame(maxWidth: .infinity, alignment: .trailing)
-                Text("reps")
-                    .font(.caption)
-            }
-                // Checkbox placeholder
-            Image(systemName: "circle")
-                .resizable()
-                .frame(width: 24, height: 24)
-                .frame(maxWidth: .infinity, alignment: .trailing)
-                .opacity(templateSet ? 0 : 1)
+            .padding(.horizontal, 16)
+            .padding(.vertical, 12)
+            .frame(maxWidth: .infinity)
+            .background(
+                .ultraThinMaterial
+            )
+            .cornerRadius(8)
+            .foregroundColor(Color.text)
         }
-        .foregroundStyle(Color.theme.textOpposite)
-        .padding(.horizontal, 16)
-        .padding(.vertical, 12)
-        .background(
-            RoundedRectangle(cornerRadius: 8)
-                .fill(Color.theme.accent)
-        )
-        .disabled(true)
-        .opacity(0.8)
     }
 }
 
 #Preview("Placeholder Set") {
     VStack(spacing: 16) {
-        PlaceholderSetRowView(templateSet: true)
-        PlaceholderSetRowView(templateSet: false)
-        PlaceholderSetRowView(templateSet: true)
-
+        PlaceholderSetRowView(templateSet: true, action: action)
+        PlaceholderSetRowView(templateSet: false, action: action)
+        VStack {
+            PlaceholderSetRowView(templateSet: true, action: action)
+            PlaceholderSetRowView(templateSet: false, action: action)
+        }
+        .colorScheme(.dark)
     }
     .padding()
 }
 
+func action() {
+    
+}

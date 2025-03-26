@@ -69,7 +69,8 @@ extension Color {
     static let themePrimary = Color("PrimaryThemeColor")            // #14110F
     static let themePrimarySecond = Color("PrimaryThemeColorTwo") // #34312D
     static let themeSecondary = Color("SecondaryThemeColor")        // #6493B3
-    static let themeAccent = Color("AccentColor")              // #0B2445
+    static let themeAccent = Color("AccentColor")
+    static let themeRed = Color("RedTheme")     // #0B2445
     
     // MARK: - Shade/Tint Generation
     

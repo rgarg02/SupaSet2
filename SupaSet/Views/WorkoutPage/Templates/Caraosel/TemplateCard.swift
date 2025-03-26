@@ -51,12 +51,9 @@ struct TemplateCard: View {
         .frame(height: 165)
         .frame(maxWidth: .infinity, alignment: .leading)
         .padding(10)
-        .primarySecondStyle(adjustPercentage: 75)
+        .background(.thickMaterial)
+        .foregroundStyle(Color.text)
         .cornerRadius(12)
-        .overlay(
-            RoundedRectangle(cornerRadius: 12)
-                .stroke(Color.themePrimarySecond, lineWidth: 2)
-            )
     }
     
     private func formattedDate(_ date: Date) -> String {
@@ -74,11 +71,11 @@ struct TemplateCard: View {
                 Text("Start Workout")
                     .fontWeight(.medium)
                     .font(.caption)
-                    .foregroundStyle(Color.secondaryTheme.bestTextColor())
+                    .foregroundStyle(Color.primaryTheme.bestTextColor())
                 Spacer()
             }
             .padding(.vertical, 4)
-            .background(Color.secondaryTheme)
+            .background(Color.primaryTheme)
             .clipShape(RoundedRectangle(cornerRadius: 8))
         }
         .buttonStyle(.plain)

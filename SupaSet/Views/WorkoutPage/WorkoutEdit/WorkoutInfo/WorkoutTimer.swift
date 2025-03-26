@@ -15,7 +15,7 @@ struct WorkoutTimer: View {
         abs(workout.date.timeIntervalSince(currentTime))
     }
     private let timer = Timer.publish(every: 1, on: .main, in: .common).autoconnect()
-
+    
     var formattedTime: String {
         let formatter = DateComponentsFormatter()
         formatter.allowedUnits = [.hour, .minute, .second]
@@ -40,14 +40,14 @@ struct WorkoutTimer: View {
                 .padding(.vertical, 2)
                 .background {
                     Capsule()
-                        .fill(.ultraThickMaterial)
+                        .fill(.thickMaterial)
                         .shadow(color: .black.opacity(0.1), radius: 2, x: 0, y: 1)
                 }
                 .contentTransition(.numericText(countsDown: true))
         }
         .onReceive(timer) { time in
-                    currentTime = time
-                }
+            currentTime = time
+        }
     }
 }
 

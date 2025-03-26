@@ -50,7 +50,7 @@ struct SupaSetApp: App {
                         authenticationViewModel.listenToAuthChanges()
                         AppContainer.shared.container = container
                         WorkoutActivityManager.shared.endAllActivities()
-                        loadAndSaveExercises(container: container)
+//                        loadAndSaveExercises(container: container)
                     }
             }
             .modelContainer(container)

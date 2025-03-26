@@ -29,13 +29,13 @@ enum SetType: String, Codable {
     var color: Color {
         switch self {
         case .failure:
-            return Color(UITraitCollection.current.userInterfaceStyle == .dark ? #colorLiteral(red: 1, green: 0.231, blue: 0.188, alpha: 1) : #colorLiteral(red: 0.718, green: 0.11, blue: 0.11, alpha: 1))  // #FF3B30 : #B71C1C
+            return .redTheme  // #FF3B30 : #B71C1C
         case .working:
-            return Color(UITraitCollection.current.userInterfaceStyle == .dark ? #colorLiteral(red: 0.204, green: 0.78, blue: 0.349, alpha: 1) : #colorLiteral(red: 0.18, green: 0.49, blue: 0.196, alpha: 1))  // #34C759 : #2E7D32
+            return .text  // #34C759 : #2E7D32
         case .warmup:
-            return Color(UITraitCollection.current.userInterfaceStyle == .dark ? #colorLiteral(red: 1, green: 0.584, blue: 0, alpha: 1) : #colorLiteral(red: 0.902, green: 0.318, blue: 0, alpha: 1))  // #FF9500 : #E65100
+            return .accent  // #FF9500 : #E65100
         case .drop:
-            return Color(UITraitCollection.current.userInterfaceStyle == .dark ? #colorLiteral(red: 0.345, green: 0.337, blue: 0.839, alpha: 1) : #colorLiteral(red: 0.192, green: 0.106, blue: 0.573, alpha: 1))  // #5856D6 : #311B92
+            return .primaryTheme  // #5856D6 : #311B92
         }
     }
 }

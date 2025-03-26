@@ -77,7 +77,7 @@ struct WorkoutStatsSection: View {
                         dateDomain: chartXDomain,
                         selectedPeriod: selectedPeriod
                     )
-                    MuscleGroupChartSection(dataPoints: muscleGroupDataPoints)
+//                    MuscleGroupChartSection(dataPoints: muscleGroupDataPoints)
                     MuscleRadarChartView(period: selectedPeriod)
                     TopExerciseSection(topExercisesList: topExercisesList)
                     CalendarHeatmap(workouts: workouts, selectedPeriod: selectedPeriod)

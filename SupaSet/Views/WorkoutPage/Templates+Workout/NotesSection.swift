@@ -34,7 +34,7 @@ struct NotesSection<T: Nameable>: View {
                         .allowsHitTesting(false)
                 }
             }
-            .background(Color.theme.primarySecond)
+            .background(Color.background)
             .cornerRadius(8)
         }
         .toolbar {

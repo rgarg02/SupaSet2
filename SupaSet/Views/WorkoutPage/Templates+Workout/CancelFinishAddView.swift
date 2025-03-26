@@ -20,8 +20,14 @@ struct CancelFinishAddView<T: Nameable>: View {
     var body: some View {
         ZStack {
             VStack {
-                Button {
-                    showExercisePicker = true
+                NavigationLink {
+                    Group {
+                        if let workout = item as? Workout {
+                            ExerciseListPickerView(workout: workout)
+                        } else if let template = item as? Template {
+                            ExerciseListPickerView(template: template)
+                        }
+                    }
                 } label: {
                     HStack(spacing: 8) {
                         Image(systemName: "plus")
@@ -33,15 +39,6 @@ struct CancelFinishAddView<T: Nameable>: View {
                             .foregroundColor(.theme.background)
                     }
                     .modifier(LongButtonModifier())
-                }
-                .universalOverlay(show: $showExercisePicker) {
-                    Group {
-                        if let workout = item as? Workout {
-                            ExerciseListPickerView(workout: workout, show: $showExercisePicker)
-                        } else if let template = item as? Template {
-                            ExerciseListPickerView(template: template, show: $showExercisePicker)
-                        }
-                    }
                 }
                 CancelFinishButtons
             }
@@ -58,8 +55,8 @@ struct CancelFinishAddView<T: Nameable>: View {
                 icon: "trash",
                 title: title,
                 style: .filled(
-                    background: .red,
-                    foreground: .theme.textOpposite
+                    background: .redTheme,
+                    foreground: .redTheme.bestTextColor()
                 ),
                 action: {
                     let buttons: [AlertButton] = [
@@ -80,8 +77,8 @@ struct CancelFinishAddView<T: Nameable>: View {
                 icon: "checkmark",
                 title: "\(isNew ? "Finish" : "Save") \(itemType)",
                 style: .filled(
-                    background: .theme.secondary,
-                    foreground: .theme.textOpposite
+                    background: .primaryTheme,
+                    foreground: .primaryTheme.bestTextColor()
                 ),
                 action: {
                     finish()

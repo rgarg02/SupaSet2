@@ -23,7 +23,7 @@ struct WorkoutStatsView: View {
             .padding()
         }
         .navigationTitle("Workout Stats")
-        .background(Color(.systemGroupedBackground))
+        .background(Color.background)
     }
     
     // MARK: - UI Components
@@ -48,15 +48,15 @@ struct WorkoutStatsView: View {
             VStack(spacing: 8) {
                 Image(systemName: type.icon)
                     .font(.title2)
-                    .foregroundColor(selectedStatsType == type ? .white : .primary)
+                    .foregroundColor(selectedStatsType == type ? Color.accent.bestTextColor() : .primary)
                 Text(type.rawValue)
                     .font(.subheadline)
-                    .foregroundColor(selectedStatsType == type ? .white : .primary)
+                    .foregroundColor(selectedStatsType == type ? Color.accent.bestTextColor() : .primary)
             }
             .frame(width: 100, height: 80)
             .background(
                 RoundedRectangle(cornerRadius: 12)
-                    .fill(selectedStatsType == type ? Color.blue : Color(.secondarySystemBackground))
+                    .fill(selectedStatsType == type ? Color.accent : Color(.secondarySystemBackground))
             )
         }
         .buttonStyle(PlainButtonStyle())
@@ -64,13 +64,19 @@ struct WorkoutStatsView: View {
 }
 
 // SwiftUI Preview
-struct WorkoutStatsView_Previews: PreviewProvider {
-    static var previews: some View {
-        WorkoutStatsView()
-            .modelContainer(for: [
-                SupaSetSchemaV1.Workout.self,
-                SupaSetSchemaV1.WorkoutExercise.self,
-                SupaSetSchemaV1.ExerciseSet.self
-            ])
-    }
+#Preview {
+    let preview = PreviewContainer.preview
+    WorkoutStatsView()
+        .modelContainer(preview.container)
+        .environment(preview.viewModel)
+        .onAppear {
+            Task {
+                try await preview.viewModel.loadExercises()
+                print("preview : \(preview.viewModel.exercises.count)")
+                let workouts = try PreviewContainer.createCompletedWorkouts(using: preview.container.mainContext, exercises: preview.viewModel.exercises)
+                for workout in workouts {
+                    preview.container.mainContext.insert(workout)
+                }
+            }
+        }
 }

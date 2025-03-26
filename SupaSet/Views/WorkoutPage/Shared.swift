@@ -169,15 +169,11 @@ struct DraggableScrollContainer<Content: View, Item: ExerciseItem>: View {
         VStack{
             ZStack(alignment: .topLeading) {
                 ScrollView {
-                    LazyVStack(spacing: 0) {
-                        content()
-                    }
-                    .padding(.bottom, items.last.flatMap { (dragState.itemFrames[$0.id]?.height ?? 0)/2 } ?? 0)
+                    content()
+                        .padding(.bottom, items.last.flatMap { (dragState.itemFrames[$0.id]?.height ?? 0)/2 } ?? 0)
                 }
                 .scrollIndicators(.hidden)
                 .scrollPosition($dragState.scrollPosition)
-                .contentMargins(.vertical, 30, for: .scrollContent)
-                .scrollTargetBehavior(.viewAligned)
                 .onScrollGeometryChange(for: CGFloat.self, of: {
                     $0.contentOffset.y + $0.contentInsets.top
                 }, action: { _, newValue in

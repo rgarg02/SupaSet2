@@ -26,71 +26,81 @@ struct ContentView: View {
     }
     
     var body: some View {
-        ZStack {
-            Color.background
-            TabView {
-                WorkoutPageView()
-                    .tabItem({
-                        Image(systemName: "dumbbell")
-                        Text("Workout")
-                    })
-                    .padding(.bottom, 55)
-                WorkoutHistoryView()
-                    .tabItem {
-                        Image(systemName: "calendar")
-                        Text("History")
+        NavigationStack {
+            ZStack {
+                Color.background
+                TabView {
+                    WorkoutPageView()
+                        .tabItem({
+                            Image(systemName: "dumbbell")
+                            Text("Workout")
+                        })
+                        .safeAreaPadding(.bottom, 55)
+                    WorkoutHistoryView()
+                        .tabItem {
+                            Image(systemName: "calendar")
+                            Text("History")
+                        }
+                        .safeAreaPadding(.bottom, 55)
+                    ProfilePageView()
+                        .tabItem {
+                            Image(systemName: "person")
+                            Text("Profile")
+                        }
+                        .safeAreaPadding(.bottom, 55)
+                }
+                .overlay(alignment: .bottom, content: {
+                    if showWorkoutOverlay {
+                        if let workout = currentWorkout {
+                            NavigationStack {
+                                ExpandableWorkout(show: $showWorkoutOverlay, workout: workout)
+                            }
+                            .background(.clear)
+                        }
                     }
-                    .padding(.bottom, 55)
-                ProfilePageView()
-                    .tabItem {
-                        Image(systemName: "person")
-                        Text("Profile")
+                    if showFAB {
+                        NewWorkoutFAB(
+                            currentWorkout: $currentWorkout
+                        )
+                        .background(.clear)
                     }
-                    .padding(.bottom, 55)
-            }
-            .overlay(alignment: .bottom, content: {
-                if showWorkoutOverlay {
-                    if let workout = currentWorkout {
-                        ExpandableWorkout(show: $showWorkoutOverlay, workout: workout)
+                })
+                .onChange(of: ongoingWorkout) { oldValue, newValue in
+                    if newValue.isEmpty {
+                        // No active workout
+                        showWorkoutOverlay = false
+                        currentWorkout = nil
+                        showFAB = true
+                    } else {
+                        // Has active workout
+                        showWorkoutOverlay = true
+                        showFAB = false
+                        currentWorkout = newValue.first
                     }
                 }
-                if showFAB {
-                    NewWorkoutFAB(
-                        currentWorkout: $currentWorkout
-                    )
-                }
-            })
-            .onChange(of: ongoingWorkout) { oldValue, newValue in
-                if newValue.isEmpty {
-                    // No active workout
-                    showWorkoutOverlay = false
-                    currentWorkout = nil
-                    showFAB = true
-                } else {
-                    // Has active workout
-                    showWorkoutOverlay = true
-                    showFAB = false
-                    currentWorkout = newValue.first
-                }
-            }
-            .onAppear {
-                
-                // Initial state setup
-                if !ongoingWorkout.isEmpty {
-                    showWorkoutOverlay = true
-                    showFAB = false
-                    currentWorkout = ongoingWorkout.first
-                } else {
-                    showWorkoutOverlay = false
-                    showFAB = true
-                    currentWorkout = nil
+                .onAppear {
+                    
+                    // Initial state setup
+                    if !ongoingWorkout.isEmpty {
+                        showWorkoutOverlay = true
+                        showFAB = false
+                        currentWorkout = ongoingWorkout.first
+                    } else {
+                        showWorkoutOverlay = false
+                        showFAB = true
+                        currentWorkout = nil
+                    }
                 }
             }
         }
     }
 }
-//#Preview {
-//    let previewContainer = PreviewContainer.preview
-//    ContentView()
-//        .modelContainer(previewContainer.container)
-//}
+#Preview {
+    let previewContainer = PreviewContainer.preview
+    RootViewWrapper {
+        ContentView()
+    }
+    .modelContainer(previewContainer.container)
+    .environment(previewContainer.viewModel)
+    .environment(previewContainer.authViewModel)
+}

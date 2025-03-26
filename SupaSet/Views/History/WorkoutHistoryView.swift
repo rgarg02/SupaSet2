@@ -7,20 +7,22 @@ struct WorkoutHistoryView: View {
     
     var body: some View {
         NavigationStack {
-            ScrollView {
-                LazyVStack(spacing: 16) {
-                    // Stats Card
-                    workoutStatsCard
-                    
-                    // Workout History List
-                    ForEach(workouts) { workout in
-                        WorkoutHistoryCard(workout: workout)
+            VStack{
+                CustomNavBarTitle(title: "History")
+                ScrollView {
+                    LazyVStack(spacing: 16) {
+                        // Stats Card
+                        workoutStatsCard
+                        
+                        // Workout History List
+                        ForEach(workouts) { workout in
+                            WorkoutHistoryCard(workout: workout)
+                        }
                     }
+                    .padding()
                 }
-                .padding()
             }
             .background(Color.theme.background)
-            .customNavBarTitle("History")
         }
     }
     // Stats Card View

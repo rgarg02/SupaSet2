@@ -5,11 +5,12 @@
 //  Created by Rishi Garg on 11/6/24.
 //
 import SwiftUI
-import SwiftData
+
 struct ExerciseListPickerView: View {
     @Environment(ExerciseViewModel.self) var viewModel
     @Environment(\.modelContext) var modelContext
     @Environment(\.dismiss) private var dismiss
+    
     enum Mode {
         case add(workout: Workout)
         case replace(workoutExercise: WorkoutExercise)
@@ -26,30 +27,24 @@ struct ExerciseListPickerView: View {
     @State private var selectedExercises: [Exercise] = []
     @State private var selectedExercise: Exercise?
     @State private var isShowingDetail = false
-    @Binding var show: Bool
-
     // Initialize for adding exercises
-    init(workout: Workout, show: Binding<Bool>) {
+    init(workout: Workout) {
         self.mode = .add(workout: workout)
-        self._show = show
     }
     
     // Initialize for replacing an exercise
-    init(workoutExercise: WorkoutExercise, show: Binding<Bool>) {
+    init(workoutExercise: WorkoutExercise) {
         self.mode = .replace(workoutExercise: workoutExercise)
-        self._show = show
     }
     
     // Initialize for adding a template
-    init(template: Template, show: Binding<Bool>) {
+    init(template: Template) {
         self.mode = .addToTemplate(template: template)
-        self._show = show
     }
     
     // Initialize for replacing a template exercise
-    init(templateExercise: TemplateExercise, show: Binding<Bool>) {
+    init(templateExercise: TemplateExercise) {
         self.mode = .replaceTemplateExercise(templateExercise: templateExercise)
-        self._show = show
     }
     
     private var isReplacing: Bool {
@@ -64,6 +59,7 @@ struct ExerciseListPickerView: View {
             return true
         }
     }
+    
     var filteredExercises: [Exercise] {
         let searchTokens = searchText.lowercased().split(separator: " ").map(String.init)
         
@@ -100,52 +96,9 @@ struct ExerciseListPickerView: View {
 
     
     var body: some View {
-        GeometryReader { geometry in
-            ZStack {
-                // Blur background
-                Rectangle()
-                    .fill(.ultraThinMaterial.opacity(0.7))
-                    .ignoresSafeArea()
-                    .onTapGesture {
-                        withAnimation(.smooth(duration: 0.25)) {
-                            show = false
-                        }
-                    }
-                
-                VStack(spacing: 0) {
-                    // Custom Navigation Bar
-                    HStack {
-                        Button(action: {
-                            withAnimation(.smooth(duration: 0.25)) {
-                                show = false
-                            }
-                        }) {
-                            Image(systemName: "xmark")
-                                .foregroundColor(.primary)
-                                .padding()
-                        }
-                        
-                        Spacer()
-                    
-                        
-                        if !selectedExercises.isEmpty {
-                            Button(action: {
-                                handleAction()
-                                show = false
-                            }) {
-                                Text(isReplacing ? "Replace" : "Add (\(selectedExercises.count))")
-                                    .foregroundColor(.theme.accent)
-                                    .padding()
-                            }
-                        }
-                    }
-                    .overlay(alignment: .center, content: {
-                        Text(isReplacing ? "Replace Exercise" : "Add Exercises")
-                            .font(.headline)
-                    })
-                    .background(Color.theme.background)
-                    
-                    // Filter Section
+        VStack(spacing: 0) {
+            NavigationView {
+                VStack {
                     ScrollView(.horizontal, showsIndicators: false) {
                         HStack(spacing: 8) {
                             CustomFilterPicker(
@@ -165,7 +118,6 @@ struct ExerciseListPickerView: View {
                                 selection: $selectedEquipment,
                                 options: Array(Equipment.allCases)
                             )
-                            
                             CustomFilterPicker(
                                 title: "Level",
                                 selection: $selectedLevel,
@@ -174,13 +126,12 @@ struct ExerciseListPickerView: View {
                         }
                         .padding()
                     }
-                    .background(Color.theme.background)
+                    .background(Color(.systemBackground))
                     .overlay(
                         Divider(),
                         alignment: .bottom
                     )
                     
-                    // Exercise List
                     List {
                         ForEach(filteredExercises) { exercise in
                             ExerciseRowView(exercise: exercise, selectedExercise: $selectedExercise, isShowingDetail: $isShowingDetail)
@@ -190,9 +141,9 @@ struct ExerciseListPickerView: View {
                                     bottom: 4,
                                     trailing: 16
                                 ))
+                                .foregroundStyle(selectedExercises.contains(exercise) ? Color.theme.secondary.bestTextColor() : Color.theme.background.bestTextColor())
                                 .listRowSeparator(.hidden)
-                                .background(selectedExercises.contains(exercise) ? Color.themePrimarySecond : Color.theme.background)
-                                .foregroundStyle(selectedExercises.contains(exercise) ? Color.themePrimarySecond.bestTextColor() : Color.theme.background.bestTextColor())
+                                .background(selectedExercises.contains(exercise) ? Color.theme.secondary : Color.theme.background)
                                 .contentShape(Rectangle())
                                 .onTapGesture {
                                     handleExerciseSelection(exercise)
@@ -200,15 +151,29 @@ struct ExerciseListPickerView: View {
                         }
                     }
                     .listStyle(.plain)
-                    .searchable(text: $searchText, prompt: "Search exercises")
+                    .navigationDestination(
+                                isPresented: $isShowingDetail,
+                                destination: {
+                                    if let exercise = selectedExercise {
+                                        ExerciseDetailView(exercise: exercise)
+                                    }
+                                }
+                            )
                 }
-                .frame(
-                    width: geometry.size.width * 0.9,
-                    height: geometry.size.height * 0.8
-                )
-                .background(Color.theme.background)
-                .clipShape(RoundedRectangle(cornerRadius: 12))
-                .shadow(radius: 10)
+                .searchable(text: $searchText, prompt: "Search exercises")
+            }
+        }
+        .navigationTitle(isReplacing ? "Replace Exercise" : "Add Exercises")
+        .navigationBarTitleDisplayMode(.inline)
+        .toolbar {
+            if !selectedExercises.isEmpty {
+                ToolbarItem(placement: .navigationBarTrailing) {
+                    Button(isReplacing ? "Replace" : "Add (\(selectedExercises.count))") {
+                        handleAction()
+                        dismiss()
+                    }
+                    .foregroundColor(.theme.accent)
+                }
             }
         }
     }
@@ -259,13 +224,13 @@ struct ExerciseListPickerView: View {
 
 #Preview("Exercise List Picker") {
     let preview = PreviewContainer.preview
-    ExerciseListPickerView(workout: preview.workout, show: .constant(true))
+    ExerciseListPickerView(workout: preview.workout)
         .environment(preview.viewModel)
         .modelContainer(preview.container)
 }
 #Preview("Exercise List Picker - Replace Mode") {
     let preview = PreviewContainer.preview
-    ExerciseListPickerView(workoutExercise: preview.workout.sortedExercises[0], show: .constant(true))
+    ExerciseListPickerView(workoutExercise: preview.workout.sortedExercises[0])
         .environment(preview.viewModel)
         .modelContainer(preview.container)
 }

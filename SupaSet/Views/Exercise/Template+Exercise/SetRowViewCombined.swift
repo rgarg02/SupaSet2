@@ -77,13 +77,13 @@ struct SetRowViewCombined: View {
                         .resizable()
                         .contentTransition(.symbolEffect(.replace, options: .speed(1.5)))
                         .frame(width: 24, height: 24)
-                        .foregroundColor(isDone ? .theme.secondarySecond : .gray)
+                        .foregroundColor(isDone ? .primaryThemeColorTwo.tint(50) : .gray)
                 }
                 .frame(maxWidth: .infinity, alignment: .trailing)
             }
             
         }
-        .foregroundStyle(isDone ? Color.theme.textOpposite : Color.theme.text)
+        .foregroundStyle(isDone ? Color.primaryThemeColorTwo.shade(25).bestTextColor() : Color.text)
         .padding(.horizontal, 16)
         .padding(.vertical, 12)
         .toolbar {
@@ -98,7 +98,7 @@ struct SetRowViewCombined: View {
         }
         .background(
             RoundedRectangle(cornerRadius: 8)
-                .fill(isDone ? Color.theme.secondary : Color.theme.background)
+                .fill(isDone ? Color.primaryThemeColorTwo : Color.background)
                 .shadow(
                     color: Color.black.opacity(0.05),
                     radius: 2,
@@ -108,7 +108,7 @@ struct SetRowViewCombined: View {
         )
         .overlay(
             RoundedRectangle(cornerRadius: 8)
-                .stroke(isDone ? Color.theme.accent : typeColor, lineWidth: 1)
+                .stroke(isDone ? Color.primaryThemeColorTwo.shade(25) : Color.gray , lineWidth: 2)
         )
     }
     
@@ -127,16 +127,35 @@ struct SetRowViewCombined: View {
 }
 
 #Preview {
+    @Previewable @State var weight: Double = 100
+    @Previewable @State var reps: Int = 10
+    @Previewable @State var isDone: Bool = false
+    @Previewable @State var type: SetType = .working
     VStack{
-        SetColumnNamesView(exerciseID: "Exercise", isTemplate: false)
-        SetRowViewCombined(
-            order: 0,
-            isTemplate: false,
-            weight: .constant(999),
-            reps: .constant(99),
-            isDone: .constant(false),
-            type: .constant(.working)
-        )
+        VStack{
+            SetColumnNamesView(exerciseID: "Exercise", isTemplate: false)
+            SetRowViewCombined(
+                order: 0,
+                isTemplate: false,
+                weight: $weight,
+                reps: $reps,
+                isDone: $isDone,
+                type: $type
+            )
+        }
+        VStack{
+            SetColumnNamesView(exerciseID: "Exercise", isTemplate: false)
+            SetRowViewCombined(
+                order: 0,
+                isTemplate: false,
+                weight: $weight,
+                reps: $reps,
+                isDone: $isDone,
+                type: $type
+            )
+        }
+        .colorScheme(.dark)
     }
+    .padding()
     .modelContainer(PreviewContainer.preview.container)
 }

@@ -133,7 +133,24 @@ class ExerciseViewModel {
     func exercises(forEquipment equipment: Equipment) -> [Exercise] {
         exercises.filter { $0.equipment == equipment }
     }
-    
+    @MainActor
+    func loadAndSaveExercises() {
+        guard let exercises = ExerciseLoader.loadExercises() else { return }
+        let context = modelContext
+        
+        // Convert each Exercise to an ExerciseEntity and insert it into the context.
+        exercises.forEach { exercise in
+            let exerciseEntity = ExerciseEntity(from: exercise)
+            context.insert(exerciseEntity)
+        }
+        
+        do {
+            try context.save()
+            print("Exercises loaded and saved successfully.")
+        } catch {
+            print("Failed to save exercises: \(error)")
+        }
+    }
     // Load data
     // Load data from SwiftData
     @MainActor
@@ -147,7 +164,9 @@ class ExerciseViewModel {
             
             // Fetch all exercise entities
             let exerciseEntities = try modelContext.fetch(descriptor)
-            
+            if exerciseEntities.isEmpty {
+                loadAndSaveExercises()
+            }
             // Map to Exercise structs
             self.exercises = exerciseEntities.map { entity -> Exercise in
                 // Convert primary muscles

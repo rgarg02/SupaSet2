@@ -34,8 +34,6 @@ struct ExerciseNotesView: View {
                     }
             }
         }
-        .background(Color.theme.primarySecond)
-        .cornerRadius(8)
         .toolbar {
             if focused{
                 ToolbarItemGroup(placement: .keyboard) {

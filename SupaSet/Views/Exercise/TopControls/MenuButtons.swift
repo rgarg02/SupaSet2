@@ -11,7 +11,6 @@ struct MenuButtons: View {
     @Binding var deleteExercise: Bool
     let exerciseID: String
     @Query private var exerciseDetails: [ExerciseDetail]
-    @Environment(\.isChildPresenting) private var isChildPresenting
     init(exerciseID: String, changeExercise: Binding<Bool>, deleteExercise: Binding<Bool>) {
         self.exerciseID = exerciseID
         self._changeExercise = changeExercise
@@ -22,16 +21,11 @@ struct MenuButtons: View {
     }
     @Environment(\.alertController) private var alertController
     @Environment(ExerciseViewModel.self) private var viewModel
-    @Environment(\.dismiss) private var dismiss
-    
     var body: some View {
         VStack {
             Button{
-                dismiss()
-                DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
-                    withAnimation(.easeInOut(duration: 0.3)) {
-                        changeExercise = true
-                    }
+                withAnimation(.easeInOut(duration: 0.3)) {  // Added specific duration
+                    changeExercise = true
                 }
             } label: {
                 HStack{
@@ -45,9 +39,6 @@ struct MenuButtons: View {
             if let exerciseDetail = exerciseDetails.first{
                 NavigationLink{
                     ChangeUnitView(exerciseDetail: exerciseDetail)
-                        .onAppear{
-                            isChildPresenting.wrappedValue = true
-                        }
                 }label: {
                     HStack{
                         Image(systemName: "scalemass")
@@ -60,9 +51,6 @@ struct MenuButtons: View {
                 .padding(.vertical, 5)
                 NavigationLink {
                     RestTimerView(exerciseDetail: exerciseDetail)
-                        .onAppear{
-                            isChildPresenting.wrappedValue = true
-                        }
                 } label: {
                     HStack{
                         Image(systemName: "timer")
@@ -82,7 +70,7 @@ struct MenuButtons: View {
             } label: {
                 HStack{
                     Image(systemName: "trash")
-                        .foregroundColor(.red)
+                        .foregroundColor(.redTheme)
                     Text("Delete Exercise")
                         .bold()
                     Spacer()

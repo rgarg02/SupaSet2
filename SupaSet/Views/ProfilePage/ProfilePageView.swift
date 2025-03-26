@@ -11,14 +11,17 @@ struct ProfilePageView: View {
     
     var body: some View {
         NavigationStack {
-            ScrollView {
-                VStack(spacing: 24) {
-                    profileHeader
-                    statsSection
-                    menuSection
-                    signOutButton
+            VStack {
+                CustomNavBarTitle(title: "Profile")
+                ScrollView {
+                    VStack(spacing: 24) {
+                        profileHeader
+                        statsSection
+                        menuSection
+                        signOutButton
+                    }
+                    .padding()
                 }
-                .padding()
             }
             .toolbar {
                 ToolbarItem(placement: .topBarTrailing) {
@@ -30,7 +33,6 @@ struct ProfilePageView: View {
                     }
                 }
             }
-            .customNavBarTitle("Profile")
             .background(Color.background)
         }
         .sheet(isPresented: $showSettingsSheet) {

@@ -8,6 +8,7 @@ struct PreviewContainer {
     let template: Template
     let completedWorkouts: [Workout]
     let viewModel: ExerciseViewModel
+    let authViewModel: AuthenticationViewModel
     
     // Make the initializer support concurrency
     init() async throws {
@@ -37,12 +38,13 @@ struct PreviewContainer {
         viewModel = ExerciseViewModel(modelContext: container.mainContext)
         try await viewModel.loadExercises()
         
+        authViewModel = AuthenticationViewModel()
         
         // Create sample active workout
-        workout = Workout(name: "Preview Workout", isFinished: false)
+        workout = Workout(name: "Today's Workout", isFinished: false)
         container.mainContext.insert(workout)
         
-        template = Template(name: "Preview Template", order: 0)
+        template = Template(name: "Full Body Routine", order: 0)
         container.mainContext.insert(template)
         
         // Add exercises to template
@@ -53,7 +55,8 @@ struct PreviewContainer {
             
             // Create additional templates
             for index in 0..<5 {
-                let randomTemplate = Template(name: "Template \(index)", order: index)
+                let templateNames = ["Push Day", "Pull Day", "Leg Day", "Upper Body", "Lower Body"]
+                let randomTemplate = Template(name: templateNames[index % templateNames.count], order: index)
                 container.mainContext.insert(randomTemplate)
                 
                 for _ in 0..<6 {
@@ -61,13 +64,35 @@ struct PreviewContainer {
                 }
             }
             
-            // Add exercises to workout
+            // Add exercises to current workout
             workout.insertExercise(viewModel.exercises.randomElement()!.id)
             workout.insertExercise(viewModel.exercises.randomElement()!.id)
+            
+            // Add some sets to the current workout's exercises
+            if let firstExercise = workout.exercises.first {
+                firstExercise.sets = [
+                    ExerciseSet(reps: 10, weight: 135, type: .warmup, order: 0),
+                    ExerciseSet(reps: 8, weight: 155, type: .working, order: 1),
+                    ExerciseSet(reps: 8, weight: 155, type: .working, order: 2),
+                    ExerciseSet(reps: 6, weight: 175, type: .working, rpe: 8, order: 3)
+                ]
+                
+                // Mark first set as completed
+                firstExercise.sets[0].isDone = true
+            }
+            
+            if workout.exercises.count > 1 {
+                let secondExercise = workout.exercises[1]
+                secondExercise.sets = [
+                    ExerciseSet(reps: 12, weight: 50, type: .warmup, order: 0),
+                    ExerciseSet(reps: 10, weight: 60, type: .working, order: 1),
+                    ExerciseSet(reps: 10, weight: 60, type: .working, rpe: 7, order: 2)
+                ]
+            }
         }
         
         // Create completed workouts
-        completedWorkouts = try await PreviewContainer.createCompletedWorkouts(
+        completedWorkouts = try PreviewContainer.createCompletedWorkouts(
             using: container.mainContext,
             exercises: viewModel.exercises
         )
@@ -76,7 +101,6 @@ struct PreviewContainer {
     // Static helper for previews - now needs to be async
     static var preview: PreviewContainer {
         // Since we can't use async in this property, we'll create a basic version
-        // that doesn't rely on loadExercises
         do {
             let schema = Schema([
                 Workout.self,
@@ -100,37 +124,15 @@ struct PreviewContainer {
             
             // Create a basic view model
             let viewModel = ExerciseViewModel(modelContext: container.mainContext)
-            
-            // Add some sample exercises to the database directly
-            let exercises = createFallbackExercises()
-            let exerciseEntities = exercises.map { createExerciseEntity(from: $0) }
-            for entity in exerciseEntities {
-                container.mainContext.insert(entity)
-            }
+            let authViewModel = AuthenticationViewModel()
             
             // Create a basic workout
-            let workout = Workout(name: "Preview Workout", isFinished: false)
+            let workout = Workout(name: "Today's Workout", isFinished: false)
             container.mainContext.insert(workout)
             
-            // Add a couple exercises
-            if !exercises.isEmpty {
-                workout.insertExercise(exercises[0].id)
-                if exercises.count > 1 {
-                    workout.insertExercise(exercises[1].id)
-                }
-            }
-            
             // Create a template
-            let template = Template(name: "Preview Template", order: 0)
+            let template = Template(name: "Full Body Routine", order: 0)
             container.mainContext.insert(template)
-            
-            // Add exercises to template
-            if !exercises.isEmpty {
-                template.insertExercise(exercises[0].id)
-                if exercises.count > 1 {
-                    template.insertExercise(exercises[1].id)
-                }
-            }
             
             // Create a simple completed workout
             let completedWorkout = Workout(
@@ -140,14 +142,18 @@ struct PreviewContainer {
                 isFinished: true
             )
             container.mainContext.insert(completedWorkout)
-            
+            let samples = try createCompletedWorkouts(using: container.mainContext, exercises: viewModel.exercises)
+            for sample in samples {
+                container.mainContext.insert(sample)
+            }
             // Return a simplified preview container
             return PreviewContainer(
                 container: container,
                 workout: workout,
                 template: template,
                 completedWorkouts: [completedWorkout],
-                viewModel: viewModel
+                viewModel: viewModel,
+                authViewModel: authViewModel
             )
             
         } catch {
@@ -161,60 +167,140 @@ struct PreviewContainer {
         workout: Workout,
         template: Template,
         completedWorkouts: [Workout],
-        viewModel: ExerciseViewModel
+        viewModel: ExerciseViewModel,
+        authViewModel: AuthenticationViewModel
     ) {
         self.container = container
         self.workout = workout
         self.template = template
         self.completedWorkouts = completedWorkouts
         self.viewModel = viewModel
+        self.authViewModel = authViewModel
     }
     
     // Helper to create sample completed workouts
-    private static func createCompletedWorkouts(
+    static func createCompletedWorkouts(
         using context: ModelContext,
         exercises: [Exercise]
-    ) async throws -> [Workout] {
+    ) throws -> [Workout] {
         guard !exercises.isEmpty else { return [] }
         
         // Helper to get random exercises
-        func getRandomExercises() -> [Exercise] {
-            let count = Int.random(in: 2...4)
-            return Array(exercises.shuffled().prefix(count))
+        func getRandomExercises(category: Category, count: Int) -> [Exercise] {
+            return Array(exercises.filter { $0.category == category }.shuffled().prefix(count))
         }
         
-        // Create several completed workouts over the past month
+        // Get different types of exercises
+        let strengthExercises = exercises.filter { $0.category == .strength }
+        let cardioExercises = exercises.filter { $0.category == .cardio }
+        
+        // Create a workout history spanning over two months
         let workouts: [Workout] = [
             // Yesterday's workout
-            createWorkout(
+            createDetailedWorkout(
                 name: "Push Day",
                 daysAgo: 1,
-                exercises: getRandomExercises().filter { $0.category == .strength },
-                notes: "Great pump today!"
+                exercises: getRandomExercises(category: .strength, count: 4),
+                notes: "Great pump today! Felt strong on bench press."
             ),
             
-            // Last week's workout
-            createWorkout(
+            // Three days ago
+            createDetailedWorkout(
                 name: "Pull Day",
-                daysAgo: 7,
-                exercises: getRandomExercises().filter { $0.category == .strength },
-                notes: "New PR on deadlifts!"
-            ),
-            
-            // Two weeks ago
-            createWorkout(
-                name: "Leg Day",
-                daysAgo: 14,
-                exercises: getRandomExercises().filter { $0.category == .strength },
-                notes: "Focused on form"
-            ),
-            
-            // Cardio session
-            createWorkout(
-                name: "Cardio",
                 daysAgo: 3,
-                exercises: exercises.filter { $0.category == .cardio }.prefix(2).map { $0 },
-                notes: "Good endurance work"
+                exercises: strengthExercises.filter { $0.force == .pull }.prefix(4).map { $0 },
+                notes: "New PR on deadlifts! Back felt great."
+            ),
+            
+            // Five days ago
+            createDetailedWorkout(
+                name: "Leg Day",
+                daysAgo: 5,
+                exercises: strengthExercises.filter {
+                    $0.primaryMuscles.contains(.quadriceps) ||
+                    $0.primaryMuscles.contains(.hamstrings) ||
+                    $0.primaryMuscles.contains(.glutes)
+                }.prefix(4).map { $0 },
+                notes: "Focused on form, especially during squats."
+            ),
+            
+            // Cardio session last week
+            createDetailedWorkout(
+                name: "Cardio",
+                daysAgo: 7,
+                exercises: cardioExercises.prefix(2).map { $0 },
+                notes: "Good endurance work. Kept heart rate around 140-150 BPM."
+            ),
+            
+            // Last week's push workout
+            createDetailedWorkout(
+                name: "Push Day",
+                daysAgo: 8,
+                exercises: strengthExercises.filter { $0.force == .push }.prefix(4).map { $0 },
+                notes: "Shoulder felt a bit tight, took it easier on overhead press."
+            ),
+            
+            // Last week's pull workout
+            createDetailedWorkout(
+                name: "Pull Day",
+                daysAgo: 10,
+                exercises: strengthExercises.filter { $0.force == .pull }.prefix(4).map { $0 },
+                notes: "Focused on lat activation during pulldowns."
+            ),
+            
+            // Two weeks ago leg day
+            createDetailedWorkout(
+                name: "Leg Day",
+                daysAgo: 12,
+                exercises: strengthExercises.filter {
+                    $0.primaryMuscles.contains(.quadriceps) ||
+                    $0.primaryMuscles.contains(.hamstrings) ||
+                    $0.primaryMuscles.contains(.glutes)
+                }.prefix(4).map { $0 },
+                notes: "Good session overall. Added extra glute isolation work."
+            ),
+            
+            // Two weeks ago cardio
+            createDetailedWorkout(
+                name: "Cardio",
+                daysAgo: 14,
+                exercises: cardioExercises.prefix(2).map { $0 },
+                notes: "HIIT session - 30 seconds on, 30 seconds off for 20 minutes."
+            ),
+            
+            // Three weeks ago
+            createDetailedWorkout(
+                name: "Full Body",
+                daysAgo: 17,
+                exercises: Array(strengthExercises.shuffled().prefix(6)),
+                notes: "First session back after a short break. Keeping weights moderate."
+            ),
+            
+            // One month ago
+            createDetailedWorkout(
+                name: "Upper Body",
+                daysAgo: 30,
+                exercises: strengthExercises.filter {
+                    $0.primaryMuscles.contains(.chest) ||
+                    $0.primaryMuscles.contains(.middleBack) ||
+                    $0.primaryMuscles.contains(.shoulders) ||
+                    $0.primaryMuscles.contains(.triceps) ||
+                    $0.primaryMuscles.contains(.biceps)
+                }.prefix(5).map { $0 },
+                notes: "Good session. Tried new cable fly variation."
+            ),
+            
+            // Six weeks ago
+            createDetailedWorkout(
+                name: "Lower Body",
+                daysAgo: 42,
+                exercises: strengthExercises.filter {
+                    $0.primaryMuscles.contains(.quadriceps) ||
+                    $0.primaryMuscles.contains(.hamstrings) ||
+                    $0.primaryMuscles.contains(.glutes) ||
+                    $0.primaryMuscles.contains(.calves)
+                }.prefix(5).map { $0 },
+                notes: "Focusing on mind-muscle connection with lighter weights."
             )
         ]
         
@@ -224,7 +310,8 @@ struct PreviewContainer {
         return workouts
     }
     
-    private static func createWorkout(
+    // Enhanced version with more realistic workout data
+    private static func createDetailedWorkout(
         name: String,
         daysAgo: Int,
         exercises: [Exercise],
@@ -236,10 +323,24 @@ struct PreviewContainer {
             to: Date()
         ) ?? Date()
         
+        // Add some time-of-day variation (morning, afternoon, evening workouts)
+        let hourOffsets = [7, 12, 17] // 7am, 12pm, 5pm
+        let selectedHour = hourOffsets.randomElement() ?? 17
+        
+        let startDateWithTime = Calendar.current.date(
+            bySettingHour: selectedHour,
+            minute: Int.random(in: 0...30),
+            second: 0,
+            of: startDate
+        ) ?? startDate
+        
+        let workoutDuration = Double.random(in: 3600...7200) // 1-2 hours
+        let endTime = startDateWithTime.addingTimeInterval(workoutDuration)
+        
         let workout = Workout(
             name: name,
-            date: startDate,
-            endTime: startDate.addingTimeInterval(3600),
+            date: startDateWithTime,
+            endTime: endTime,
             isFinished: true,
             notes: notes
         )
@@ -249,36 +350,129 @@ struct PreviewContainer {
             let workoutExercise = WorkoutExercise(
                 exerciseID: exercise.id,
                 order: index,
-                notes: exercise.category == .cardio ? "Keeping heart rate steady" : nil
+                notes: generateExerciseNotes(for: exercise)
             )
             
             if exercise.category == .cardio {
-                // Cardio-style sets
-                workoutExercise.sets = [
-                    ExerciseSet(reps: 1, weight: 0, notes: "30 mins steady state", isDone: true)
-                ]
+                // Cardio-style sets with variations
+                switch exercise.name.lowercased() {
+                case let name where name.contains("treadmill"):
+                    workoutExercise.sets = [
+                        ExerciseSet(
+                            reps: 1,
+                            weight: 0,
+                            notes: "30 mins at \(Int.random(in: 5...8)) mph",
+                            isDone: true
+                        )
+                    ]
+                case let name where name.contains("bike") || name.contains("cycling"):
+                    workoutExercise.sets = [
+                        ExerciseSet(
+                            reps: 1,
+                            weight: 0,
+                            notes: "25 mins, resistance level \(Int.random(in: 5...10))",
+                            isDone: true
+                        )
+                    ]
+                case let name where name.contains("rowing"):
+                    workoutExercise.sets = [
+                        ExerciseSet(
+                            reps: 1,
+                            weight: 0,
+                            notes: "2000m in \(Int.random(in: 7...10)) minutes",
+                            isDone: true
+                        )
+                    ]
+                default:
+                    workoutExercise.sets = [
+                        ExerciseSet(
+                            reps: 1,
+                            weight: 0,
+                            notes: "\(Int.random(in: 20...45)) mins",
+                            isDone: true
+                        )
+                    ]
+                }
             } else {
-                // Strength training sets
-                let warmupSet = ExerciseSet(
-                    reps: 10,
-                    weight: 95,
-                    type: .working,
-                    order: 0,
-                    isDone: true
-                )
+                // Create strength training pattern based on exercise type
+                var generatedSets: [ExerciseSet] = []
                 
-                let workingSets = (1...3).map { setIndex in
-                    ExerciseSet(
-                        reps: 8,
-                        weight: Double.random(in: 135...225),
-                        rpe: Int.random(in: 7...9),
-                        notes: setIndex == 3 ? "Last set, pushed hard" : nil,
-                        order: setIndex,
-                        isDone: true
+                // Determine if this is a primary or accessory exercise
+                let isPrimaryExercise = index < 2 || exercise.mechanic == .compound
+                
+                if isPrimaryExercise {
+                    // Primary compound movements (more sets, pyramiding weights)
+                    // Warm-up sets
+                    generatedSets.append(
+                        ExerciseSet(
+                            reps: Int.random(in: 10...15),
+                            weight: Double.random(in: 45...85),
+                            type: .warmup,
+                            order: 0,
+                            isDone: true
+                        )
                     )
+                    
+                    generatedSets.append(
+                        ExerciseSet(
+                            reps: Int.random(in: 8...10),
+                            weight: Double.random(in: 95...135),
+                            type: .warmup,
+                            order: 1,
+                            isDone: true
+                        )
+                    )
+                    
+                    // Working sets (heavier with lower reps)
+                    let mainWeight = Double.random(in: 150...225)
+                    
+                    for setIndex in 2...5 {
+                        // Some variation in weights for progressive overload
+                        let setWeight = mainWeight + Double(setIndex - 2) * Double.random(in: 5...15)
+                        let repsForSet = max(4, 10 - setIndex) // Decreasing reps as weight increases
+                        
+                        generatedSets.append(
+                            ExerciseSet(
+                                reps: repsForSet,
+                                weight: setWeight,
+                                type: .working, rpe: setIndex == 5 ? Int.random(in: 8...10) : Int.random(in: 7...9),
+                                notes: setIndex == 5 ? "PR attempt" : nil,
+                                order: setIndex,
+                                isDone: true
+                            )
+                        )
+                    }
+                } else {
+                    // Accessory exercises (fewer sets, more consistent weight/reps)
+                    // One warm-up
+                    generatedSets.append(
+                        ExerciseSet(
+                            reps: Int.random(in: 12...15),
+                            weight: Double.random(in: 40...70),
+                            type: .warmup,
+                            order: 0,
+                            isDone: true
+                        )
+                    )
+                    
+                    // Working sets (consistent)
+                    let accessoryWeight = Double.random(in: 70...150)
+                    let accessoryReps = Int.random(in: 10...15) // Higher rep ranges for accessories
+                    
+                    for setIndex in 1...3 {
+                        generatedSets.append(
+                            ExerciseSet(
+                                reps: accessoryReps,
+                                weight: accessoryWeight,
+                                type: .working, rpe: Int.random(in: 6...8),
+                                order: setIndex,
+                                isDone: true
+                            )
+                        )
+                    }
                 }
                 
-                workoutExercise.sets = [warmupSet] + workingSets
+                workoutExercise.sets = generatedSets
             }
             
             workout.exercises.append(workoutExercise)
@@ -287,68 +481,31 @@ struct PreviewContainer {
         return workout
     }
     
-    // Helper function to create fallback exercises for preview
-    private static func createFallbackExercises() -> [Exercise] {
-        return [
-            Exercise(
-                id: UUID().uuidString,
-                name: "Bench Press",
-                force: .push,
-                level: .intermediate,
-                mechanic: .compound,
-                equipment: .barbell,
-                primaryMuscles: [.chest],
-                secondaryMuscles: [.triceps, .shoulders],
-                instructions: ["Lie on bench", "Lower bar to chest", "Press up"],
-                category: .strength,
-                images: []
-            ),
-            Exercise(
-                id: UUID().uuidString,
-                name: "Squats",
-                force: .push,
-                level: .intermediate,
-                mechanic: .compound,
-                equipment: .barbell,
-                primaryMuscles: [.quadriceps, .glutes],
-                secondaryMuscles: [.hamstrings, .calves],
-                instructions: ["Stand with bar on shoulders", "Squat down", "Stand up"],
-                category: .strength,
-                images: []
-            ),
-            Exercise(
-                id: UUID().uuidString,
-                name: "Deadlift",
-                force: .pull,
-                level: .intermediate,
-                mechanic: .compound,
-                equipment: .barbell,
-                primaryMuscles: [.lowerBack, .glutes],
-                secondaryMuscles: [.hamstrings, .traps],
-                instructions: ["Stand with bar at feet", "Lift bar", "Lower bar"],
-                category: .strength,
-                images: []
-            ),
-            Exercise(
-                id: UUID().uuidString,
-                name: "Treadmill",
-                force: nil,
-                level: .beginner,
-                mechanic: nil,
-                equipment: .machine,
-                primaryMuscles: [.quadriceps],
-                secondaryMuscles: [.calves, .hamstrings],
-                instructions: ["Set speed", "Run at steady pace"],
-                category: .cardio,
-                images: []
-            )
-        ]
-    }
-    
-    // Helper to create exercise entity from Exercise struct
-    private static func createExerciseEntity(from exercise: Exercise) -> ExerciseEntity {
-        let entity = ExerciseEntity(from: exercise)
+    // Helper function to generate realistic exercise notes
+    private static func generateExerciseNotes(for exercise: Exercise) -> String? {
+        // Only add notes to about 30% of exercises
+        guard Bool.random(probability: 0.3) else { return nil }
         
-        return entity
+        let possibleNotes = [
+            "Focus on contraction at the top",
+            "Keep elbows tucked in",
+            "Slower on the eccentric portion",
+            "Full range of motion",
+            "Pause at the bottom",
+            "Maintain neutral spine",
+            "Squeeze at the top",
+            "Avoid locking out joints",
+            "Controlled descent",
+            "Keep core tight throughout"
+        ]
+        
+        return possibleNotes.randomElement()
+    }
+}
+
+// Helper extension for more natural random boolean generation
+extension Bool {
+    static func random(probability: Double) -> Bool {
+        return Double.random(in: 0...1) < probability
     }
 }

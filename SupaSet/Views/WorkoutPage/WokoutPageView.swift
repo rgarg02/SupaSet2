@@ -23,12 +23,9 @@ struct WorkoutPageView: View {
     
     var body: some View {
         NavigationStack {
-            ZStack {
-                VStack(alignment: .leading){
-//                    PageTitle(title: "Workouts")
-                    TemplateCarouselView()
-                }
-                .customNavBarTitle("Workouts")
+            VStack{
+                CustomNavBarTitle(title: "Workouts")
+                TemplateCarouselView()
             }
             .background(Color.background)
             .sheet(isPresented: $workoutIsFinished) {

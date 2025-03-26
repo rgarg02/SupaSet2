@@ -8,18 +8,19 @@
 import SwiftUI
 
 // Custom toolbar title view extension
-extension View {
-    func customNavBarTitle(_ title: String) -> some View {
-        toolbar {
-            ToolbarItem(placement: .principal) {
-                Text(title)
-                    .font(.largeTitle)
-                    .fontWeight(.bold)
-                    .foregroundStyle(
-                        LinearGradient(colors: [Color.primaryTheme, Color.primarySecond], startPoint: .leading, endPoint: .trailing)
-                    )
-            }
+struct CustomNavBarTitle: View {
+    let title: String
+    var body: some View {
+        
+        HStack(alignment: .center){
+            Text(title)
+                .font(.largeTitle)
+                .fontWeight(.bold)
+                .foregroundStyle(
+                    LinearGradient(colors: [Color.primaryTheme, Color.accent], startPoint: .leading, endPoint: .trailing)
+                )
         }
-        .navigationBarTitleDisplayMode(.inline)
+        .background(Color.background)
+        .frame(maxWidth: .infinity)
     }
 }

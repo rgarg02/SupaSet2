@@ -15,7 +15,7 @@ struct TemplateExerciseCard: View {
     
     var body: some View {
         VStack(alignment: .leading, spacing: 8) {
-            ExerciseTopControls(exercise: templateExercise, dragging: $dragState.isDragging)
+            ExerciseTopControls(exercise: templateExercise, dragging: dragState.isDragging)
                 .frame(maxWidth: .infinity)
                 .contentShape(Rectangle())
                 .gesture(dragGesture)
@@ -64,14 +64,13 @@ struct TemplateExerciseCard: View {
     }
     
     private var addSetButton: some View {
-        PlaceholderSetRowView(templateSet: true)
-            .onTapGesture {
-                withAnimation(.snappy(duration: 0.25)) {
-                    templateExercise.insertSet(reps: templateExercise.sortedSets.last?.reps ?? 0)
-                }
-            }
+        PlaceholderSetRowView(templateSet: true, action: addSet)
     }
-    
+    private func addSet() {
+        withAnimation(.snappy(duration: 0.25)) {
+            templateExercise.insertSet(reps: templateExercise.sortedSets.last?.reps ?? 0)
+        }
+    }
     private var dragGesture: some Gesture {
         LongPressGesture(minimumDuration: 0.25)
             .sequenced(before: DragGesture(minimumDistance: 0, coordinateSpace: .global))

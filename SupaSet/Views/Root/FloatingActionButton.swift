@@ -38,11 +38,11 @@ struct FloatingActionButton: View {
         }) {
             Image(systemName: icon)
                 .font(.system(size: 24, weight: .bold))
-                .foregroundColor(.white)
+                .foregroundColor(.text)
                 .frame(width: 60, height: 60)
-                .background(Color.theme.primarySecond)
+                .background(Color.primary)
                 .clipShape(Circle())
-                .shadow(color: Color.black.opacity(0.3), radius: 5, x: 0, y: 3)
+                .shadow(color: Color.text.opacity(0.3), radius: 5, x: 0, y: 3)
                 .scaleEffect(isPressed ? 0.9 : 1.0)
         }
     }
