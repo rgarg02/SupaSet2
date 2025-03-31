@@ -75,6 +75,7 @@ struct TopControls: View {
                     .bold()
                     .transition(.opacity)
                     .frame(maxWidth: .infinity, alignment: .center)
+                    .foregroundStyle(Color.background)
                 Spacer()
                 if !mode.isWorkout {
                     Button("Go Back") {

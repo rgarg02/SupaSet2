@@ -11,18 +11,22 @@ import SwiftUI
 struct SetRowFieldModifier: ViewModifier {
     func body(content: Content) -> some View {
         content
-            .frame(maxWidth: .infinity)
+            .frame(maxWidth: 55)  // Set minimum width to 50
             .keyboardType(.decimalPad)
             .multilineTextAlignment(.center)
-            .padding(.horizontal)
+            .padding(.horizontal, 8)
+            .padding(.vertical, 6)
+            .background(.ultraThinMaterial)  // Add background color
+            .cornerRadius(6)  // Add corner radius
             .onReceive(NotificationCenter.default.publisher(for: UITextField.textDidBeginEditingNotification)) { obj in
-                    // Click to select all the text.
-                    if let textField = obj.object as? UITextField {
-                        textField.selectAll(nil)
-                    }
+                if let textField = obj.object as? UITextField {
+                    textField.selectAll(nil)
                 }
+            }
+                        
     }
 }
+// Keep your SetRowFieldModifier as is
 
 struct SetRowViewCombined: View {
     let order: Int
@@ -32,6 +36,9 @@ struct SetRowViewCombined: View {
     @Binding var isDone: Bool
     @Binding var type: SetType
     @FocusState private var focused: Bool
+    // Add this parameter to handle moving to next row
+    var moveToNextRow: (() -> Void)?
+    
     private var columns: [GridItem] {
         if isTemplate {
             return [
@@ -48,6 +55,7 @@ struct SetRowViewCombined: View {
             ]
         }
     }
+    
     var body: some View {
         LazyVGrid(columns: columns, alignment: .center) {
             // Set Number
@@ -72,6 +80,14 @@ struct SetRowViewCombined: View {
                 // Done Checkbox
                 Button(action: {
                     isDone.toggle()
+                    
+                    // If marked as done, move to next row
+                    if isDone, let moveToNextRow = moveToNextRow {
+                        // Use a slight delay to let the animation complete
+                        DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
+                            moveToNextRow()
+                        }
+                    }
                 }) {
                     Image(systemName: isDone ? "checkmark.circle.fill" : "circle")
                         .resizable()
@@ -81,11 +97,10 @@ struct SetRowViewCombined: View {
                 }
                 .frame(maxWidth: .infinity, alignment: .trailing)
             }
-            
         }
         .foregroundStyle(isDone ? Color.primaryThemeColorTwo.shade(25).bestTextColor() : Color.text)
         .padding(.horizontal, 16)
-        .padding(.vertical, 12)
+        .padding(.vertical, 8)
         .toolbar {
             if focused{
                 ToolbarItemGroup(placement: .keyboard) {
@@ -111,51 +126,37 @@ struct SetRowViewCombined: View {
                 .stroke(isDone ? Color.primaryThemeColorTwo.shade(25) : Color.gray , lineWidth: 2)
         )
     }
-    
-    private var typeColor: Color {
-        switch type {
-        case .working:
-            return .blue.opacity(0.3)
-        case .warmup:
-            return .orange.opacity(0.3)
-        case .drop:
-            return .purple.opacity(0.3)
-        case .failure:
-            return .red.opacity(0.3)
-        }
-    }
 }
-
-#Preview {
-    @Previewable @State var weight: Double = 100
-    @Previewable @State var reps: Int = 10
-    @Previewable @State var isDone: Bool = false
-    @Previewable @State var type: SetType = .working
-    VStack{
-        VStack{
-            SetColumnNamesView(exerciseID: "Exercise", isTemplate: false)
-            SetRowViewCombined(
-                order: 0,
-                isTemplate: false,
-                weight: $weight,
-                reps: $reps,
-                isDone: $isDone,
-                type: $type
-            )
-        }
-        VStack{
-            SetColumnNamesView(exerciseID: "Exercise", isTemplate: false)
-            SetRowViewCombined(
-                order: 0,
-                isTemplate: false,
-                weight: $weight,
-                reps: $reps,
-                isDone: $isDone,
-                type: $type
-            )
-        }
-        .colorScheme(.dark)
-    }
-    .padding()
-    .modelContainer(PreviewContainer.preview.container)
-}
+//#Preview {
+//    @Previewable @State var weight: Double = 100
+//    @Previewable @State var reps: Int = 10
+//    @Previewable @State var isDone: Bool = false
+//    @Previewable @State var type: SetType = .working
+//    VStack{
+//        VStack{
+//            SetColumnNamesView(exerciseID: "Exercise", isTemplate: false)
+//            SetRowViewCombined(
+//                order: 0,
+//                isTemplate: false,
+//                weight: $weight,
+//                reps: $reps,
+//                isDone: $isDone,
+//                type: $type, focusNextRow: () -> return
+//            )
+//        }
+//        VStack{
+//            SetColumnNamesView(exerciseID: "Exercise", isTemplate: false)
+//            SetRowViewCombined(
+//                order: 0,
+//                isTemplate: false,
+//                weight: $weight,
+//                reps: $reps,
+//                isDone: $isDone,
+//                type: $type
+//            )
+//        }
+//        .colorScheme(.dark)
+//    }
+//    .padding()
+//    .modelContainer(PreviewContainer.preview.container)
+//}

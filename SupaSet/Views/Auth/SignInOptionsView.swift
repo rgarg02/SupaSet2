@@ -92,7 +92,7 @@ struct SignInButtonStyle: ViewModifier {
             .font(.headline)
             .frame(height: 55)
             .frame(maxWidth: .infinity)
-            .foregroundColor(Color.theme.textOpposite)
+            .foregroundColor(Color.background)
             .background(Color.theme.primary)
             .cornerRadius(10)
             .padding()

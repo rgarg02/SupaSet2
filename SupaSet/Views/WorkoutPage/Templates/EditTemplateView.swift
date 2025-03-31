@@ -59,8 +59,8 @@ struct EditOrCreateTemplateView: View {
         ZStack(alignment: .bottom) {
             VStack(spacing: 0) {
                 TopControls(template: editableTemplate, show: $show, isNew: isNew)
-                    .frame(height: 60)
-                    .background(Color.theme.primarySecond)
+                    .frame(height: 55)
+                    .background(Color.primaryTheme)
                 TemplateScrollView()
                     .sensoryFeedback(.impact, trigger: dragState.hapticFeedback)
             }
@@ -117,38 +117,19 @@ struct EditOrCreateTemplateView: View {
     
     @ViewBuilder
     func TemplateScrollView() -> some View {
-        DraggableScrollContainer(
-            content: {
-                LazyVStack {
-                    NameSection(item: editableTemplate)
-                    NotesSection(item: editableTemplate)
-                    
-                    ForEach(sortedExercises) { exercise in
-                        TemplateExerciseCard(templateExercise: exercise)
-                            .id(exercise.id)
-                            .opacity(dragState.selectedExercise?.id == exercise.id ? 0 : 1)
-                            .measureFrame { newFrame in
-                                dragState.itemFrames[exercise.id] = newFrame
-                                if dragState.selectedExercise?.id == exercise.id {
-                                    dragState.selectedItemFrame = newFrame
-                                }
-                            }
-                    }
-                    
-                    if !dragState.isDragging {
-                        CancelFinishAddView(
-                            item: editableTemplate,
-                            originalItem: originalTemplate,
-                            show: .constant(true),
-                            isNew: isNew,
-                            onSave: saveChanges
-                        )
-                    }
+        ScrollView {
+            LazyVStack {
+                NameSection(item: editableTemplate)
+                NotesSection(item: editableTemplate)
+                ForEach(sortedExercises) { exercise in
+                    TemplateExerciseView(templateExercise: exercise)
                 }
-                .scrollTargetLayout()
-            },
-            items: sortedExercises
-        )
+                CancelFinishAddView(item: editableTemplate, originalItem: originalTemplate, show: .constant(true), isNew: isNew, onSave: saveChanges)
+            }
+            .padding()
+        }
+        .background(.thickMaterial)
+        .scrollIndicators(.hidden)
     }
     
     // MARK: - Methods
@@ -173,34 +154,59 @@ struct EditOrCreateTemplateView: View {
         try? modelContext.save()
         dismiss()
     }
-    
-    func checkAndSwapItems(_ location: CGPoint) {
-        guard let selectedExercise = dragState.selectedExercise as? TemplateExercise else { return }
-        
-        let centeredLocation = CGPoint(
-            x: dragState.parentFrame.midX,
-            y: location.y
-        )
-        
-        let targetExercise = editableTemplate.exercises.first { exercise in
-            guard exercise.id != selectedExercise.id else { return false }
-            let frame = dragState.itemFrames[exercise.id] ?? .zero
-            return centeredLocation.y >= frame.minY && centeredLocation.y <= frame.maxY
+}
+
+// Exercise view component
+struct TemplateExerciseView: View {
+    @Environment(\.modelContext) private var modelContext
+    @Bindable var templateExercise: TemplateExercise
+    @Environment(ExerciseViewModel.self) private var viewModel
+    var body: some View {
+        VStack(alignment: .leading, spacing: 12) {
+            // Exercise header
+            ExerciseTopControls(exercise: templateExercise, dragging: false)
+            // Set header
+            VStack(spacing: 4) {
+                // Column headers
+                SetColumnNamesView(exerciseID: templateExercise.exerciseID, isTemplate: true)
+                
+                // Sets list
+                ForEach(sortedSets) { set in
+                    @Bindable var set = set
+                    let order = templateExercise.sets.lazy
+                        .filter { $0.type == .working && $0.order < set.order }
+                        .count
+                    SwipeAction(cornerRadius: 8, direction: .trailing) {
+                        SetRowViewCombined(order: order, isTemplate: true, weight: $set.weight, reps: $set.reps, isDone: .constant(false), type: $set.type)
+                    } actions: {
+                        Action(tint: .red, icon: "trash.fill") {
+                            withAnimation(.easeInOut) {
+                                // Update orders of following sets before deleting
+                                let setOrder = set.order
+                                let setsToUpdate = templateExercise.sets.filter { $0.order > setOrder }
+                                
+                                for setToUpdate in setsToUpdate {
+                                    setToUpdate.order -= 1
+                                }
+                                
+                                modelContext.delete(set)
+                            }
+                        }
+                    }
+                }
+                // Add set button
+                PlaceholderSetRowView(templateSet: false) {
+                    withAnimation(.snappy(duration: 0.25)) {
+                        let lastSet = sortedSets.last
+                        templateExercise.insertSet(reps: lastSet?.reps ?? 0)
+                    }
+                }
+            }
+            .padding(.vertical)
         }
-        
-        guard let targetExercise = targetExercise else { return }
-        
-        let currentIndex = selectedExercise.order
-        let targetIndex = targetExercise.order
-        
-        guard currentIndex != targetIndex else { return }
-        
-        dragState.hapticFeedback.toggle()
-        
-        withAnimation(.snappy(duration: 0.25, extraBounce: 0)) {
-            selectedExercise.order = targetIndex
-            targetExercise.order = currentIndex
-        }
+    }
+    private var sortedSets: [TemplateExerciseSet] {
+        templateExercise.sets.sorted(by: { $0.order < $1.order })
     }
 }
 #Preview{

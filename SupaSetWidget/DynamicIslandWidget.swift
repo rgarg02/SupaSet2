@@ -32,7 +32,7 @@ struct LiveActivityWidget: Widget {
                         HStack{
                             Button(intent: DecrementWeightIntent(workoutId: context.attributes.workoutId)) {
                                 Image(systemName: "minus")
-                                    .foregroundStyle(Color.theme.textOpposite)
+                                    .foregroundStyle(Color.background)
                                     .padding(7)
                             }
                             .frame(maxHeight: .infinity)
@@ -42,7 +42,7 @@ struct LiveActivityWidget: Widget {
                             
                             Button(intent: IncrementWeightIntent(workoutId: context.attributes.workoutId)) {
                                 Image(systemName: "plus")
-                                    .foregroundStyle(Color.theme.textOpposite)
+                                    .foregroundStyle(Color.background)
                                     .padding(7)
                             }
                             .frame(maxHeight: .infinity)
@@ -71,7 +71,7 @@ struct LiveActivityWidget: Widget {
                         HStack{
                             Button(intent: DecrementRepsIntent(workoutId: context.attributes.workoutId)) {
                                 Image(systemName: "minus")
-                                    .foregroundStyle(Color.theme.textOpposite)
+                                    .foregroundStyle(Color.background)
                                     .padding(7)
                             }
                             .frame(maxHeight: .infinity)
@@ -81,7 +81,7 @@ struct LiveActivityWidget: Widget {
                             
                             Button(intent: IncrementRepsIntent(workoutId: context.attributes.workoutId)) {
                                 Image(systemName: "plus")
-                                    .foregroundStyle(Color.theme.textOpposite)
+                                    .foregroundStyle(Color.background)
                                     .padding(7)
                                     
                             }

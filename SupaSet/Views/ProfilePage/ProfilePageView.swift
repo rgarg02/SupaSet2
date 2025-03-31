@@ -10,9 +10,9 @@ struct ProfilePageView: View {
     @State private var signOutError: Error?
     
     var body: some View {
-        NavigationStack {
+        NavigationView {
             VStack {
-                CustomNavBarTitle(title: "Profile")
+//                CustomNavBarTitle(title: "Profile")
                 ScrollView {
                     VStack(spacing: 24) {
                         profileHeader
@@ -23,14 +23,16 @@ struct ProfilePageView: View {
                     .padding()
                 }
             }
+            .navigationTitle("Profile")
+            .navigationBarTitleDisplayMode(.inline)
             .toolbar {
                 ToolbarItem(placement: .topBarTrailing) {
-                    Button {
-                        showSettingsSheet = true
-                    } label: {
-                        Image(systemName: "gear")
-                            .foregroundColor(Color("AccentColor"))
-                    }
+                        Button {
+                            showSettingsSheet = true
+                        } label: {
+                            Image(systemName: "gear")
+                                .foregroundColor(Color.accent)
+                        }
                 }
             }
             .background(Color.background)
@@ -52,7 +54,7 @@ struct ProfilePageView: View {
                 Text(String(authViewModel.getUserEmail().prefix(1)).uppercased())
                     .font(.title)
                     .fontWeight(.semibold)
-                    .foregroundColor(Color("BackgroundColorOpposite"))
+                    .foregroundColor(Color.text)
             }
             
             // User Info
@@ -162,12 +164,12 @@ struct ProfilePageView: View {
                 Image(systemName: "rectangle.portrait.and.arrow.right")
                 Text("Sign Out")
             }
-            .foregroundColor(Color("Cancel"))
+            .foregroundColor(Color.redTheme)
             .padding()
             .frame(maxWidth: .infinity)
             .background(
                 RoundedRectangle(cornerRadius: 8)
-                    .stroke(Color("Cancel").opacity(0.5), lineWidth: 1)
+                    .stroke(Color.redTheme.opacity(0.5), lineWidth: 1)
             )
         }
         .padding(.top)

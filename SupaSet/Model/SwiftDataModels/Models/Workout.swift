@@ -11,6 +11,7 @@ import SwiftData
 extension SupaSetSchemaV1 {
     @Model
     final class Workout: Hashable, Identifiable {
+        #Index<Workout>([\.date]) // Index on date for efficient querying
         private(set) var id: UUID
         var name: String
         var date: Date

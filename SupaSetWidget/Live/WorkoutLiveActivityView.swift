@@ -65,7 +65,7 @@ struct WorkoutLiveActivityView: View {
                 HStack(spacing: 2) {
                     Button(intent: DecrementWeightIntent(workoutId: context.attributes.workoutId)) {
                         Image(systemName: "minus")
-                            .foregroundStyle(Color.theme.textOpposite)
+                            .foregroundStyle(Color.background)
                             .padding(7)
                     }
                     .frame(maxHeight: .infinity)
@@ -79,7 +79,7 @@ struct WorkoutLiveActivityView: View {
                     
                     Button(intent: IncrementWeightIntent(workoutId: context.attributes.workoutId)) {
                         Image(systemName: "plus")
-                            .foregroundStyle(Color.theme.textOpposite)
+                            .foregroundStyle(Color.background)
                             .padding(7)
                     }
                     .buttonStyle(PlainButtonStyle())
@@ -91,7 +91,7 @@ struct WorkoutLiveActivityView: View {
                 HStack(spacing: 2) {
                     Button(intent: DecrementRepsIntent(workoutId: context.attributes.workoutId)) {
                         Image(systemName: "minus")
-                            .foregroundStyle(Color.theme.textOpposite)
+                            .foregroundStyle(Color.background)
                             .padding(7)
                         
                     }
@@ -106,7 +106,7 @@ struct WorkoutLiveActivityView: View {
                     
                     Button(intent: IncrementRepsIntent(workoutId: context.attributes.workoutId)) {
                         Image(systemName: "plus")
-                            .foregroundStyle(Color.theme.textOpposite)
+                            .foregroundStyle(Color.background)
                             .padding(7)
                     }
                     .buttonStyle(PlainButtonStyle())

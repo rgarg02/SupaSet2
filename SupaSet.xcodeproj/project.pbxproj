@@ -14,6 +14,7 @@
 		D9AF184F2CDEBF44001ACDDA /* SupaSetWidgetExtension.appex in Embed Foundation Extensions */ = {isa = PBXBuildFile; fileRef = D9AF18392CDEBF42001ACDDA /* SupaSetWidgetExtension.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
 		D9B75E012D3463D9005F3D3F /* FirebaseAnalytics in Frameworks */ = {isa = PBXBuildFile; productRef = D9B75E002D3463D9005F3D3F /* FirebaseAnalytics */; };
 		D9B75E032D3466A8005F3D3F /* FirebaseAuth in Frameworks */ = {isa = PBXBuildFile; productRef = D9B75E022D3466A8005F3D3F /* FirebaseAuth */; };
+		D9DA029B2D988CBD00E52941 /* Reorderable in Frameworks */ = {isa = PBXBuildFile; productRef = D9DA029A2D988CBD00E52941 /* Reorderable */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -156,6 +157,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				D9B75E012D3463D9005F3D3F /* FirebaseAnalytics in Frameworks */,
+				D9DA029B2D988CBD00E52941 /* Reorderable in Frameworks */,
 				D9B75E032D3466A8005F3D3F /* FirebaseAuth in Frameworks */,
 				D92A27692D4822610076914B /* GoogleSignIn in Frameworks */,
 				D92A276B2D4822610076914B /* GoogleSignInSwift in Frameworks */,
@@ -246,6 +248,7 @@
 				D9B75E022D3466A8005F3D3F /* FirebaseAuth */,
 				D92A27682D4822610076914B /* GoogleSignIn */,
 				D92A276A2D4822610076914B /* GoogleSignInSwift */,
+				D9DA029A2D988CBD00E52941 /* Reorderable */,
 			);
 			productName = SupaSet;
 			productReference = D9A0C1192CD9E803008F4E70 /* SupaSet.app */;
@@ -357,6 +360,7 @@
 			packageReferences = (
 				D9B75DFF2D3463D9005F3D3F /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */,
 				D92A27672D4822610076914B /* XCRemoteSwiftPackageReference "GoogleSignIn-iOS" */,
+				D9DA02992D988CBC00E52941 /* XCRemoteSwiftPackageReference "reorderable" */,
 			);
 			preferredProjectObjectVersion = 77;
 			productRefGroup = D9A0C11A2CD9E803008F4E70 /* Products */;
@@ -771,7 +775,7 @@
 				INFOPLIST_FILE = SupaSetWidget/Info.plist;
 				INFOPLIST_KEY_CFBundleDisplayName = SupaSetWidget;
 				INFOPLIST_KEY_NSHumanReadableCopyright = "";
-				IPHONEOS_DEPLOYMENT_TARGET = 17.2;
+				IPHONEOS_DEPLOYMENT_TARGET = 18.0;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
@@ -804,7 +808,7 @@
 				INFOPLIST_FILE = SupaSetWidget/Info.plist;
 				INFOPLIST_KEY_CFBundleDisplayName = SupaSetWidget;
 				INFOPLIST_KEY_NSHumanReadableCopyright = "";
-				IPHONEOS_DEPLOYMENT_TARGET = 17.2;
+				IPHONEOS_DEPLOYMENT_TARGET = 18.0;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
@@ -893,6 +897,14 @@
 				minimumVersion = 11.6.0;
 			};
 		};
+		D9DA02992D988CBC00E52941 /* XCRemoteSwiftPackageReference "reorderable" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/visfitness/reorderable";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 1.3.1;
+			};
+		};
 /* End XCRemoteSwiftPackageReference section */
 
 /* Begin XCSwiftPackageProductDependency section */
@@ -915,6 +927,11 @@
 			isa = XCSwiftPackageProductDependency;
 			package = D9B75DFF2D3463D9005F3D3F /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */;
 			productName = FirebaseAuth;
+		};
+		D9DA029A2D988CBD00E52941 /* Reorderable */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = D9DA02992D988CBC00E52941 /* XCRemoteSwiftPackageReference "reorderable" */;
+			productName = Reorderable;
 		};
 /* End XCSwiftPackageProductDependency section */
 	};

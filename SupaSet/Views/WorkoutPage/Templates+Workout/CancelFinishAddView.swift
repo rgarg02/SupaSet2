@@ -32,11 +32,11 @@ struct CancelFinishAddView<T: Nameable>: View {
                     HStack(spacing: 8) {
                         Image(systemName: "plus")
                             .font(.title3)
-                            .foregroundColor(.theme.background)
+                            .foregroundColor(Color.text)
                         
                         Text("Add Exercises")
                             .font(.headline)
-                            .foregroundColor(.theme.background)
+                            .foregroundColor(Color.text)
                     }
                     .modifier(LongButtonModifier())
                 }
@@ -96,9 +96,8 @@ struct CancelFinishAddView<T: Nameable>: View {
     
     private func finishWorkout(_ workout: Workout) {
         WorkoutActivityManager.shared.endAllActivities()
-        
         show = false
-        DispatchQueue.main.asyncAfter(deadline: .now() + 0.25) {
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.4) {
             if !workout.isFinished {
                 workout.isFinished = true
                 workout.endTime = Date()
@@ -160,13 +159,11 @@ struct CancelFinishAddView<T: Nameable>: View {
         }
     }
     private func deleteWorkout(_ workout: Workout) {
-        show = false
         // add 0.25 sec delay
-        DispatchQueue.main.asyncAfter(deadline: .now() + 0.25) {
-            withAnimation(.smooth) {
-                modelContext.delete(workout)
-                WorkoutActivityManager.shared.endAllActivities()
-            }
+        show = false
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
+            modelContext.delete(workout)
+            WorkoutActivityManager.shared.endAllActivities()
         }
     }
     

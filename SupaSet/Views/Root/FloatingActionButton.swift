@@ -40,7 +40,7 @@ struct FloatingActionButton: View {
                 .font(.system(size: 24, weight: .bold))
                 .foregroundColor(.text)
                 .frame(width: 60, height: 60)
-                .background(Color.primary)
+                .background(Color.accent)
                 .clipShape(Circle())
                 .shadow(color: Color.text.opacity(0.3), radius: 5, x: 0, y: 3)
                 .scaleEffect(isPressed ? 0.9 : 1.0)

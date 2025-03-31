@@ -11,9 +11,7 @@ struct Theme : Hashable{
     // MARK: - Main Colors
     let accent = Color("AccentColor")
     let background = Color("BackgroundColor")
-    let backgroundOpposite = Color("BackgroundColorOpposite")
     let text = Color("TextColor")
-    let textOpposite = Color("TextColorOpposite")
     let primary = Color("PrimaryThemeColor")
     let secondary = Color("SecondaryThemeColor")
     let secondarySecond = Color("SecondaryThemeColorTwo")

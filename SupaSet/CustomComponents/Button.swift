@@ -13,8 +13,12 @@ struct LongButtonModifier: ViewModifier {
             .frame(maxWidth: .infinity)
             .padding(.horizontal, 16)
             .padding(.vertical, 12)
-            .background(Color.theme.accent)
-            .cornerRadius(8)
+            .background(ZStack{
+                RoundedRectangle(cornerRadius: 12, style: .continuous)
+                    .fill(.ultraThinMaterial)
+                RoundedRectangle(cornerRadius: 12, style: .continuous)
+                    .stroke(Color.text.opacity(0.3), lineWidth: 1)
+            })
     }
 }
 struct CustomButtonStyle {

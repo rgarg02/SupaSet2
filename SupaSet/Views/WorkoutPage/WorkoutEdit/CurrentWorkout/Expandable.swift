@@ -5,109 +5,119 @@
 //  Created by Rishi Garg on 3/12/25.
 //
 import SwiftUI
+import SwiftData
 import UniformTypeIdentifiers
 
+// MARK: - Main Expandable Workout View
 struct ExpandableWorkout: View {
+    // MARK: - Properties
     @Binding var show: Bool
     @Bindable var workout: Workout
     @State private var expandWorkout = false
     @State private var offsetY: CGFloat = 0
     @State private var isTimerVisible: Bool = true
     @Namespace private var animation
+    @State var collapsed: Bool = false
     
+    // MARK: - Body
     var body: some View {
-        GeometryReader {
-            let size = $0.size
-            let safeArea = $0.safeAreaInsets
+        GeometryReader { geometry in
+            let safeArea = geometry.safeAreaInsets
+            
             ZStack(alignment: .top) {
-                ZStack{
-                    Rectangle()
-                        .fill(Color.primaryTheme)
-                }
-                .clipShape(.rect(cornerRadius: expandWorkout ? (safeArea.bottom == 0 ? 0 : 45) : 15))
-                .frame(height: expandWorkout ? nil : 55)
-                .shadow(color: .primary.opacity(0.06), radius: 5, x: 5, y: 5)
-                .shadow(color: .primary.opacity(0.05), radius: 5, x: -5, y: -5)
+                // Background
+                backgroundView(safeArea)
                 
-                miniWorkout()
+                // Content
+                miniWorkoutView()
                     .opacity(expandWorkout ? 0 : 1)
-                ExpandedWorkout(size, safeArea)
+                expandedWorkoutView(safeArea)
                     .opacity(expandWorkout ? 1 : 0)
-                
             }
             .frame(height: expandWorkout ? nil : 55, alignment: .top)
             .frame(maxHeight: .infinity, alignment: .bottom)
             .padding(.bottom, expandWorkout ? 0 : safeArea.bottom + 55)
             .padding(.horizontal, expandWorkout ? 0 : 15)
             .offset(y: offsetY)
-            .gesture(
-                PanGesture { value in
-                    guard expandWorkout else { return }
-                    let translation = max(value.translation.height, 0)
-                    offsetY = translation
-                    let progress = min(translation / (UIScreen.main.bounds.height * 0.5), 1)
-                } onEnd: { value in
-                    guard expandWorkout else { return }
-                    
-                    let translation = max(value.translation.height, 0)
-                    let velocity = value.velocity.height / 5
-                    
-                    withAnimation(.smooth(duration: 0.35)) {
-                        if (translation + velocity) > (UIScreen.main.bounds.height * 0.3) {
-                            /// Closing View
-                            expandWorkout = false
-                        }
-                        
-                        offsetY = 0
-                    }
-                }
-            )
+            .gesture(createDragGesture())
             .ignoresSafeArea()
         }
-        .onChange(of: show) { oldValue, newValue in
+        .onChange(of: show) { _, newValue in
             if !newValue {
-                // When workout is finished or cancelled
-                withAnimation(.smooth(duration: 0.3)){
+                withAnimation(.smooth(duration: 0.3)) {
                     expandWorkout = false
                 }
             }
         }
-        .animation(.easeInOut, value: isTimerVisible)
     }
     
+    // MARK: - Background View
     @ViewBuilder
-    func miniWorkout() -> some View {
+    private func backgroundView(_ safeArea: EdgeInsets) -> some View {
+        Rectangle()
+            .fill(Color.primaryTheme)
+            .clipShape(.rect(cornerRadius: expandWorkout ? (safeArea.bottom == 0 ? 0 : 45) : 15))
+            .frame(height: expandWorkout ? nil : 55)
+            .shadow(color: .primary.opacity(0.06), radius: 5, x: 5, y: 5)
+            .shadow(color: .primary.opacity(0.05), radius: 5, x: -5, y: -5)
+    }
+    
+    // MARK: - Drag Gesture
+    private func createDragGesture() -> some Gesture {
+        DragGesture()
+            .onChanged { value in
+                guard expandWorkout else { return }
+                offsetY = max(value.translation.height, 0)
+            }
+            .onEnded { value in
+                guard expandWorkout else { return }
+                
+                let translation = max(value.translation.height, 0)
+                let velocity = value.velocity.height / 5
+                
+                withAnimation(.smooth(duration: 0.35)) {
+                    if (translation + velocity) > (UIScreen.main.bounds.height * 0.3) {
+                        expandWorkout = false
+                    }
+                    offsetY = 0
+                }
+            }
+    }
+    
+    // MARK: - Mini Workout View
+    @ViewBuilder
+    private func miniWorkoutView() -> some View {
         HStack(spacing: 12) {
             HStack(spacing: 12) {
-                // Workout progress indicator
+                // Progress indicator
                 if !expandWorkout {
-                    ZStack{
-                        SetProgressView(progress: workout.progress, isExpanded: false)
-                            .frame(width: 32, height: 32)
-                            .matchedGeometryEffect(id: "Progress", in: animation)
-                    }
+                    SetProgressView(progress: workout.progress, isExpanded: false)
+                        .frame(width: 32, height: 32)
+                        .matchedGeometryEffect(id: "Progress", in: animation)
                 }
-                VStack(alignment: .leading, spacing: 2){
+                
+                // Workout name and exercise count
+                VStack(alignment: .leading, spacing: 2) {
                     if !expandWorkout {
-                        ZStack {
-                            Text(workout.name)
-                                .multilineTextAlignment(.leading)
-                                .font(.headline)
-                                .lineLimit(1)
-                                .matchedGeometryEffect(id: "Name", in: animation)
-                        }
+                        Text(workout.name)
+                            .multilineTextAlignment(.leading)
+                            .font(.headline)
+                            .lineLimit(1)
+                            .matchedGeometryEffect(id: "Name", in: animation)
                     }
+                    
                     Text("\(workout.sortedExercises.count) exercises")
                         .font(.caption)
                         .matchedGeometryEffect(id: "ExerciseCount", in: animation)
                 }
             }
+            
             Spacer()
+            
+            // Timer
             if !expandWorkout {
-                ZStack{
-                    WorkoutTimer(workout: workout)
-                        .matchedGeometryEffect(id: "Timer", in: animation)
-                }
+                WorkoutTimer(workout: workout)
+                    .matchedGeometryEffect(id: "Timer", in: animation)
             }
         }
         .background(Color.clear)
@@ -122,162 +132,235 @@ struct ExpandableWorkout: View {
         }
     }
     
+    // MARK: - Expanded Workout View
     @ViewBuilder
-    func ExpandedWorkout(_ size: CGSize, _ safeArea: EdgeInsets) -> some View {
-        VStack {
-            VStack{
-                Capsule()
-                    .fill(.white.secondary)
-                    .frame(width: 35, height: 5)
-                    .offset(y: -10)
-                VStack{
-                    if expandWorkout {
-                        ZStack{
-                            HStack{
-                                NameSection(item: workout)
-                                    .foregroundStyle(Color.primaryTheme.bestTextColor())
-                                    .matchedGeometryEffect(id: "Name", in: animation)
-                                // Only show timer in header if it's not visible in scroll
-                                if expandWorkout && !isTimerVisible {
-                                    ZStack{
-                                        WorkoutTimer(workout: workout)
-                                            .frame(alignment: .trailing)
-                                            .matchedGeometryEffect(id: "Timer", in: animation, isSource: false)
-                                    }
-                                }
-                            }
-                            .padding(.horizontal)
-                        }
-                    }
-                    if expandWorkout{
-                        ZStack{
-                            SetProgressView(progress: workout.progress, isExpanded: true)
-                                .frame(height: 3, alignment: .bottom)
-                                .matchedGeometryEffect(id: "Progress", in: animation)
-                        }
-                    }
-                }
-            }
-            .frame(height: 50)
+    private func expandedWorkoutView(_ safeArea: EdgeInsets) -> some View {
+        VStack(spacing: 0) {
+            // Header with drag indicator
+            expandedHeaderView()
+                .frame(height: 50)
             
-            // Use LazyVStack for better performance with many items
-            ScrollView {
-                LazyVStack{
-                    VStack(spacing: 20) {
-                        HStack{
-                            DateLabel(date: workout.date.formatted(date: .abbreviated, time: .shortened))
-                            Spacer()
-                            if expandWorkout && isTimerVisible {
-                                ZStack{
-                                    WorkoutTimer(workout: workout)
-                                        .matchedGeometryEffect(id: "Timer", in: animation, isSource: true)
-                                }
-                            }
-                        }
-                        NotesSection(item: workout)
-                    }
-                    // Use optimized version of ExercisesScroll
-                    ExercisesScroll(workout: workout)
-                    CancelFinishAddView(
-                        item: workout,
-                        originalItem: workout,
-                        show: $show,
-                        isNew: !workout.isFinished
-                    )
-                    .padding(.vertical, 20)
-                }
-            }
-            .onScrollGeometryChange(for: CGFloat.self, of: { geometry in
-                geometry.contentOffset.y
-            }, action: { oldValue, newValue in
-                isTimerVisible = newValue < 30
-            })
-            .scrollIndicators(.hidden)
-            .padding()
-            .background(.thickMaterial)
+            // Scrollable content
+            WorkoutView(show: $show, workout: workout)
+                
         }
         .padding(.top, safeArea.top + 5)
     }
-}
-
-// Rest of the code remains the same
-// Optimized version of ExercisesScroll
-struct ExercisesScroll: View {
-    let workout: Workout
-    @Environment(ExerciseViewModel.self) private var exerciseViewModel
-    @Environment(\.modelContext) private var modelContext
-    @State private var dragging = false
-    @State private var draggedItem: WorkoutExercise?
     
-    var body: some View {
-        // LazyVStack will only render what's visible
-        LazyVStack {
-            ForEach(workout.sortedExercises) { exercise in
-                ExerciseItemView(exercise: exercise, dragging: $dragging)
+    // MARK: - Expanded Header View
+    @ViewBuilder
+    private func expandedHeaderView() -> some View {
+        VStack(spacing: 0) {
+            // Drag indicator
+            Capsule()
+                .fill(.white.secondary)
+                .frame(width: 35, height: 5)
+                .padding(.top, 5)
+                .padding(.bottom, 10)
+            
+            // Header content
+            HStack {
+                if expandWorkout {
+                    NameSection(item: workout)
+                        .foregroundStyle(Color.primaryTheme.bestTextColor())
+                        .matchedGeometryEffect(id: "Name", in: animation)
+                    
+                    Spacer()
+                    
+                    // Only show timer in header when not visible in scroll
+                    if !isTimerVisible {
+                        WorkoutTimer(workout: workout)
+                            .matchedGeometryEffect(id: "Timer", in: animation, isSource: false)
+                    }
+                }
+            }
+            .padding(.horizontal)
+            
+            Spacer()
+            
+            // Progress bar
+            if expandWorkout {
+                SetProgressView(progress: workout.progress, isExpanded: true)
+                    .frame(height: 3)
+                    .matchedGeometryEffect(id: "Progress", in: animation)
             }
         }
     }
-}
-
-// Extracted view for better rendering performance
-struct ExerciseItemView: View {
-    let exercise: WorkoutExercise
-    @Binding var dragging: Bool
-    @Environment(\.modelContext) private var modelContext
-    var body: some View {
-        VStack {
+    
+    // MARK: - Workout Info Section
+    @ViewBuilder
+    private func workoutInfoSection() -> some View {
+        VStack(alignment: .leading, spacing: 20) {
             HStack {
-                ExerciseTopControls(exercise: exercise, dragging: dragging)
-                    .contentShape(Rectangle())
+                DateLabel(date: workout.date.formatted(date: .abbreviated, time: .shortened))
+                
+                Spacer()
+                
+                if expandWorkout && isTimerVisible {
+                    WorkoutTimer(workout: workout)
+                        .matchedGeometryEffect(id: "Timer", in: animation, isSource: true)
+                }
             }
             
-            if !dragging {
-                SetColumnNamesView(exerciseID: exercise.exerciseID, isTemplate: false)
-                
-                ForEach(exercise.sortedSets, id: \.self) { set in
-                    SetRowItem(set: set, exercise: exercise)
-                }
-                
-                PlaceholderSetRowView(templateSet: false, action: {
-                    withAnimation(.snappy(duration: 0.25)) {
-                        exercise.insertSet(
-                            reps: exercise.sortedSets.last?.reps ?? 0,
-                            weight: exercise.sortedSets.last?.weight ?? 0
-                        )
+            NotesSection(item: workout)
+        }
+    }
+}
+
+// MARK: - Optimized Exercises List View
+struct ExercisesListView: View {
+    // MARK: - Properties
+    @Environment(\.modelContext) private var modelContext
+    @Binding var collapsed: Bool
+    @Query private var exercises: [WorkoutExercise]
+    @Environment(ExerciseViewModel.self) private var exerciseViewModel
+    
+    // MARK: - Init
+    init(workoutID: UUID, collapsed: Binding<Bool>) {
+        self.workoutID = workoutID
+        _exercises = Query(
+            filter: #Predicate<WorkoutExercise> { exercise in
+                exercise.workout?.id == workoutID
+            },
+            sort: [SortDescriptor(\WorkoutExercise.order, order: .forward)]
+        )
+        _collapsed = collapsed
+    }
+    
+    private let workoutID: UUID
+    
+    // MARK: - Body
+    var body: some View {
+        LazyVStack(spacing: 10) {
+            ForEach(exercises) { exercise in
+                ExerciseItemView(exercise: exercise, collapsed: $collapsed)
+                    .padding(.vertical, 10)
+                    .id(exercise.id) // Explicit ID for better diffing
+            }
+        }
+        .animation(.easeInOut(duration: 0.25), value: collapsed)
+        // Only animate order changes when necessary
+        .animation(.easeInOut(duration: 0.25), value: exercises.map(\.order))
+    }
+}
+
+// MARK: - Exercise Item View
+struct ExerciseItemView: View {
+    // MARK: - Properties
+    @Bindable var exercise: WorkoutExercise
+    @Binding var collapsed: Bool
+    @Environment(\.modelContext) private var modelContext
+    
+    // Pre-sort sets for better performance
+    var sortedSets: [ExerciseSet] {
+        exercise.sets.sorted { $0.order < $1.order }
+    }
+    
+    // MARK: - Body
+    var body: some View {
+        VStack(spacing: 8) {
+            // Exercise header
+            ExerciseTopControls(exercise: exercise, dragging: collapsed)
+                .contentShape(Rectangle())
+            
+            // Sets section - only render when expanded
+            if !collapsed {
+                VStack(spacing: 4) {
+                    // Column headers
+                    SetColumnNamesView(exerciseID: exercise.exerciseID, isTemplate: false)
+                    
+                    // Sets list
+                    ForEach(sortedSets) { set in
+                        SetRowItem(set: set, exercise: exercise)
+                            .id(set.id)
+                            .transition(.opacity)
                     }
-                })
+                    
+                    // Add set button
+                    addSetButton()
+                }
+                .transition(.opacity.combined(with: .move(edge: .top)))
+            }
+        }
+    }
+    
+    // MARK: - Add Set Button
+    @ViewBuilder
+    private func addSetButton() -> some View {
+        PlaceholderSetRowView(templateSet: false) {
+            withAnimation(.snappy(duration: 0.25)) {
+                let lastSet = sortedSets.last
+                exercise.insertSet(reps: lastSet?.reps ?? 0, weight: lastSet?.weight ?? 0)
             }
         }
     }
 }
 
-// Extracted for better performance
+// MARK: - Set Row Item View
 struct SetRowItem: View {
+    // MARK: - Properties
     @Bindable var set: ExerciseSet
     let exercise: WorkoutExercise
     @Environment(\.modelContext) private var modelContext
+    @FocusState private var isFocused: Bool
     
-    var body: some View {
-        let workingSetOrder = exercise.sortedSets
-            .prefix(while: { $0.order < set.order })
-            .filter { $0.type == .working }
+    // Calculate working set order efficiently
+    private var workingSetOrder: Int {
+        exercise.sets.lazy
+            .filter { $0.type == .working && $0.order < set.order }
             .count
-        
-        return SwipeAction(cornerRadius: 8, direction: .trailing) {
+    }
+    
+    // MARK: - Body
+    var body: some View {
+        SwipeAction(cornerRadius: 8, direction: .trailing) {
             SetRowViewCombined(
                 order: workingSetOrder,
                 isTemplate: false,
                 weight: $set.weight,
                 reps: $set.reps,
-                isDone: $set.isDone, type: $set.type
+                isDone: $set.isDone,
+                type: $set.type,
+                moveToNextRow: moveToNextRow
             )
         } actions: {
             Action(tint: .red, icon: "trash.fill") {
-                withAnimation(.easeInOut) {
-                    exercise.deleteSet(set)
-                    modelContext.delete(set)
-                }
+                deleteSet()
             }
         }
+    }
+    
+    // MARK: - Actions
+    private func moveToNextRow() {
+        NotificationCenter.default.post(
+            name: Notification.Name("FocusNextRow"),
+            object: nil,
+            userInfo: ["nextRowID": set.id]
+        )
+    }
+    
+    private func deleteSet() {
+        withAnimation(.easeInOut) {
+            // Update orders of following sets before deleting
+            let setOrder = set.order
+            let setsToUpdate = exercise.sets.filter { $0.order > setOrder }
+            
+            for setToUpdate in setsToUpdate {
+                setToUpdate.order -= 1
+            }
+            
+            modelContext.delete(set)
+        }
+    }
+}
+
+// MARK: - ScrollPosition Helper
+extension View {
+    func onScrollPositionChange(action: @escaping (CGFloat) -> Void) -> some View {
+        self.onScrollGeometryChange(for: CGFloat.self, of: { geometry in
+            geometry.contentOffset.y
+        }, action: { _, newValue in
+            action(newValue)
+        })
     }
 }

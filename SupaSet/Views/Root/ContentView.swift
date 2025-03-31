@@ -11,24 +11,23 @@ struct ContentView: View {
     @State private var currentWorkout: Workout?
     @State private var showFAB: Bool = false
     @Query(filter: #Predicate<Workout>{$0.isFinished == false}) private var ongoingWorkout: [Workout]
-    init() {
-        let appearance = UITabBarAppearance()
-        
-        // Configure the shadow (separator) above the tab bar
-        appearance.shadowColor = .gray
-        
-        // You can also set the background color if needed
-        appearance.backgroundColor = UIColor(Color.theme.background)
-        
-        // Apply the appearance to both standard and scrollEdge appearances
-        UITabBar.appearance().standardAppearance = appearance
-        UITabBar.appearance().scrollEdgeAppearance = appearance
-    }
+//    init() {
+//        let appearance = UITabBarAppearance()
+//        
+//        // Configure the shadow (separator) above the tab bar
+//        appearance.shadowColor = .gray
+//        
+//        // You can also set the background color if needed
+//        appearance.backgroundColor = UIColor(Color.theme.background)
+//        
+//        // Apply the appearance to both standard and scrollEdge appearances
+//        UITabBar.appearance().standardAppearance = appearance
+//        UITabBar.appearance().scrollEdgeAppearance = appearance
+//    }
     
     var body: some View {
-        NavigationStack {
+        NavigationStack{
             ZStack {
-                Color.background
                 TabView {
                     WorkoutPageView()
                         .tabItem({
@@ -55,6 +54,7 @@ struct ContentView: View {
                             NavigationStack {
                                 ExpandableWorkout(show: $showWorkoutOverlay, workout: workout)
                             }
+                            .transition(.asymmetric(insertion: .move(edge: .bottom), removal: .move(edge: .bottom).animation(.easeInOut(duration: 0.5))))
                             .background(.clear)
                         }
                     }
@@ -65,6 +65,9 @@ struct ContentView: View {
                         .background(.clear)
                     }
                 })
+                .animation(.easeInOut(duration: 0.5), value: showWorkoutOverlay)
+                .animation(.smooth, value: currentWorkout)
+                .animation(.smooth, value: showFAB)
                 .onChange(of: ongoingWorkout) { oldValue, newValue in
                     if newValue.isEmpty {
                         // No active workout
@@ -103,4 +106,34 @@ struct ContentView: View {
     .modelContainer(previewContainer.container)
     .environment(previewContainer.viewModel)
     .environment(previewContainer.authViewModel)
+}
+struct BackgroundGradientView: View {
+    @Environment(\.colorScheme) private var colorScheme
+    
+    var body: some View {
+        ZStack {
+            LinearGradient(
+                gradient: Gradient(colors: [
+                    Color("PrimaryThemeColor").shade(50),    // Dark blue
+                    Color("SecondaryThemeColor").shade(50)   // Deep purple
+                ]),
+                startPoint: .topLeading,
+                endPoint: .bottomTrailing
+            )
+            .ignoresSafeArea()
+            
+            // Very subtle overlay to add minimal texture
+            // This enhances the glass effect without being distracting
+            ZStack {
+                Rectangle()
+                    .fill(Color.white.opacity(0.03))
+                    .blendMode(.overlay)
+            }
+            .ignoresSafeArea()
+            
+        }
+    }
+}
+#Preview {
+    BackgroundGradientView()
 }

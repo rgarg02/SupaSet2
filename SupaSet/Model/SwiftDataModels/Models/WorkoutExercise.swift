@@ -9,11 +9,12 @@ import Foundation
 extension SupaSetSchemaV1 {
     @Model
     final class WorkoutExercise: Hashable, Identifiable {
+        
+        #Index<WorkoutExercise>([\.exerciseID, \.order])
         private(set) var id: UUID
         var exerciseID: String
         var order: Int
         var notes: String?
-        
         @Relationship(deleteRule: .cascade)
         var sets: [ExerciseSet] = []
         
@@ -23,7 +24,8 @@ extension SupaSetSchemaV1 {
         var totalVolume: Double {
             sets.reduce(0) { $0 + ($1.weight * Double($1.reps)) }
         }
-        
+        @Transient
+        var frame: CGRect = .zero
         init(exerciseID: String, order: Int = 0, notes: String? = nil) {
             self.id = UUID()
             self.exerciseID = exerciseID

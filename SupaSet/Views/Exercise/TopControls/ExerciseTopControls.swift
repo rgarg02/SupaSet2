@@ -22,7 +22,7 @@ struct ExerciseTopControls<T: ExerciseMenuType>: View {
                 Text(viewModel.getExerciseName(for: exercise.exerciseID))
                     .font(.title3)
                     .fontWeight(.bold)
-                    .foregroundColor(.theme.accent)
+                    .foregroundColor(Color.text)
                 Spacer()
                 if !dragging{
                     Button(action: {
@@ -31,8 +31,15 @@ struct ExerciseTopControls<T: ExerciseMenuType>: View {
                         }
                     }) {
                         Image(systemName: "ellipsis")
-                            .foregroundColor(.theme.accent)
+                            .foregroundColor(Color.text)
                     }
+                    .padding(5)
+                    .background(ZStack{
+                        RoundedRectangle(cornerRadius: 12, style: .continuous)
+                            .fill(.ultraThinMaterial)
+                        RoundedRectangle(cornerRadius: 12, style: .continuous)
+                            .stroke(Color.text.opacity(0.3), lineWidth: 1)
+                    })
                     .sheet(isPresented: $showMenuOptions) {
                         NavigationView{
                             ExerciseMenu(exercise: exercise)
@@ -44,10 +51,10 @@ struct ExerciseTopControls<T: ExerciseMenuType>: View {
                     }
                 }
             }
-            if !dragging{
-                ExerciseNotesView(exerciseID: exercise.exerciseID)
-    
-            }
+//            if !dragging{
+//                ExerciseNotesView(exerciseID: exercise.exerciseID)
+//    
+//            }
         }
     }
 }

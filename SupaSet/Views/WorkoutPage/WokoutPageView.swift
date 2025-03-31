@@ -22,19 +22,19 @@ struct WorkoutPageView: View {
     }
     
     var body: some View {
-        NavigationStack {
+        NavigationView {
             VStack{
-                CustomNavBarTitle(title: "Workouts")
+//                CustomNavBarTitle(title: "Workouts")
                 TemplateCarouselView()
             }
-            .background(Color.background)
+            .navigationTitle("Workouts")
+            .navigationBarTitleDisplayMode(.inline)
             .sheet(isPresented: $workoutIsFinished) {
                 if let workout {
                     WorkoutFinishedView(workout: workout)
                 }
             }
         }
-        .background()
     }
     
 }
