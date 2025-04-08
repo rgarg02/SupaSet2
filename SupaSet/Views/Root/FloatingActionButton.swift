@@ -14,37 +14,38 @@
 //
 
 import SwiftUI
+struct FABButtonStyle: ButtonStyle {
+func makeBody(configuration: ButtonStyle.Configuration) -> some View {
+        configuration.label
+            .padding()
+            .background(ZStack{
+                Circle()
+                    .fill(.ultraThickMaterial)
+                Circle()
+                    .fill(Color.text.opacity(0.2))
+                Circle()
+                    .stroke(.ultraThinMaterial, lineWidth: 1)
+            })
+            .foregroundStyle(.text)
+            .scaleEffect(configuration.isPressed ? 1.2 : 1)
+            .animation(.easeOut(duration: 0.2), value: configuration.isPressed)
+    }
+}
+
 
 struct FloatingActionButton: View {
     var icon: String
     var action: () -> Void
-    
-    @State private var isPressed = false
-    
+        
     var body: some View {
         Button(action: {
-            withAnimation(.spring(response: 0.3, dampingFraction: 0.6)) {
-                isPressed = true
-            }
-            
-            // Use slight delay to allow animation to play
-            DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
-                action()
-                
-                withAnimation(.spring(response: 0.3, dampingFraction: 0.6)) {
-                    isPressed = false
-                }
-            }
+            action()
         }) {
             Image(systemName: icon)
                 .font(.system(size: 24, weight: .bold))
-                .foregroundColor(.text)
-                .frame(width: 60, height: 60)
-                .background(Color.accent)
-                .clipShape(Circle())
-                .shadow(color: Color.text.opacity(0.3), radius: 5, x: 0, y: 3)
-                .scaleEffect(isPressed ? 0.9 : 1.0)
+                .frame(width: 30, height: 30)
         }
+        .buttonStyle(FABButtonStyle())
     }
 }
 

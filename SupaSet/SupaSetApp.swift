@@ -16,8 +16,7 @@ struct SupaSetApp: App {
     let container: ModelContainer
     @State private var authenticationViewModel = AuthenticationViewModel()
     @State private var exerciseViewModel : ExerciseViewModel
-    @State private var properties = UniversalOverlayProperties()
-
+    @State private var userManager = UserManager()
     init() {
         let schema = Schema([
             Workout.self,
@@ -43,21 +42,18 @@ struct SupaSetApp: App {
 
     var body: some Scene {
         WindowGroup {
-            RootViewWrapper {
-                RootView()
-                    .onAppear {
-                        WorkoutActivityManager.shared.setModelContext(container.mainContext)
-                        authenticationViewModel.listenToAuthChanges()
-                        AppContainer.shared.container = container
-                        WorkoutActivityManager.shared.endAllActivities()
-//                        loadAndSaveExercises(container: container)
-                    }
-            }
-            .modelContainer(container)
-            .environment(exerciseViewModel)
-            .environment(authenticationViewModel)
-            .environment(properties)
-            .usesAlertController()
+            RootView()
+                .onAppear {
+                    WorkoutActivityManager.shared.setModelContext(container.mainContext)
+                    authenticationViewModel.listenToAuthChanges()
+                    AppContainer.shared.container = container
+                    WorkoutActivityManager.shared.endAllActivities()
+                }
+                .modelContainer(container)
+                .environment(exerciseViewModel)
+                .environment(authenticationViewModel)
+                .environment(userManager)
+                .usesAlertController()
         }
     }
 }

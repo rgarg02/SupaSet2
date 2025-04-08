@@ -17,7 +17,7 @@ extension SupaSetSchemaV1 {
         
         init(exerciseID: String,
              autoRestTimer: TimeInterval = 0,
-             notes: String = "Add a new note",
+             notes: String = "",
              unit: Unit = .lbs) {
             self.id = UUID()
             self.exerciseID = exerciseID

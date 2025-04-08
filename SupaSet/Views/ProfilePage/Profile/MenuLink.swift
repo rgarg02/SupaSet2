@@ -11,13 +11,9 @@ struct MenuLink<Destination: View>: View {
     let title: String
     let icon: String
     let destination: Destination
-    @Environment(\.isChildPresenting) private var isChildPresenting
     var body: some View {
         NavigationLink {
             destination
-                .onAppear{
-                    isChildPresenting.wrappedValue = true
-                }
         } label: {
             HStack {
                 Image(systemName: icon)
@@ -35,13 +31,22 @@ struct MenuLink<Destination: View>: View {
             }
             .padding()
             .background(
-                RoundedRectangle(cornerRadius: 8)
-                    .fill(Color.theme.secondarySecond)
-                    .shadow(radius: 2)
+                .thinMaterial
             )
+            .cornerRadius(12)
         }
     }
 }
 #Preview {
     MenuLink(title: "Your Workouts", icon: "list.bullet", destination: AnyView(Text("Workouts")))
+}
+struct ProfileMenuView: View {
+    var body: some View {
+        VStack(spacing: 10) { // Adjusted spacing
+            // Add other menu items here if needed
+            MenuLink(title: "Progress & Stats", icon: "chart.bar.xaxis", destination: WorkoutStatsView())
+            // Example: MenuLink(title: "Achievements", icon: "star.fill", destination: AchievementsView())
+        }
+        .foregroundColor(.text) // Added fallback
+    }
 }

@@ -5,12 +5,13 @@
 //  Created by Rishi Garg on 11/6/24.
 //
 import SwiftUI
+import SwiftData
 
 struct ExerciseListPickerView: View {
     @Environment(ExerciseViewModel.self) var viewModel
     @Environment(\.modelContext) var modelContext
     @Environment(\.dismiss) private var dismiss
-    
+    @Environment(\.alertController) private var alertController
     enum Mode {
         case add(workout: Workout)
         case replace(workoutExercise: WorkoutExercise)
@@ -218,7 +219,26 @@ struct ExerciseListPickerView: View {
                 templateExercise.notes = ""
             }
         }
+        loadExerciseDetails()
         selectedExercises = []
+    }
+    private func loadExerciseDetails() {
+        // check if any of the selected exercises already exist in the database
+        for exercise in selectedExercises {
+            let predicate = #Predicate<ExerciseDetail> { $0.exerciseID == exercise.id }
+            var fetchDescriptor = FetchDescriptor<ExerciseDetail>(predicate: predicate)
+            fetchDescriptor.fetchLimit = 1
+            // check if atleast one exist
+            do {
+                let details = try modelContext.fetch(fetchDescriptor)
+                if details.isEmpty {
+                    let newDetail = ExerciseDetail(exerciseID: exercise.id)
+                    modelContext.insert(newDetail)
+                }
+            } catch {
+                alertController.present(title: "Failed to load exercise detail", error: error)
+            }
+        }
     }
 }
 

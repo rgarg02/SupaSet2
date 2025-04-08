@@ -10,12 +10,8 @@ import SwiftUI
 // Workout History Card Component
 struct WorkoutHistoryCard: View {
     let workout: Workout
-    @Environment(\.isChildPresenting) private var isChildPresenting
     var body: some View {
         NavigationLink(destination: WorkoutDetailView(workout: workout)
-            .onAppear{
-                isChildPresenting.wrappedValue = true
-            }
         ) {
             VStack(alignment: .leading, spacing: 12) {
                 // Header
@@ -52,12 +48,8 @@ struct WorkoutHistoryCard: View {
                 }
             }
             .padding()
-            .background(Color.theme.background)
-            .cornerRadius(8)
-            .shadow(
-                color: Color.theme.text.opacity(0.3),
-                radius: 2
-            )
+            .background(.regularMaterial)
+            .cornerRadius(12)
         }
         .buttonStyle(PlainButtonStyle())
     }

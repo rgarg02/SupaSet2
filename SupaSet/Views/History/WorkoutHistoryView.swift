@@ -7,21 +7,23 @@ struct WorkoutHistoryView: View {
     
     var body: some View {
         NavigationView {
-            VStack{
-//                CustomNavBarTitle(title: "History")
-                ScrollView {
-                    LazyVStack(spacing: 16) {
-                        // Stats Card
-                        workoutStatsCard
-                        
-                        // Workout History List
-                        ForEach(workouts) { workout in
-                            WorkoutHistoryCard(workout: workout)
-                        }
+            ScrollView {
+                LazyVStack(spacing: 16) {
+                    // Stats Card
+                    workoutStatsCard
+                    
+                    // Workout History List
+                    ForEach(workouts) { workout in
+                        WorkoutHistoryCard(workout: workout)
                     }
-                    .padding()
                 }
+                .padding(.bottom, 55)
+                .padding()
             }
+            .background(
+                MeshGradientBackground()
+                    .ignoresSafeArea()
+            )
             .navigationTitle("History")
             .navigationBarTitleDisplayMode(.inline)
             .background(Color.theme.background)
@@ -55,12 +57,8 @@ struct WorkoutHistoryView: View {
             }
         }
         .padding()
-        .background(Color(.systemBackground))
-        .cornerRadius(8)
-        .shadow(
-            color: Color.theme.text.opacity(0.3),
-            radius: 2
-        )
+        .background(.regularMaterial)
+        .cornerRadius(12)
     }
     
     // Computed Properties

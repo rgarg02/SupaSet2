@@ -435,7 +435,7 @@ struct PreviewContainer {
                             ExerciseSet(
                                 reps: repsForSet,
                                 weight: setWeight,
-                                type: .working, rpe: setIndex == 5 ? Int.random(in: 8...10) : Int.random(in: 7...9),
+                                type: .working, rpe: setIndex == 5 ? Double.random(in: 8...10) : Double.random(in: 7...9),
                                 notes: setIndex == 5 ? "PR attempt" : nil,
                                 order: setIndex,
                                 isDone: true
@@ -464,7 +464,7 @@ struct PreviewContainer {
                             ExerciseSet(
                                 reps: accessoryReps,
                                 weight: accessoryWeight,
-                                type: .working, rpe: Int.random(in: 6...8),
+                                type: .working, rpe: Double.random(in: 6...8),
                                 order: setIndex,
                                 isDone: true
                             )

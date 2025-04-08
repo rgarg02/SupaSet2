@@ -72,7 +72,7 @@ extension SupaSetSchemaV1.WorkoutExercise {
         reps: Int,
         weight: Double,
         type: SetType = .working,
-        rpe: Int? = nil,
+        rpe: Double? = nil,
         notes: String? = nil
     ) {
         let newSet = SupaSetSchemaV1.ExerciseSet(

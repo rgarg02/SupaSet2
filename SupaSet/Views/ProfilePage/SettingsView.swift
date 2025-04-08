@@ -9,17 +9,11 @@
 import SwiftUI
 struct SettingsView: View {
     @Environment(\.dismiss) private var dismiss
-    @Environment(\.isChildPresenting) private var isChildPresenting
     var body: some View {
         NavigationStack {
             List {
                 Section("Account") {
-                    NavigationLink("Import Strong Data") {
-                        CSVImportView()
-                            .onAppear{
-                                isChildPresenting.wrappedValue = true
-                            }
-                    }
+                    CSVImportView()
                 }
             }
             .navigationTitle("Settings")

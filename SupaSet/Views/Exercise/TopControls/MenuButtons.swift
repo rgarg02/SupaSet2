@@ -19,10 +19,11 @@ struct MenuButtons: View {
             $0.exerciseID == exerciseID
         })
     }
+    @Environment(\.modelContext) private var modelContext
     @Environment(\.alertController) private var alertController
     @Environment(ExerciseViewModel.self) private var viewModel
     var body: some View {
-        VStack {
+        VStack(spacing: 10) {
             Button{
                 withAnimation(.easeInOut(duration: 0.3)) {  // Added specific duration
                     changeExercise = true
@@ -36,7 +37,7 @@ struct MenuButtons: View {
                     Spacer()
                 }
             }
-            if let exerciseDetail = exerciseDetails.first{
+            if let exerciseDetail = exerciseDetails.first {
                 NavigationLink{
                     ChangeUnitView(exerciseDetail: exerciseDetail)
                 }label: {
@@ -48,7 +49,6 @@ struct MenuButtons: View {
                         Spacer()
                     }
                 }
-                .padding(.vertical, 5)
                 NavigationLink {
                     RestTimerView(exerciseDetail: exerciseDetail)
                 } label: {
@@ -63,7 +63,6 @@ struct MenuButtons: View {
                             .foregroundColor(.theme.accent)
                     }
                 }
-                .padding(.vertical, 5)
             }
             Button{
                 deleteExercise.toggle()

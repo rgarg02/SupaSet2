@@ -23,17 +23,20 @@ struct WorkoutPageView: View {
     
     var body: some View {
         NavigationView {
-            VStack{
-//                CustomNavBarTitle(title: "Workouts")
-                TemplateCarouselView()
-            }
-            .navigationTitle("Workouts")
-            .navigationBarTitleDisplayMode(.inline)
-            .sheet(isPresented: $workoutIsFinished) {
-                if let workout {
-                    WorkoutFinishedView(workout: workout)
+            //                CustomNavBarTitle(title: "Workouts")
+            TemplateCarouselView()
+                .background(
+                    MeshGradientBackground()
+                        .ignoresSafeArea()
+                )
+                .navigationTitle("Workouts")
+                .navigationBarTitleDisplayMode(.inline)
+                .sheet(isPresented: $workoutIsFinished) {
+                    if let workout {
+                        WorkoutFinishedView(workout: workout)
+                    }
                 }
-            }
+                .padding(.bottom, 55)
         }
     }
     
@@ -41,7 +44,14 @@ struct WorkoutPageView: View {
 
 #Preview {
     let container = PreviewContainer.preview
-    WorkoutPageView()
-        .environment(container.viewModel)
-        .modelContainer(container.container)
+    Group {
+        WorkoutPageView()
+            .environment(container.viewModel)
+            .modelContainer(container.container)
+            .colorScheme(.light)
+        WorkoutPageView()
+            .environment(container.viewModel)
+            .modelContainer(container.container)
+            .colorScheme(.dark)
+    }
 }

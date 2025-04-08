@@ -44,37 +44,4 @@ struct SetTypeButton: View {
     }
 }
 
-#Preview {
-    @Previewable @State var weight: Double = 100
-    @Previewable @State var reps: Int = 10
-    @Previewable @State var isDone: Bool = false
-    @Previewable @State var type: SetType = .working
-    VStack{
-        VStack{
-            SetColumnNamesView(exerciseID: "Exercise", isTemplate: false)
-            SetRowViewCombined(
-                order: 0,
-                isTemplate: false,
-                weight: $weight,
-                reps: $reps,
-                isDone: $isDone,
-                type: $type
-            )
-        }
-        VStack{
-            SetColumnNamesView(exerciseID: "Exercise", isTemplate: false)
-            SetRowViewCombined(
-                order: 0,
-                isTemplate: false,
-                weight: $weight,
-                reps: $reps,
-                isDone: $isDone,
-                type: $type
-            )
-        }
-        .colorScheme(.dark)
-    }
-    .padding()
-    .modelContainer(PreviewContainer.preview.container)
-}
 

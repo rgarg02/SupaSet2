@@ -30,7 +30,7 @@ struct WorkoutView: View {
                     ExerciseView(workoutExercise: exercise)
                 }
                 
-                CancelFinishAddView(item: workout, originalItem: workout, show: $show, isNew: false)
+                CancelFinishAddView(item: workout, originalItem: workout, show: $show, isNew: true)
             }
             .padding()
         }
@@ -49,7 +49,7 @@ struct ExerciseView: View {
     @Bindable var workoutExercise: SupaSetSchemaV1.WorkoutExercise
     @Environment(ExerciseViewModel.self) private var viewModel
     var body: some View {
-        VStack(alignment: .leading, spacing: 12) {
+        VStack(alignment: .leading, spacing: 6) {
             // Exercise header
             ExerciseTopControls(exercise: workoutExercise, dragging: false)
             // Set header
@@ -64,7 +64,8 @@ struct ExerciseView: View {
                         .filter { $0.type == .working && $0.order < set.order }
                         .count
                     SwipeAction(cornerRadius: 8, direction: .trailing) {
-                        SetRowViewCombined(order: order, isTemplate: false, weight: $set.weight, reps: $set.reps, isDone: $set.isDone, type: $set.type)
+                        SetRowViewCombined(order: order, isTemplate: false, weight: $set.weight, reps: $set.reps, isDone: $set.isDone, type: $set.type, exerciseID: workoutExercise.exerciseID)
+                            
                     } actions: {
                         Action(tint: .red, icon: "trash.fill") {
                             withAnimation(.easeInOut) {
@@ -75,7 +76,7 @@ struct ExerciseView: View {
                                 for setToUpdate in setsToUpdate {
                                     setToUpdate.order -= 1
                                 }
-                                
+                                workoutExercise.deleteSet(set)
                                 modelContext.delete(set)
                             }
                         }
@@ -83,9 +84,13 @@ struct ExerciseView: View {
                 }
                 // Add set button
                 PlaceholderSetRowView(templateSet: false) {
-                    withAnimation(.snappy(duration: 0.25)) {
-                        let lastSet = sortedSets.last
-                        workoutExercise.insertSet(reps: lastSet?.reps ?? 0, weight: lastSet?.weight ?? 0)
+                    Task{
+                        DispatchQueue.main.async {
+                            withAnimation(.default) {
+                                let lastSet = sortedSets.last
+                                workoutExercise.insertSet(reps: lastSet?.reps ?? 0, weight: lastSet?.weight ?? 0)
+                            }
+                        }
                     }
                 }
             }

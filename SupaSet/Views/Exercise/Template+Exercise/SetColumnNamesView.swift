@@ -63,16 +63,3 @@ struct SetColumnNamesView: View {
         }
     }
 }
-#Preview {
-    VStack{
-        SetColumnNamesView(exerciseID: "Exercise", isTemplate: true)
-        SetRowViewCombined(
-            order: 0,
-            isTemplate: true,
-            weight: .constant(999),
-            reps: .constant(99),
-            isDone: .constant(false), type: .constant(.warmup)
-        )
-    }
-    .modelContainer(PreviewContainer.preview.container)
-}

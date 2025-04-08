@@ -6,7 +6,7 @@
 //
 
 import SwiftUI
-
+import FirebaseAuth
 struct CancelFinishAddView<T: Nameable>: View {
     @Bindable var item: T
     var originalItem: T?
@@ -104,6 +104,10 @@ struct CancelFinishAddView<T: Nameable>: View {
             }
             do {
                 try modelContext.save()
+                Task {
+                    guard let userId = Auth.auth().currentUser?.uid else {return}
+                    let docId = try await WorkoutService.uploadWorkout(workout, isPublic: true)
+                }
             } catch {
                 alertController.present(
                     title: "Error Saving Workout",

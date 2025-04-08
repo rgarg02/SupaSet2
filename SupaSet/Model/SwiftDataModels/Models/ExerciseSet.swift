@@ -39,6 +39,8 @@ enum SetType: String, Codable {
         }
     }
 }
+
+
 extension SupaSetSchemaV1 {
     @Model
     final class ExerciseSet: Hashable {
@@ -46,7 +48,7 @@ extension SupaSetSchemaV1 {
         var reps: Int
         var weight: Double
         var type: SetType
-        var rpe: Int?
+        var rpe: Double?
         var notes: String?
         var order: Int
         var isDone: Bool
@@ -57,14 +59,31 @@ extension SupaSetSchemaV1 {
         init(reps: Int,
              weight: Double,
              type: SetType = .working,
-             rpe: Int? = nil,
+             rpe: Double? = nil,
              notes: String? = nil,
              order: Int = 0,
              isDone: Bool = false) {
             self.id = UUID()
             self.reps = reps
             self.weight = weight
-            self.type = .working
+            self.type = type // Fixed to use the parameter instead of hardcoding .working
+            self.rpe = rpe
+            self.notes = notes
+            self.order = order
+            self.isDone = isDone
+        }
+        init(id: UUID,
+             reps: Int,
+             weight: Double,
+             type: SetType = .working,
+             rpe: Double? = nil,
+             notes: String? = nil,
+             order: Int = 0,
+             isDone: Bool = false) {
+            self.id = id
+            self.reps = reps
+            self.weight = weight
+            self.type = type // Fixed to use the parameter instead of hardcoding .working
             self.rpe = rpe
             self.notes = notes
             self.order = order

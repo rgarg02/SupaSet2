@@ -10,9 +10,9 @@ import CryptoKit
 import AuthenticationServices
 import FirebaseCore
 import GoogleSignIn
-
+import FirebaseFirestore
 enum AuthState {
-    case undefined, authenticated, unauthenticated
+    case undefined, authenticated, unauthenticated, authenticatedNewUser
 }
 
 extension UIApplication {
@@ -30,12 +30,30 @@ final class AuthenticationViewModel {
     var email: String = ""
     var password: String = ""
     var authState: AuthState = .undefined
-    var currentUser: User? = nil
+    var currentUser: FirebaseAuth.User? = nil
     private var currentNonce: String?
     func listenToAuthChanges() {
         Auth.auth().addStateDidChangeListener { [weak self] _, user in
-            self?.currentUser = user
-            self?.authState = user != nil ? .authenticated : .unauthenticated
+            guard let self = self else { return }
+            
+            self.currentUser = user
+            
+            if let user = user {
+                // Capture what we need in local variables
+                let uid = user.uid
+                
+                // Create a Task with @MainActor isolation
+                Task { @MainActor in
+                    // Use a non-self reference to call checkUserExists
+                    if let exists = try? await Firestore.firestore().collection("users").document(uid).getDocument().exists {
+                        self.authState = exists ? .authenticated : .authenticatedNewUser
+                    } else {
+                        self.authState = .authenticated
+                    }
+                }
+            } else {
+                self.authState = .unauthenticated
+            }
         }
     }
     
@@ -75,6 +93,10 @@ final class AuthenticationViewModel {
     // Helper method to get user email
     func getUserEmail() -> String {
         return currentUser?.email ?? "No Email"
+    }
+    func checkUserExists(uid: String) async throws -> Bool {
+        let docSnapshot = try await Firestore.firestore().collection("users").document(uid).getDocument()
+        return docSnapshot.exists
     }
     private func randomNonceString(length: Int = 32) -> String {
         precondition(length > 0)
@@ -140,3 +162,4 @@ final class AuthenticationViewModel {
         try await Auth.auth().signIn(with: credential)
     }
 }
+

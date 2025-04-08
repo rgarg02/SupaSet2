@@ -14,7 +14,6 @@ struct RestTimerDisplay: View {
         if exerciseDetail.autoRestTimer > 0 {
             Text(exerciseDetail.autoRestTimer.formatAsTimerString())
                 .foregroundColor(.theme.accent)
-            
         }
     }
 }

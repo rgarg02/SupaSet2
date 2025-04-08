@@ -6,6 +6,7 @@
 //
 import SwiftData
 import Foundation
+
 extension SupaSetSchemaV1 {
     @Model
     final class WorkoutExercise: Hashable, Identifiable {
@@ -26,8 +27,16 @@ extension SupaSetSchemaV1 {
         }
         @Transient
         var frame: CGRect = .zero
+        
         init(exerciseID: String, order: Int = 0, notes: String? = nil) {
             self.id = UUID()
+            self.exerciseID = exerciseID
+            self.order = order
+            self.notes = notes
+            self.sets = [ExerciseSet(reps: 0, weight: 0)]
+        }
+        init(id: UUID, exerciseID: String, order: Int = 0, notes: String? = nil) {
+            self.id = id
             self.exerciseID = exerciseID
             self.order = order
             self.notes = notes

@@ -60,7 +60,7 @@ struct EditOrCreateTemplateView: View {
             VStack(spacing: 0) {
                 TopControls(template: editableTemplate, show: $show, isNew: isNew)
                     .frame(height: 55)
-                    .background(Color.primaryTheme)
+                    .background(.ultraThinMaterial)
                 TemplateScrollView()
                     .sensoryFeedback(.impact, trigger: dragState.hapticFeedback)
             }
@@ -177,7 +177,7 @@ struct TemplateExerciseView: View {
                         .filter { $0.type == .working && $0.order < set.order }
                         .count
                     SwipeAction(cornerRadius: 8, direction: .trailing) {
-                        SetRowViewCombined(order: order, isTemplate: true, weight: $set.weight, reps: $set.reps, isDone: .constant(false), type: $set.type)
+                        SetRowViewCombined(order: order, isTemplate: true, weight: $set.weight, reps: $set.reps, isDone: .constant(false), type: $set.type, exerciseID: templateExercise.exerciseID)
                     } actions: {
                         Action(tint: .red, icon: "trash.fill") {
                             withAnimation(.easeInOut) {
@@ -188,7 +188,7 @@ struct TemplateExerciseView: View {
                                 for setToUpdate in setsToUpdate {
                                     setToUpdate.order -= 1
                                 }
-                                
+                                templateExercise.deleteSet(set)
                                 modelContext.delete(set)
                             }
                         }

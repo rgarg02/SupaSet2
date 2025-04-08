@@ -34,7 +34,6 @@ extension SupaSetSchemaV1 {
         var totalVolume: Double {
             exercises.reduce(0) { $0 + $1.totalVolume }
         }
-        
         init(name: String,
              date: Date = Date(),
              endTime: Date? = nil,
@@ -50,8 +49,27 @@ extension SupaSetSchemaV1 {
             self.notes = notes
             self.currentExerciseOrder = currentExerciseOrder
             self.currentSetOrder = currentSetOrder
+            self.exercises = []
         }
-        
+        init(
+            id: UUID,
+            name: String,
+            date: Date = Date(),
+            endTime: Date? = nil,
+            isFinished: Bool = false,
+            notes: String = "",
+            currentExerciseOrder: Int = 0,
+            currentSetOrder: Int = 0) {
+                self.id = id
+                self.name = name
+                self.date = date
+                self.endTime = endTime
+                self.isFinished = isFinished
+                self.notes = notes
+                self.currentExerciseOrder = currentExerciseOrder
+                self.currentSetOrder = currentSetOrder
+                self.exercises = []
+            }
         init(template: Template) {
             self.id = UUID()
             self.name = template.name
@@ -77,6 +95,7 @@ extension SupaSetSchemaV1 {
                 return workoutExercise
             }
         }
+        
     }
 }
 extension Workout {

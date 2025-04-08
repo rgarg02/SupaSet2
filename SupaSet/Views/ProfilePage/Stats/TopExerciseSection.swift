@@ -3,7 +3,6 @@ import Charts
 
 struct TopExerciseSection: View {
     let topExercisesList: [(exerciseID: String, name: String, weight: Double)]
-    @Environment(\.isChildPresenting) private var isChildPresenting
     var body: some View {
         VStack(alignment: .leading, spacing: 16) {
             HStack {
@@ -30,9 +29,6 @@ struct TopExerciseSection: View {
                     ForEach(topExercisesList.indices, id: \.self) { index in
                         NavigationLink {
                             ExerciseStatView(exerciseID: topExercisesList[index].exerciseID)
-                                .onAppear{
-                                    isChildPresenting.wrappedValue = true
-                                }
                         } label: {
                             HStack {
                                 // Ranking circle

@@ -114,7 +114,7 @@ struct StrongCSVRow {
     let reps: Int
     let notes: String?
     let workoutNotes: String?
-    let rpe: Int?
+    let rpe: Double?
 }
 
 // Hevy CSV Row Structure
@@ -129,7 +129,7 @@ struct HevyCSVRow {
     let setType: String
     let weightLbs: Double
     let reps: Int
-    let rpe: Int?
+    let rpe: Double?
 }
 
 enum DataFrom {
@@ -161,19 +161,19 @@ struct CSVImportView: View {
     }()
     
     var body: some View {
-        VStack(spacing: 20) {
+        VStack(alignment: .leading, spacing: 20) {
             Button("Import Workout Data from Strong") {
                 showingPicker = true
                 dataFrom = .strong
             }
-            .buttonStyle(.borderedProminent)
+            .buttonStyle(.plain)
             .disabled(importStatus.isInProgress)
             
             Button("Import Workout Data from Hevy") {
                 showingPicker = true
                 dataFrom = .hevy
             }
-            .buttonStyle(.borderedProminent)
+            .buttonStyle(.plain)
             .disabled(importStatus.isInProgress)
             
             statusView
@@ -355,9 +355,9 @@ struct CSVImportView: View {
                         }
                         
                         // Parse optional RPE
-                        let rpe: Int?
+                        let rpe: Double?
                         if fields.count > rpeIndex, !fields[rpeIndex].isEmpty {
-                            rpe = Int(fields[rpeIndex])
+                            rpe = Double(fields[rpeIndex])
                         } else {
                             rpe = nil
                         }
@@ -441,9 +441,9 @@ struct CSVImportView: View {
                         let setType = fields.count > setTypeIndex ? fields[setTypeIndex] : "normal"
                         
                         // Parse optional RPE
-                        let rpe: Int?
+                        let rpe: Double?
                         if fields.count > rpeIndex, !fields[rpeIndex].isEmpty, fields[rpeIndex] != "null" {
-                            rpe = Int(Double(fields[rpeIndex]) ?? 0)
+                            rpe = Double(Double(fields[rpeIndex]) ?? 0)
                         } else {
                             rpe = nil
                         }

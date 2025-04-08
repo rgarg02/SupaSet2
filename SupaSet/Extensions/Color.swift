@@ -16,7 +16,6 @@ struct Theme : Hashable{
     let secondary = Color("SecondaryThemeColor")
     let secondarySecond = Color("SecondaryThemeColorTwo")
     let primarySecond = Color("PrimaryThemeColorTwo")
-    let cancel = Color("Cancel")
 }
 
 // MARK: - Color Extension

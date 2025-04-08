@@ -6,6 +6,7 @@
 //
 
 import SwiftUI
+import SwiftData
 
 // create custom view modifier for the textfield
 struct SetRowFieldModifier: ViewModifier {
@@ -26,8 +27,6 @@ struct SetRowFieldModifier: ViewModifier {
                         
     }
 }
-// Keep your SetRowFieldModifier as is
-
 struct SetRowViewCombined: View {
     let order: Int
     let isTemplate: Bool
@@ -38,6 +37,11 @@ struct SetRowViewCombined: View {
     @FocusState private var focused: Bool
     // Add this parameter to handle moving to next row
     var moveToNextRow: (() -> Void)?
+    
+    // Add exerciseID parameter to access exercise details
+    var exerciseID: String
+    @Environment(\.modelContext) private var modelContext
+    @State private var exerciseDetail: SupaSetSchemaV1.ExerciseDetail?
     
     private var columns: [GridItem] {
         if isTemplate {
@@ -53,6 +57,20 @@ struct SetRowViewCombined: View {
                 GridItem(.flexible()),     // Flexible for reps
                 GridItem(.flexible())    // Smaller column for checkbox
             ]
+        }
+    }
+    
+    // Query for exercise detail when view appears
+    private func fetchExerciseDetail() {
+        let descriptor = FetchDescriptor<SupaSetSchemaV1.ExerciseDetail>(
+            predicate: #Predicate { $0.exerciseID == exerciseID }
+        )
+        
+        do {
+            let details = try modelContext.fetch(descriptor)
+            exerciseDetail = details.first
+        } catch {
+            print("Error fetching exercise detail: \(error.localizedDescription)")
         }
     }
     
@@ -81,11 +99,21 @@ struct SetRowViewCombined: View {
                 Button(action: {
                     isDone.toggle()
                     
-                    // If marked as done, move to next row
-                    if isDone, let moveToNextRow = moveToNextRow {
-                        // Use a slight delay to let the animation complete
-                        DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
-                            moveToNextRow()
+                    if isDone {
+                        // Start rest timer if enabled
+                        if let detail = exerciseDetail, detail.autoRestTimer > 0 {
+                            RestTimerManager.shared.startTimer(
+                                duration: detail.autoRestTimer,
+                                for: exerciseID
+                            )
+                        }
+                        
+                        // Move to next row
+                        if let moveToNextRow = moveToNextRow {
+                            // Use a slight delay to let the animation complete
+                            DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
+                                moveToNextRow()
+                            }
                         }
                     }
                 }) {
@@ -125,9 +153,11 @@ struct SetRowViewCombined: View {
             RoundedRectangle(cornerRadius: 8)
                 .stroke(isDone ? Color.primaryThemeColorTwo.shade(25) : Color.gray , lineWidth: 2)
         )
+        .onAppear {
+            fetchExerciseDetail()
+        }
     }
-}
-//#Preview {
+}//#Preview {
 //    @Previewable @State var weight: Double = 100
 //    @Previewable @State var reps: Int = 10
 //    @Previewable @State var isDone: Bool = false

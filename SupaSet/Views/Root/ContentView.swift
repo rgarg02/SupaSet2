@@ -29,24 +29,26 @@ struct ContentView: View {
         NavigationStack{
             ZStack {
                 TabView {
+                    FeedView()
+                        .tabItem {
+                            Image(systemName: "house")
+                            Text("Feed")
+                        }
                     WorkoutPageView()
                         .tabItem({
                             Image(systemName: "dumbbell")
                             Text("Workout")
                         })
-                        .safeAreaPadding(.bottom, 55)
                     WorkoutHistoryView()
                         .tabItem {
                             Image(systemName: "calendar")
                             Text("History")
                         }
-                        .safeAreaPadding(.bottom, 55)
                     ProfilePageView()
                         .tabItem {
                             Image(systemName: "person")
                             Text("Profile")
                         }
-                        .safeAreaPadding(.bottom, 55)
                 }
                 .overlay(alignment: .bottom, content: {
                     if showWorkoutOverlay {
@@ -100,12 +102,10 @@ struct ContentView: View {
 }
 #Preview {
     let previewContainer = PreviewContainer.preview
-    RootViewWrapper {
-        ContentView()
-    }
-    .modelContainer(previewContainer.container)
-    .environment(previewContainer.viewModel)
-    .environment(previewContainer.authViewModel)
+    ContentView()
+        .modelContainer(previewContainer.container)
+        .environment(previewContainer.viewModel)
+        .environment(previewContainer.authViewModel)
 }
 struct BackgroundGradientView: View {
     @Environment(\.colorScheme) private var colorScheme

@@ -68,6 +68,7 @@ struct TopControls: View {
                     Button("Go Back") {
                         show.toggle()
                     }
+                    .foregroundStyle(.accent)
                 }
                 Spacer()
                 Text(mode.name)
@@ -75,7 +76,7 @@ struct TopControls: View {
                     .bold()
                     .transition(.opacity)
                     .frame(maxWidth: .infinity, alignment: .center)
-                    .foregroundStyle(Color.background)
+                    .foregroundStyle(Color.text)
                 Spacer()
                 if !mode.isWorkout {
                     Button("Go Back") {

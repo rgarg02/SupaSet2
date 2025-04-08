@@ -15,31 +15,34 @@ struct ExerciseTopControls<T: ExerciseMenuType>: View {
     let exercise: T
     @Environment(ExerciseViewModel.self) var viewModel
     @State private var showMenuOptions = false
+    @State private var showNotes = false
     let dragging: Bool
     var body: some View {
         VStack{
-            HStack {
+            HStack(spacing: 5) {
                 Text(viewModel.getExerciseName(for: exercise.exerciseID))
                     .font(.title3)
                     .fontWeight(.bold)
                     .foregroundColor(Color.text)
                 Spacer()
                 if !dragging{
+                    Image(systemName: "note.text")
+                        .foregroundColor(Color.text)
+                        .font(.system(size: 15, weight: .bold))
+                        .onTapGesture {
+                            showNotes.toggle()
+                        }
+                        .padding(5)
                     Button(action: {
                         withAnimation(.snappy) {
                             showMenuOptions.toggle()
                         }
                     }) {
                         Image(systemName: "ellipsis")
+                            .font(.system(size: 20, weight: .bold))
                             .foregroundColor(Color.text)
                     }
                     .padding(5)
-                    .background(ZStack{
-                        RoundedRectangle(cornerRadius: 12, style: .continuous)
-                            .fill(.ultraThinMaterial)
-                        RoundedRectangle(cornerRadius: 12, style: .continuous)
-                            .stroke(Color.text.opacity(0.3), lineWidth: 1)
-                    })
                     .sheet(isPresented: $showMenuOptions) {
                         NavigationView{
                             ExerciseMenu(exercise: exercise)
@@ -51,19 +54,11 @@ struct ExerciseTopControls<T: ExerciseMenuType>: View {
                     }
                 }
             }
-//            if !dragging{
-//                ExerciseNotesView(exerciseID: exercise.exerciseID)
-//    
-//            }
+            if !dragging && showNotes {
+                ExerciseNotesView(exerciseID: exercise.exerciseID)
+                    .transition(.slide.combined(with: .opacity))
+            }
         }
+        .animation(.easeInOut(duration: 0.2), value: showNotes)
     }
-}
-
-// Preview Providers
-#Preview("Exercise Top Controls") {
-    let preview = PreviewContainer.preview
-    ExerciseTopControls(exercise: preview.workout.sortedExercises[0], dragging: false)
-        .padding()
-        .modelContainer(preview.container)
-        .environment(preview.viewModel)
 }

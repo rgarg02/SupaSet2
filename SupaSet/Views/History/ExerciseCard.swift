@@ -27,7 +27,7 @@ struct ExerciseCard: View {
                     Text("\(Int(set.weight))lbs")
                     Image(systemName: set.isDone ? "checkmark.circle.fill" :
                             "circle")
-                    .foregroundColor(set.isDone ? .theme.secondary : .theme.cancel)
+                    .foregroundColor(set.isDone ? Color.primaryThemeColorTwo : Color.redTheme)
                 }
                 .font(.subheadline)
             }
@@ -39,7 +39,7 @@ struct ExerciseCard: View {
             }
         }
         .padding()
-        .background(Color(.systemBackground))
+        .background(.ultraThinMaterial)
         .cornerRadius(12)
     }
 }

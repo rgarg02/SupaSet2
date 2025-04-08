@@ -47,11 +47,9 @@ struct StatCard: View {
         .padding(8)
         .frame(maxWidth: .infinity, maxHeight: .infinity)
         .background(
-            RoundedRectangle(cornerRadius: 8)
-                .fill(Color.theme.background)
-                .shadow(color: Color.theme.text.opacity(0.5), radius: 1, x: 0, y: 0)
-                .padding(1)
+            .regularMaterial
         )
+        .cornerRadius(12)
         .opacity(isVisible ? 1 : 0)
         .offset(y: isVisible ? 0 : 20)
         .scaleEffect(isVisible ? 1 : 0.9)
