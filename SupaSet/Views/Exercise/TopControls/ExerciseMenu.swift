@@ -27,14 +27,14 @@ struct ExerciseMenu<T: ExerciseMenuType>: View {
                         ExerciseListPickerView(templateExercise: templateExercise)
                     }
                 }
-                    .toolbar{
-                        ToolbarItem(placement: .cancellationAction) {
-                            Button("Cancel") {
-                                changeExercise = false
-                            }
-                            .foregroundColor(.theme.accent)
+                .toolbar{
+                    ToolbarItem(placement: .cancellationAction) {
+                        Button("Cancel") {
+                            changeExercise = false
                         }
+                        .foregroundColor(.theme.accent)
                     }
+                }
             }
         }
         .onChange(of: deleteExercise) { oldValue, newValue in

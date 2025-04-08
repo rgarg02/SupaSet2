@@ -26,7 +26,7 @@ struct WorkoutDetailView: View {
             .padding()
         }
         .navigationTitle(workout.name)
-        .background(Color(.systemGroupedBackground))
+        .background(.thickMaterial)
     }
     private var notesSection: some View {
         VStack(alignment: .leading, spacing: 12) {
@@ -74,7 +74,7 @@ struct WorkoutDetailView: View {
             }
         }
         .padding()
-        .background(Color(.systemBackground))
+        .background(.ultraThinMaterial)
         .cornerRadius(12)
     }
     

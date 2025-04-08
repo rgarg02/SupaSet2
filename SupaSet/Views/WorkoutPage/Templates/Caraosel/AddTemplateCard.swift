@@ -7,20 +7,35 @@
 
 import SwiftUI
 // Add Template Card View
-struct AddTemplateCard: View {
+struct AddTemplateButton: View {
     var body: some View {
-        VStack {
-            Image(systemName: "plus.circle.fill")
-                .font(.system(size: 32))
-            Text("Create Template")
-                .font(.headline)
+        HStack(spacing: 4) {
+            Image(systemName: "plus")
+                .foregroundStyle(Color.text)
+                .font(.caption.bold())
+            Text("New Template")
+                .font(.caption.bold())
+                .foregroundStyle(Color.text)
         }
-        .frame(height: 165)
-        .frame(maxWidth: .infinity)
-        .padding(10)
-        .background(Color.theme.secondary)
-        .clipShape(RoundedRectangle(cornerRadius: 12))
-        .shadow(color: .black.opacity(0.1), radius: 5, x: 0, y: 2)
-        .foregroundStyle(Color.theme.text)
+        .padding(5)
+        .background(
+            ZStack{
+                RoundedRectangle(cornerRadius: 12, style: .continuous)
+                    .fill(.ultraThinMaterial)
+                RoundedRectangle(cornerRadius: 12, style: .continuous)
+                    .stroke(Color.text.opacity(0.3), lineWidth: 1)
+            }
+        )
     }
 }
+
+#Preview {
+    HStack{
+        Text("Templates")
+            .font(.title.bold())
+        Spacer()
+        AddTemplateButton()
+    }
+    .padding()
+}
+

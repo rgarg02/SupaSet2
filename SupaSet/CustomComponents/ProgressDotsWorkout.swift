@@ -26,6 +26,7 @@ struct WorkoutProgressDots: View {
                 ProgressDot(isActive: index == currentExerciseIndex )
             }
         }
+        .padding(.horizontal, 5)
         .padding(.vertical, 20)
     }
 }

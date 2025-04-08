@@ -5,22 +5,33 @@
 //  Created by Rishi Garg on 11/11/24.
 //
 
-
 import ActivityKit
 import Foundation
+import SwiftData
 
 class WorkoutActivityManager {
     static let shared = WorkoutActivityManager()
     private var currentActivity: Activity<WorkoutAttributes>?
-    private let exerciseViewModel: ExerciseViewModel
+    private var exerciseViewModel: ExerciseViewModel?
+    private var modelContext: ModelContext?
     
-    init(exerciseViewModel: ExerciseViewModel = ExerciseViewModel()) {
-        self.exerciseViewModel = exerciseViewModel
+    // Default initializer without any parameters
+    private init() {
+        // ExerciseViewModel will be set later when setModelContext is called
     }
     
+    // Set the model context and initialize ExerciseViewModel
+    func setModelContext(_ context: ModelContext) {
+        self.modelContext = context
+        self.exerciseViewModel = ExerciseViewModel(modelContext: context)
+    }
     
     func startWorkoutActivity(workout: Workout) throws {
         guard ActivityAuthorizationInfo().areActivitiesEnabled else { return }
+        guard let exerciseViewModel = exerciseViewModel else {
+            print("Exercise view model not initialized, cannot start workout activity")
+            return
+        }
         
         // End any existing activities before starting a new one
         endAllActivities()
@@ -40,7 +51,7 @@ class WorkoutActivityManager {
             totalSets: currentExercise?.sets.count ?? 0,
             weight: currentSet?.weight ?? 0,
             targetReps: currentSet?.reps ?? 0,
-            isWarmupSet: currentSet?.isWarmupSet ?? false,
+            type: currentSet?.type ?? .working,
             exerciseNumber: workout.currentExerciseOrder + 1,
             totalExercises: workout.exercises.count
         )
@@ -70,8 +81,8 @@ class WorkoutActivityManager {
     
     // Update existing activity
     func updateWorkoutActivity(workout: Workout) {
-        // Only proceed if we have an active activity
-        guard currentActivity != nil else {
+        // Only proceed if we have an active activity and exercise view model
+        guard currentActivity != nil, let exerciseViewModel = exerciseViewModel else {
             return
         }
         
@@ -88,7 +99,7 @@ class WorkoutActivityManager {
             totalSets: currentExercise.sets.count,
             weight: currentSet.weight,
             targetReps: currentSet.reps,
-            isWarmupSet: currentSet.isWarmupSet,
+            type: currentSet.type,
             exerciseNumber: workout.currentExerciseOrder + 1,
             totalExercises: workout.exercises.count
         )
@@ -157,7 +168,7 @@ class WorkoutActivityManager {
         let updatedSet = ExerciseSet(
             reps: currentSet.reps,
             weight: currentSet.weight + amount,
-            isWarmupSet: currentSet.isWarmupSet,
+            type: currentSet.type,
             rpe: currentSet.rpe,
             notes: currentSet.notes,
             order: currentSet.order,
@@ -176,7 +187,7 @@ class WorkoutActivityManager {
         let updatedSet = ExerciseSet(
             reps: currentSet.reps,
             weight: max(0, currentSet.weight - amount),
-            isWarmupSet: currentSet.isWarmupSet,
+            type: currentSet.type,
             rpe: currentSet.rpe,
             notes: currentSet.notes,
             order: currentSet.order,
@@ -195,7 +206,7 @@ class WorkoutActivityManager {
         let updatedSet = ExerciseSet(
             reps: currentSet.reps + 1,
             weight: currentSet.weight,
-            isWarmupSet: currentSet.isWarmupSet,
+            type: currentSet.type,
             rpe: currentSet.rpe,
             notes: currentSet.notes,
             order: currentSet.order,
@@ -214,7 +225,7 @@ class WorkoutActivityManager {
         let updatedSet = ExerciseSet(
             reps: max(1, currentSet.reps - 1),
             weight: currentSet.weight,
-            isWarmupSet: currentSet.isWarmupSet,
+            type: currentSet.type,
             rpe: currentSet.rpe,
             notes: currentSet.notes,
             order: currentSet.order,
@@ -237,4 +248,3 @@ class WorkoutActivityManager {
         updateWorkoutActivity(workout: workout)
     }
 }
-

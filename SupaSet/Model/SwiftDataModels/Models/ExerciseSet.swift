@@ -7,6 +7,39 @@
 
 import SwiftData
 import Foundation
+import SwiftUI
+
+enum SetType: String, Codable {
+    case warmup
+    case working
+    case drop
+    case failure
+    var description: String {
+        switch self {
+        case .warmup:
+            return "Warmup"
+        case .working:
+            return "Working"
+        case .drop:
+            return "Drop"
+        case .failure:
+            return "Failure"
+        }
+    }
+    var color: Color {
+        switch self {
+        case .failure:
+            return .redTheme  // #FF3B30 : #B71C1C
+        case .working:
+            return .text  // #34C759 : #2E7D32
+        case .warmup:
+            return .accent  // #FF9500 : #E65100
+        case .drop:
+            return .primaryTheme  // #5856D6 : #311B92
+        }
+    }
+}
+
 
 extension SupaSetSchemaV1 {
     @Model
@@ -14,8 +47,8 @@ extension SupaSetSchemaV1 {
         private(set) var id: UUID
         var reps: Int
         var weight: Double
-        var isWarmupSet: Bool
-        var rpe: Int?
+        var type: SetType
+        var rpe: Double?
         var notes: String?
         var order: Int
         var isDone: Bool
@@ -25,15 +58,32 @@ extension SupaSetSchemaV1 {
         
         init(reps: Int,
              weight: Double,
-             isWarmupSet: Bool = false,
-             rpe: Int? = nil,
+             type: SetType = .working,
+             rpe: Double? = nil,
              notes: String? = nil,
              order: Int = 0,
              isDone: Bool = false) {
             self.id = UUID()
             self.reps = reps
             self.weight = weight
-            self.isWarmupSet = isWarmupSet
+            self.type = type // Fixed to use the parameter instead of hardcoding .working
+            self.rpe = rpe
+            self.notes = notes
+            self.order = order
+            self.isDone = isDone
+        }
+        init(id: UUID,
+             reps: Int,
+             weight: Double,
+             type: SetType = .working,
+             rpe: Double? = nil,
+             notes: String? = nil,
+             order: Int = 0,
+             isDone: Bool = false) {
+            self.id = id
+            self.reps = reps
+            self.weight = weight
+            self.type = type // Fixed to use the parameter instead of hardcoding .working
             self.rpe = rpe
             self.notes = notes
             self.order = order

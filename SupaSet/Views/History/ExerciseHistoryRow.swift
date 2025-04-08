@@ -16,8 +16,8 @@ struct ExerciseHistoryRow: View {
             VStack(alignment: .leading, spacing: 4) {
                 ForEach(exercise.sets.sorted(by: { $0.order < $1.order })) { set in
                     HStack {
-                        if set.isWarmupSet {
-                            Text("Warmup")
+                        if set.type != .working {
+                            Text(set.type.description)
                                 .font(.caption)
                                 .foregroundStyle(.secondary)
                         }

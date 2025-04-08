@@ -21,6 +21,7 @@ extension SupaSetSchemaV1.Workout {
     }
     
     func updateCurrentOrder() {
+
         if exercises.isEmpty {
             currentExerciseOrder = 0
             currentSetOrder = 0

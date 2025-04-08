@@ -16,7 +16,7 @@ extension Workout {
         
         existingSet.weight = set.weight
         existingSet.reps = set.reps
-        existingSet.isWarmupSet = set.isWarmupSet
+        existingSet.type = set.type
         existingSet.rpe = set.rpe
         existingSet.notes = set.notes
         existingSet.isDone = set.isDone
@@ -28,7 +28,7 @@ extension WorkoutExercise {
               order < sets.count else { return }
         existingSet.weight = newValues.weight
         existingSet.reps = newValues.reps
-        existingSet.isWarmupSet = newValues.isWarmupSet
+        existingSet.type = newValues.type
         existingSet.rpe = newValues.rpe
         existingSet.notes = newValues.notes
         existingSet.isDone = newValues.isDone

@@ -11,6 +11,7 @@ import SwiftData
 extension SupaSetSchemaV1 {
     @Model
     final class Workout: Hashable, Identifiable {
+        #Index<Workout>([\.date]) // Index on date for efficient querying
         private(set) var id: UUID
         var name: String
         var date: Date
@@ -33,7 +34,6 @@ extension SupaSetSchemaV1 {
         var totalVolume: Double {
             exercises.reduce(0) { $0 + $1.totalVolume }
         }
-        
         init(name: String,
              date: Date = Date(),
              endTime: Date? = nil,
@@ -49,8 +49,27 @@ extension SupaSetSchemaV1 {
             self.notes = notes
             self.currentExerciseOrder = currentExerciseOrder
             self.currentSetOrder = currentSetOrder
+            self.exercises = []
         }
-        
+        init(
+            id: UUID,
+            name: String,
+            date: Date = Date(),
+            endTime: Date? = nil,
+            isFinished: Bool = false,
+            notes: String = "",
+            currentExerciseOrder: Int = 0,
+            currentSetOrder: Int = 0) {
+                self.id = id
+                self.name = name
+                self.date = date
+                self.endTime = endTime
+                self.isFinished = isFinished
+                self.notes = notes
+                self.currentExerciseOrder = currentExerciseOrder
+                self.currentSetOrder = currentSetOrder
+                self.exercises = []
+            }
         init(template: Template) {
             self.id = UUID()
             self.name = template.name
@@ -76,5 +95,17 @@ extension SupaSetSchemaV1 {
                 return workoutExercise
             }
         }
+        
+    }
+}
+extension Workout {
+    var progress: Double {
+        guard !sortedExercises.isEmpty else { return 0 }
+        let totalSets = sortedExercises.reduce(0) { $0 + $1.sets.count }
+        let completedSets = sortedExercises.reduce(0) { $0 + $1.sets.count(where: {$0.isDone}) }
+        return Double(completedSets) / Double(totalSets)
+    }
+    var timeLapsed: TimeInterval {
+        return Date().timeIntervalSince(date)
     }
 }

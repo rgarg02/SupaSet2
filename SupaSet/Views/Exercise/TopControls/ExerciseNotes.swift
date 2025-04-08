@@ -17,25 +17,17 @@ struct ExerciseNotesView: View {
             if let exerciseDetail = exerciseDetails.first {
                 @Bindable var exerciseDetail = exerciseDetail
                 TextEditor(text: $exerciseDetail.notes)
-                    .frame(minHeight: 50)
-                    .scrollContentBackground(.hidden) // Add this line
+                    .frame(maxHeight: 100)
+                    .scrollContentBackground(.hidden)
                     .focused($focused)
                 if exerciseDetail.notes.isEmpty {
                     Text("Add a note")
                         .foregroundColor(Color(uiColor: .placeholderText))
-                        .padding(.top, 10)
                         .padding(.leading, 10)
                         .allowsHitTesting(false)
                 }
-            } else {
-                Text("Loading...")
-                    .onAppear {
-                        loadExerciseDetail()
-                    }
             }
         }
-        .background(Color.theme.primarySecond)
-        .cornerRadius(8)
         .toolbar {
             if focused{
                 ToolbarItemGroup(placement: .keyboard) {
@@ -45,24 +37,6 @@ struct ExerciseNotesView: View {
                     }
                 }
             }
-        }
-    }
-
-    private func loadExerciseDetail() {
-        if let _ = exerciseDetails.first {
-            return
-        } else {
-            let newDetail = ExerciseDetail(exerciseID: exerciseID, notes: "")
-            modelContext.insert(newDetail)
-            saveExerciseDetail()
-        }
-    }
-
-    private func saveExerciseDetail() {
-        do {
-            try modelContext.save()
-        } catch {
-            alertController.present(title:"Failed to save exercise detail", error: error)
         }
     }
 }

@@ -11,7 +11,8 @@ import SwiftUI
 struct WorkoutHistoryCard: View {
     let workout: Workout
     var body: some View {
-        NavigationLink(destination: WorkoutDetailView(workout: workout)) {
+        NavigationLink(destination: WorkoutDetailView(workout: workout)
+        ) {
             VStack(alignment: .leading, spacing: 12) {
                 // Header
                 HStack {
@@ -47,12 +48,8 @@ struct WorkoutHistoryCard: View {
                 }
             }
             .padding()
-            .background(Color.theme.background)
-            .cornerRadius(8)
-            .shadow(
-                color: Color.theme.text.opacity(0.3),
-                radius: 2
-            )
+            .background(.regularMaterial)
+            .cornerRadius(12)
         }
         .buttonStyle(PlainButtonStyle())
     }

@@ -14,7 +14,7 @@ struct AppleSignIn: View {
     @Binding var isLoading: Bool
     @Environment(\.alertController) private var alertController
     @Environment(AuthenticationViewModel.self) private var authViewModel
-    
+    @Environment(\.modelContext) private var modelContext
     var body: some View {
         SignInWithAppleButton(.signIn) { request in
             authViewModel.configureAppleSignInRequest(request)

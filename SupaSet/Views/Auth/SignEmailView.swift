@@ -112,13 +112,6 @@ struct SignEmailView: View {
                 } else {
                     try await authViewModel.signIn()
                 }
-                try modelContext.delete(model: Workout.self)
-                try modelContext.delete(model: WorkoutExercise.self)
-                try modelContext.delete(model: ExerciseSet.self)
-                try modelContext.delete(model: ExerciseDetail.self)
-                try modelContext.delete(model: Template.self)
-                try modelContext.delete(model: TemplateExercise.self)
-                try modelContext.delete(model: TemplateExerciseSet.self)
             } catch {
                 isLoading = false
                 let error = error.firebaseAuthErrorMessage()

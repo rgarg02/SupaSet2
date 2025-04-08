@@ -26,7 +26,8 @@ public extension View {
                                        onDismiss: (() -> Void)? = nil,
                                        @ViewBuilder content: @escaping () -> Content) -> some View {
         self.sheet(isPresented: isPresented, onDismiss: onDismiss) {
-            content().usesAlertController()
+            content()
+                .usesAlertController()
         }
     }
     

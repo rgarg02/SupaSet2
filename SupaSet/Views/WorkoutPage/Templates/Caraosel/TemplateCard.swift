@@ -1,62 +1,65 @@
-//
-//  TemplateCard.swift
-//  SupaSet
-//
-//  Created by Rishi Garg on 1/25/25.
-//
-
 import SwiftUI
 import SwiftData
-// Template Card View
+
 struct TemplateCard: View {
     let template: Template
+    let collapsed: Bool
     @Environment(ExerciseViewModel.self) private var exerciseViewModel
     @Environment(\.modelContext) private var modelContext
     @Environment(\.alertController) private var alertController
+    
+    
     var body: some View {
         VStack(alignment: .leading, spacing: 0) {
             // Template Name
             Text(template.name)
                 .lineLimit(1)
                 .font(.headline)
-                .foregroundStyle(Color.theme.text)
+                .foregroundStyle(Color.text)
                 .padding(.vertical, 3)
-            // Creation Date
-            Text("Created: \(formattedDate(template.createdAt))")
-                .font(.caption2)
-                .padding(.vertical, 3)
-            
-            // Exercises Preview
-            VStack(alignment: .leading, spacing: 4) {
-                ForEach(template.sortedExercises.prefix(4), id: \.id) { exercise in
-                    HStack{
-                        Text("\(exercise.sets.count)x")
+            if !collapsed {
+                // Creation Date
+                Text("Created: \(formattedDate(template.createdAt))")
+                    .font(.caption2)
+                    .foregroundStyle(Color.text.opacity(0.8))
+                    .padding(.vertical, 3)
+                
+                // Exercises Preview
+                VStack(alignment: .leading, spacing: 4) {
+                    ForEach(template.sortedExercises.prefix(4), id: \.id) { exercise in
+                        HStack {
+                            Text("\(exercise.sets.count)x")
+                                .font(.caption)
+                                .lineLimit(1)
+                                .foregroundStyle(Color.accent.adjusted(by: -25))
+                            Text(exerciseViewModel.getExerciseName(for: exercise.exerciseID))
+                                .font(.caption)
+                                .lineLimit(1)
+                                .foregroundStyle(Color.text.opacity(0.9))
+                        }
+                    }
+                    if template.exercises.count > 4 {
+                        Text("+ \(template.exercises.count - 4) more")
                             .font(.caption)
-                            .lineLimit(1)
-                            .foregroundStyle(Color.theme.accent)
-                        Text(exerciseViewModel.getExerciseName(for: exercise.exerciseID))
                             .foregroundStyle(Color.theme.text)
-                            .font(.caption)
-                            .lineLimit(1)
                     }
                 }
-                if template.exercises.count > 4 {
-                    Text("+ \(template.exercises.count - 4) more")
-                        .font(.caption)
-                        .foregroundStyle(Color.theme.text)
-                }
+                
+                Spacer()
+                
+                StartWorkoutButton(template: template)
+                    .frame(maxWidth: .infinity)
             }
-            Spacer()
-            StartWorkoutButton(template: template)
-                .frame(maxWidth: .infinity)
         }
-        .frame(height: 165)
-        .foregroundStyle(Color.theme.text)
+        .frame(height: collapsed ? nil : 165)
         .frame(maxWidth: .infinity, alignment: .leading)
-        .padding(10)
-        .background(Color.theme.primarySecond)
-        .clipShape(RoundedRectangle(cornerRadius: 8))
-        .shadow(color: .black.opacity(0.1), radius: 5, x: 0, y: 2)
+        .padding(8)
+        .background(ZStack{
+            RoundedRectangle(cornerRadius: 12, style: .continuous)
+                .fill(.thinMaterial)
+            RoundedRectangle(cornerRadius: 12, style: .continuous)
+                .stroke(Color.text.opacity(0.3), lineWidth: 1)
+        })
     }
     
     private func formattedDate(_ date: Date) -> String {
@@ -64,26 +67,46 @@ struct TemplateCard: View {
         formatter.dateStyle = .medium
         return formatter.string(from: date)
     }
+    
     @ViewBuilder
     private func StartWorkoutButton(template: Template) -> some View {
         Button {
             startWorkout(with: template)
-            
         } label: {
-            HStack {
-                Spacer()
-                Text("Start Workout")
-                    .fontWeight(.medium)
+            HStack(spacing: 12) {
+                // Add an icon similar to the trophy in the image
+                Image(systemName: "figure.run")
                     .font(.caption)
-                    .foregroundColor(.theme.accent)
+                    .fontWeight(.light)
+                    .padding(.leading)
+                    .foregroundStyle(Color.text)
+                Text("Start Workout")
+                    .font(.caption)
+                    .fontWeight(.medium)
+                    .foregroundStyle(Color.text)
+                
                 Spacer()
             }
-            .padding(.vertical, 4)
-            .background(Color.theme.accent.opacity(0.1))
-            .clipShape(RoundedRectangle(cornerRadius: 8))
+            .padding(5)
+            .background(
+                ZStack {
+                    // This creates the glass effect
+                    Capsule()
+                        .fill(.ultraThinMaterial)
+                    
+                    // This adds a subtle glow/highlight to make it brighter
+                    Capsule()
+                        .fill(Color.text.opacity(0.15))
+                    
+                    // Border to give it definition like in the image
+                    Capsule()
+                        .stroke(Color.text.opacity(0.3), lineWidth: 1)
+                }
+            )
         }
         .buttonStyle(.plain)
     }
+    
     private func startWorkout(with template: Template) {
         // Check for unfinished workouts
         let descriptor = FetchDescriptor<Workout>(
@@ -103,7 +126,9 @@ struct TemplateCard: View {
                     AlertButton(title: "Cancel", role: .cancel),
                     AlertButton(title: "Start Workout", action: {
                         let workout = Workout(template: template)
-                        modelContext.insert(workout)
+                        withAnimation(.smooth) {
+                            modelContext.insert(workout)
+                        }
                     })]
                 alertController.present(title: "Start Workout", message: "Start a new workout using \(template.name)?", buttons: buttons)
             }
@@ -119,12 +144,24 @@ struct TemplateCard: View {
         GridItem(.adaptive(minimum: 280, maximum: 320), spacing: 16),
         GridItem(.adaptive(minimum: 280, maximum: 320), spacing: 16)
     ]
-    LazyVGrid(columns: columns) {
-        TemplateCard(template: preview.template)
-        
-        TemplateCard(template: Template(name: "Cardio", order: 1))
+    ZStack {
+        // Add a gradient background to showcase the glassmorphism effect
+        LinearGradient(
+            gradient: Gradient(colors: [Color.blue.opacity(0.5), Color.purple.opacity(0.3)]),
+            startPoint: .topLeading,
+            endPoint: .bottomTrailing
+        )
+        .ignoresSafeArea()
+        Circle()
+            .fill(Color.red)
+            .frame(width: 200, height: 200)
+            .offset(x: 100, y: -100)
+        LazyVGrid(columns: columns) {
+            TemplateCard(template: preview.template, collapsed: false)
+            TemplateCard(template: Template(name: "Cardio", order: 1), collapsed: true)
+        }
+        .padding()
     }
-    .padding()
     .modelContainer(preview.container)
     .environment(preview.viewModel)
 }

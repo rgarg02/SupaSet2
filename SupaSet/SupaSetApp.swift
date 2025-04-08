@@ -9,12 +9,14 @@ import SwiftUI
 import SwiftData
 import Firebase
 import GoogleSignIn
+
 @main
 struct SupaSetApp: App {
     @UIApplicationDelegateAdaptor(AppDelegate.self) var delegate
     let container: ModelContainer
     @State private var authenticationViewModel = AuthenticationViewModel()
-    @State private var exerciseViewModel = ExerciseViewModel()
+    @State private var exerciseViewModel : ExerciseViewModel
+    @State private var userManager = UserManager()
     init() {
         let schema = Schema([
             Workout.self,
@@ -23,28 +25,34 @@ struct SupaSetApp: App {
             ExerciseDetail.self,
             Template.self,
             TemplateExercise.self,
-            TemplateExerciseSet.self
+            TemplateExerciseSet.self,
+            ExerciseEntity.self,
+            UserProfile.self
         ])
-           do {
-               let storeURL = URL.documentsDirectory.appending(path: "SupaSet.sqlite")
-               let config = ModelConfiguration(url: storeURL)
-               container = try ModelContainer(for: schema, configurations: config)
-               container.mainContext.undoManager = UndoManager()
-           } catch {
-               fatalError("Failed to configure SwiftData container.")
-           }
-       }
+        do {
+            let storeURL = URL.documentsDirectory.appending(path: "SupaSet.sqlite")
+            let config = ModelConfiguration(url: storeURL)
+            container = try ModelContainer(for: schema, configurations: config)
+            container.mainContext.undoManager = UndoManager()
+            self.exerciseViewModel = ExerciseViewModel(modelContext: container.mainContext)
+        } catch {
+            fatalError("Failed to configure SwiftData container.")
+        }
+    }
+
     var body: some Scene {
         WindowGroup {
             RootView()
-                .modelContainer(container)
                 .onAppear {
+                    WorkoutActivityManager.shared.setModelContext(container.mainContext)
                     authenticationViewModel.listenToAuthChanges()
                     AppContainer.shared.container = container
                     WorkoutActivityManager.shared.endAllActivities()
                 }
+                .modelContainer(container)
                 .environment(exerciseViewModel)
                 .environment(authenticationViewModel)
+                .environment(userManager)
                 .usesAlertController()
         }
     }

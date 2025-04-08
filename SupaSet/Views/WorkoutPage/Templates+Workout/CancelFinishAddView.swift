@@ -6,7 +6,7 @@
 //
 
 import SwiftUI
-
+import FirebaseAuth
 struct CancelFinishAddView<T: Nameable>: View {
     @Bindable var item: T
     var originalItem: T?
@@ -16,30 +16,32 @@ struct CancelFinishAddView<T: Nameable>: View {
     @Environment(\.dismiss) private var dismiss
     @Environment(\.modelContext) private var modelContext
     @Environment(\.alertController) private var alertController
+    @State private var showExercisePicker = false
     var body: some View {
-        VStack {
-            // Add Exercises Button
-            NavigationLink {
-                Group {
-                    if let workout = item as? Workout {
-                        ExerciseListPickerView(workout: workout)
-                    } else if let template = item as? Template {
-                        ExerciseListPickerView(template: template)
+        ZStack {
+            VStack {
+                NavigationLink {
+                    Group {
+                        if let workout = item as? Workout {
+                            ExerciseListPickerView(workout: workout)
+                        } else if let template = item as? Template {
+                            ExerciseListPickerView(template: template)
+                        }
                     }
+                } label: {
+                    HStack(spacing: 8) {
+                        Image(systemName: "plus")
+                            .font(.title3)
+                            .foregroundColor(Color.text)
+                        
+                        Text("Add Exercises")
+                            .font(.headline)
+                            .foregroundColor(Color.text)
+                    }
+                    .modifier(LongButtonModifier())
                 }
-            } label: {
-                HStack(spacing: 8) {
-                    Image(systemName: "plus")
-                        .font(.title3)
-                        .foregroundColor(.theme.background)
-                    
-                    Text("Add Exercises")
-                        .font(.headline)
-                        .foregroundColor(.theme.background)
-                }
-                .modifier(LongButtonModifier())
+                CancelFinishButtons
             }
-            CancelFinishButtons
         }
     }
     private var CancelFinishButtons: some View {
@@ -53,8 +55,8 @@ struct CancelFinishAddView<T: Nameable>: View {
                 icon: "trash",
                 title: title,
                 style: .filled(
-                    background: .red,
-                    foreground: .theme.textOpposite
+                    background: .redTheme,
+                    foreground: .redTheme.bestTextColor()
                 ),
                 action: {
                     let buttons: [AlertButton] = [
@@ -75,8 +77,8 @@ struct CancelFinishAddView<T: Nameable>: View {
                 icon: "checkmark",
                 title: "\(isNew ? "Finish" : "Save") \(itemType)",
                 style: .filled(
-                    background: .theme.secondary,
-                    foreground: .theme.textOpposite
+                    background: .primaryTheme,
+                    foreground: .primaryTheme.bestTextColor()
                 ),
                 action: {
                     finish()
@@ -94,15 +96,18 @@ struct CancelFinishAddView<T: Nameable>: View {
     
     private func finishWorkout(_ workout: Workout) {
         WorkoutActivityManager.shared.endAllActivities()
-        
         show = false
-        DispatchQueue.main.asyncAfter(deadline: .now() + 0.25) {
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.4) {
             if !workout.isFinished {
                 workout.isFinished = true
                 workout.endTime = Date()
             }
             do {
                 try modelContext.save()
+                Task {
+                    guard let userId = Auth.auth().currentUser?.uid else {return}
+                    let docId = try await WorkoutService.uploadWorkout(workout, isPublic: true)
+                }
             } catch {
                 alertController.present(
                     title: "Error Saving Workout",
@@ -141,7 +146,7 @@ struct CancelFinishAddView<T: Nameable>: View {
             if let workout = item as? Workout {
                 deleteWorkout(workout)
             } else if let template = item as? Template {
-               deleteTemplate(template)
+                deleteTemplate(template)
             }
         } else {
             if let originalItem {
@@ -158,13 +163,11 @@ struct CancelFinishAddView<T: Nameable>: View {
         }
     }
     private func deleteWorkout(_ workout: Workout) {
-        show = false
         // add 0.25 sec delay
-        DispatchQueue.main.asyncAfter(deadline: .now() + 0.25) {
-            withAnimation(.smooth) {
-                modelContext.delete(workout)
-                WorkoutActivityManager.shared.endAllActivities()
-            }
+        show = false
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
+            modelContext.delete(workout)
+            WorkoutActivityManager.shared.endAllActivities()
         }
     }
     
@@ -175,4 +178,3 @@ struct CancelFinishAddView<T: Nameable>: View {
         }
     }
 }
-

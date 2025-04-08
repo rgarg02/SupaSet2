@@ -13,6 +13,7 @@ struct GoogleSignIn: View {
     @Binding var isLoading: Bool
     @Environment(AuthenticationViewModel.self) private var authViewModel
     @Environment(\.alertController) private var alertController
+    @Environment(\.modelContext) private var modelContext
     var body: some View {
         Button {
             Task{
