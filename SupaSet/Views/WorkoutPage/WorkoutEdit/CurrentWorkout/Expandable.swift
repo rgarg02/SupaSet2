@@ -40,7 +40,7 @@ struct ExpandableWorkout: View {
             .padding(.horizontal, expandWorkout ? 0 : 15)
             .offset(y: offsetY)
             .gesture(createDragGesture())
-            .ignoresSafeArea()
+            .ignoresSafeArea(.container)
         }
         .onChange(of: show) { _, newValue in
             if !newValue {
@@ -142,8 +142,6 @@ struct ExpandableWorkout: View {
         VStack(spacing: 0) {
             // Header with drag indicator
             expandedHeaderView()
-//                .frame(height: 50)
-            
             // Scrollable content
             WorkoutView(show: $show, workout: workout)
                 

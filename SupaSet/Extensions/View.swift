@@ -29,7 +29,6 @@ extension View {
 }
 struct KeyboardDismissModifier: ViewModifier {
     @FocusState private var focusedField: Bool
-    
     func body(content: Content) -> some View {
         content
             .focused($focusedField)

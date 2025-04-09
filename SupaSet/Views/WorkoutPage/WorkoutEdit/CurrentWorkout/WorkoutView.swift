@@ -31,6 +31,7 @@ struct WorkoutView: View {
                 }
                 
                 CancelFinishAddView(item: workout, originalItem: workout, show: $show, isNew: true)
+                    .padding(.bottom)
             }
             .padding()
         }

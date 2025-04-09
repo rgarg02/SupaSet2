@@ -90,7 +90,6 @@ struct EditOrCreateTemplateView: View {
         .interactiveDismissDisabled(true)
         .cornerRadius(8)
         .navigationBarBackButtonHidden(true)
-        .ignoresSafeArea(.keyboard, edges: .bottom)
         .dismissKeyboardOnTap()
         .environmentObject(dragState)
     }
