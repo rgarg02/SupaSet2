@@ -36,7 +36,6 @@ struct WorkoutPageView: View {
                         WorkoutFinishedView(workout: workout)
                     }
                 }
-                .padding(.bottom, 55)
         }
     }
     

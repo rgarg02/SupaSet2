@@ -25,8 +25,6 @@ extension SupaSetSchemaV1 {
         var totalVolume: Double {
             sets.reduce(0) { $0 + ($1.weight * Double($1.reps)) }
         }
-        @Transient
-        var frame: CGRect = .zero
         
         init(exerciseID: String, order: Int = 0, notes: String? = nil) {
             self.id = UUID()

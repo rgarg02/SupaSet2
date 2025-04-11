@@ -11,19 +11,6 @@ struct ContentView: View {
     @State private var currentWorkout: Workout?
     @State private var showFAB: Bool = false
     @Query(filter: #Predicate<Workout>{$0.isFinished == false}) private var ongoingWorkout: [Workout]
-//    init() {
-//        let appearance = UITabBarAppearance()
-//        
-//        // Configure the shadow (separator) above the tab bar
-//        appearance.shadowColor = .gray
-//        
-//        // You can also set the background color if needed
-//        appearance.backgroundColor = UIColor(Color.theme.background)
-//        
-//        // Apply the appearance to both standard and scrollEdge appearances
-//        UITabBar.appearance().standardAppearance = appearance
-//        UITabBar.appearance().scrollEdgeAppearance = appearance
-//    }
     
     var body: some View {
         NavigationStack{
@@ -76,20 +63,25 @@ struct ContentView: View {
                         showWorkoutOverlay = false
                         currentWorkout = nil
                         showFAB = true
+                        WorkoutActivityManager.shared.endAllActivities()
                     } else {
                         // Has active workout
                         showWorkoutOverlay = true
                         showFAB = false
                         currentWorkout = newValue.first
+                        if let currentWorkout {
+                            try? WorkoutActivityManager.shared.startWorkoutActivity(workout: currentWorkout)
+                        }
                     }
                 }
                 .onAppear {
-                    
-                    // Initial state setup
                     if !ongoingWorkout.isEmpty {
                         showWorkoutOverlay = true
                         showFAB = false
                         currentWorkout = ongoingWorkout.first
+                        if let currentWorkout {
+                            try? WorkoutActivityManager.shared.startWorkoutActivity(workout: currentWorkout)
+                        }
                     } else {
                         showWorkoutOverlay = false
                         showFAB = true

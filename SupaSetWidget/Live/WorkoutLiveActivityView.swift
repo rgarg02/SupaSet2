@@ -44,7 +44,7 @@ struct WorkoutLiveActivityView: View {
                     Text("Set \(context.state.currentSetNumber)/\(context.state.totalSets)")
                         .padding(.horizontal, 6)
                         .padding(.vertical, 4)
-                        .background(Color.theme.secondary.opacity(0.5))
+                        .background(Color.accent.opacity(0.5))
                         .clipShape(Capsule())
                     
                     if context.state.type != .working {
@@ -70,7 +70,7 @@ struct WorkoutLiveActivityView: View {
                     }
                     .frame(maxHeight: .infinity)
                     .buttonStyle(PlainButtonStyle())
-                    .background(Color.theme.accent)
+                    .background(Color.accent)
                     .clipShape(.circle)
                     
                     Text("\(Int(context.state.weight))lb")
@@ -83,7 +83,7 @@ struct WorkoutLiveActivityView: View {
                             .padding(7)
                     }
                     .buttonStyle(PlainButtonStyle())
-                    .background(Color.theme.accent)
+                    .background(Color.accent)
                     .clipShape(.circle)
                 }
                 
@@ -97,7 +97,7 @@ struct WorkoutLiveActivityView: View {
                     }
                     .frame(maxHeight: .infinity)
                     .buttonStyle(PlainButtonStyle())
-                    .background(Color.theme.accent)
+                    .background(Color.accent)
                     .clipShape(.circle)
                     
                     Text("\(context.state.targetReps) reps")
@@ -110,7 +110,7 @@ struct WorkoutLiveActivityView: View {
                             .padding(7)
                     }
                     .buttonStyle(PlainButtonStyle())
-                    .background(Color.theme.accent)
+                    .background(Color.accent)
                     .clipShape(.circle)
                 }
             }
@@ -128,7 +128,7 @@ struct WorkoutLiveActivityView: View {
             }
             .padding(5)
             .buttonStyle(PlainButtonStyle())
-            .background(Color.theme.secondary)
+            .background(Color.primaryThemeColorTwo)
             .clipShape(.capsule)
         }
         .foregroundStyle(Color.theme.text)

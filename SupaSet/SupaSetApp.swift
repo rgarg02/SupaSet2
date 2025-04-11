@@ -35,6 +35,7 @@ struct SupaSetApp: App {
             container = try ModelContainer(for: schema, configurations: config)
             container.mainContext.undoManager = UndoManager()
             self.exerciseViewModel = ExerciseViewModel(modelContext: container.mainContext)
+            WorkoutActivityManager.shared.setModelContext(container.mainContext)
         } catch {
             fatalError("Failed to configure SwiftData container.")
         }
@@ -44,10 +45,8 @@ struct SupaSetApp: App {
         WindowGroup {
             RootView()
                 .onAppear {
-                    WorkoutActivityManager.shared.setModelContext(container.mainContext)
                     authenticationViewModel.listenToAuthChanges()
                     AppContainer.shared.container = container
-                    WorkoutActivityManager.shared.endAllActivities()
                 }
                 .modelContainer(container)
                 .environment(exerciseViewModel)

@@ -57,10 +57,6 @@ struct ExerciseMenu<T: ExerciseMenuType>: View {
         case let workoutExercise as WorkoutExercise:
             if let workout = workoutExercise.workout {
                 modelContext.delete(workoutExercise)
-                withAnimation(.bouncy(duration: 0.3)) {
-                    workout.reorderExercises()
-                }
-                
             }
         case let templateExercise as TemplateExercise:
             if let template = templateExercise.template {

@@ -70,8 +70,6 @@
 		D98DFE442D9F923E004FD5D5 /* Execise+.swift in Sources */ = {isa = PBXBuildFile; fileRef = D98DFD7B2D9F923E004FD5D5 /* Execise+.swift */; };
 		D98DFE452D9F923E004FD5D5 /* Workout+.swift in Sources */ = {isa = PBXBuildFile; fileRef = D98DFD7C2D9F923E004FD5D5 /* Workout+.swift */; };
 		D98DFE462D9F923E004FD5D5 /* Workout+Exercise.swift in Sources */ = {isa = PBXBuildFile; fileRef = D98DFD7D2D9F923E004FD5D5 /* Workout+Exercise.swift */; };
-		D98DFE472D9F923E004FD5D5 /* Workout+Live.swift in Sources */ = {isa = PBXBuildFile; fileRef = D98DFD7E2D9F923E004FD5D5 /* Workout+Live.swift */; };
-		D98DFE482D9F923E004FD5D5 /* Workout+Nav.swift in Sources */ = {isa = PBXBuildFile; fileRef = D98DFD7F2D9F923E004FD5D5 /* Workout+Nav.swift */; };
 		D98DFE492D9F923E004FD5D5 /* ExerciseDetail.swift in Sources */ = {isa = PBXBuildFile; fileRef = D98DFD812D9F923E004FD5D5 /* ExerciseDetail.swift */; };
 		D98DFE4A2D9F923E004FD5D5 /* ExerciseSet.swift in Sources */ = {isa = PBXBuildFile; fileRef = D98DFD822D9F923E004FD5D5 /* ExerciseSet.swift */; };
 		D98DFE4B2D9F923E004FD5D5 /* Template.swift in Sources */ = {isa = PBXBuildFile; fileRef = D98DFD832D9F923E004FD5D5 /* Template.swift */; };
@@ -181,7 +179,6 @@
 		D98DFEB52D9F923E004FD5D5 /* Workout+Exercise.swift in Sources */ = {isa = PBXBuildFile; fileRef = D98DFD7D2D9F923E004FD5D5 /* Workout+Exercise.swift */; };
 		D98DFEB62D9F923E004FD5D5 /* ExerciseImporter.swift in Sources */ = {isa = PBXBuildFile; fileRef = D98DFD722D9F923E004FD5D5 /* ExerciseImporter.swift */; };
 		D98DFEB72D9F923E004FD5D5 /* ModelAliases.swift in Sources */ = {isa = PBXBuildFile; fileRef = D98DFD8A2D9F923E004FD5D5 /* ModelAliases.swift */; };
-		D98DFEB82D9F923E004FD5D5 /* Workout+Nav.swift in Sources */ = {isa = PBXBuildFile; fileRef = D98DFD7F2D9F923E004FD5D5 /* Workout+Nav.swift */; };
 		D98DFEB92D9F923E004FD5D5 /* +Funcs.swift in Sources */ = {isa = PBXBuildFile; fileRef = D98DFD792D9F923E004FD5D5 /* +Funcs.swift */; };
 		D98DFEBA2D9F923E004FD5D5 /* WorkoutExercise.swift in Sources */ = {isa = PBXBuildFile; fileRef = D98DFD882D9F923E004FD5D5 /* WorkoutExercise.swift */; };
 		D98DFEBB2D9F923E004FD5D5 /* ExerciseEntity.swift in Sources */ = {isa = PBXBuildFile; fileRef = D98DFD8E2D9F923E004FD5D5 /* ExerciseEntity.swift */; };
@@ -189,7 +186,6 @@
 		D98DFEBD2D9F923E004FD5D5 /* UserProfile.swift in Sources */ = {isa = PBXBuildFile; fileRef = D98DFD862D9F923E004FD5D5 /* UserProfile.swift */; };
 		D98DFEBE2D9F923E004FD5D5 /* Workout+.swift in Sources */ = {isa = PBXBuildFile; fileRef = D98DFD7C2D9F923E004FD5D5 /* Workout+.swift */; };
 		D98DFEBF2D9F923E004FD5D5 /* TemplateExerciseSet.swift in Sources */ = {isa = PBXBuildFile; fileRef = D98DFD852D9F923E004FD5D5 /* TemplateExerciseSet.swift */; };
-		D98DFEC02D9F923E004FD5D5 /* Workout+Live.swift in Sources */ = {isa = PBXBuildFile; fileRef = D98DFD7E2D9F923E004FD5D5 /* Workout+Live.swift */; };
 		D98DFEC12D9F923E004FD5D5 /* SchemaV1.swift in Sources */ = {isa = PBXBuildFile; fileRef = D98DFD8B2D9F923E004FD5D5 /* SchemaV1.swift */; };
 		D98DFEC22D9F923E004FD5D5 /* Button.swift in Sources */ = {isa = PBXBuildFile; fileRef = D98DFD542D9F923E004FD5D5 /* Button.swift */; };
 		D98DFEC32D9F923E004FD5D5 /* AppContainer.swift in Sources */ = {isa = PBXBuildFile; fileRef = D98DFD8D2D9F923E004FD5D5 /* AppContainer.swift */; };
@@ -199,6 +195,9 @@
 		D9AF184F2CDEBF44001ACDDA /* SupaSetWidgetExtension.appex in Embed Foundation Extensions */ = {isa = PBXBuildFile; fileRef = D9AF18392CDEBF42001ACDDA /* SupaSetWidgetExtension.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
 		D9B75E012D3463D9005F3D3F /* FirebaseAnalytics in Frameworks */ = {isa = PBXBuildFile; productRef = D9B75E002D3463D9005F3D3F /* FirebaseAnalytics */; };
 		D9B75E032D3466A8005F3D3F /* FirebaseAuth in Frameworks */ = {isa = PBXBuildFile; productRef = D9B75E022D3466A8005F3D3F /* FirebaseAuth */; };
+		D9EAD63B2DA879C10058043D /* Feature.swift in Sources */ = {isa = PBXBuildFile; fileRef = D9EAD63A2DA879C10058043D /* Feature.swift */; };
+		D9EAD63D2DA87B070058043D /* WhatsNewManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = D9EAD63C2DA87B070058043D /* WhatsNewManager.swift */; };
+		D9EAD63F2DA8E8B60058043D /* Build15.swift in Sources */ = {isa = PBXBuildFile; fileRef = D9EAD63E2DA8E8AA0058043D /* Build15.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -294,8 +293,6 @@
 		D98DFD7B2D9F923E004FD5D5 /* Execise+.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Execise+.swift"; sourceTree = "<group>"; };
 		D98DFD7C2D9F923E004FD5D5 /* Workout+.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Workout+.swift"; sourceTree = "<group>"; };
 		D98DFD7D2D9F923E004FD5D5 /* Workout+Exercise.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Workout+Exercise.swift"; sourceTree = "<group>"; };
-		D98DFD7E2D9F923E004FD5D5 /* Workout+Live.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Workout+Live.swift"; sourceTree = "<group>"; };
-		D98DFD7F2D9F923E004FD5D5 /* Workout+Nav.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Workout+Nav.swift"; sourceTree = "<group>"; };
 		D98DFD812D9F923E004FD5D5 /* ExerciseDetail.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ExerciseDetail.swift; sourceTree = "<group>"; };
 		D98DFD822D9F923E004FD5D5 /* ExerciseSet.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ExerciseSet.swift; sourceTree = "<group>"; };
 		D98DFD832D9F923E004FD5D5 /* Template.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Template.swift; sourceTree = "<group>"; };
@@ -409,6 +406,9 @@
 		D9AF18392CDEBF42001ACDDA /* SupaSetWidgetExtension.appex */ = {isa = PBXFileReference; explicitFileType = "wrapper.app-extension"; includeInIndex = 0; path = SupaSetWidgetExtension.appex; sourceTree = BUILT_PRODUCTS_DIR; };
 		D9AF183B2CDEBF42001ACDDA /* WidgetKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = WidgetKit.framework; path = System/Library/Frameworks/WidgetKit.framework; sourceTree = SDKROOT; };
 		D9AF183D2CDEBF42001ACDDA /* SwiftUI.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = SwiftUI.framework; path = System/Library/Frameworks/SwiftUI.framework; sourceTree = SDKROOT; };
+		D9EAD63A2DA879C10058043D /* Feature.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Feature.swift; sourceTree = "<group>"; };
+		D9EAD63C2DA87B070058043D /* WhatsNewManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WhatsNewManager.swift; sourceTree = "<group>"; };
+		D9EAD63E2DA8E8AA0058043D /* Build15.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Build15.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFileSystemSynchronizedBuildFileExceptionSet section */
@@ -614,8 +614,6 @@
 				D98DFD7B2D9F923E004FD5D5 /* Execise+.swift */,
 				D98DFD7C2D9F923E004FD5D5 /* Workout+.swift */,
 				D98DFD7D2D9F923E004FD5D5 /* Workout+Exercise.swift */,
-				D98DFD7E2D9F923E004FD5D5 /* Workout+Live.swift */,
-				D98DFD7F2D9F923E004FD5D5 /* Workout+Nav.swift */,
 			);
 			path = Extensions;
 			sourceTree = "<group>";
@@ -928,6 +926,8 @@
 		D98DFE012D9F923E004FD5D5 /* Views */ = {
 			isa = PBXGroup;
 			children = (
+				D9EAD5E02DA865230058043D /* WhatsNew */,
+				D98DFDDE2D9F923E004FD5D5 /* Root */,
 				D98DFDBF2D9F923E004FD5D5 /* Onboarding */,
 				D98DFEC92D9F9975004FD5D5 /* Feed */,
 				D98DFD992D9F923E004FD5D5 /* Auth */,
@@ -937,7 +937,6 @@
 				D98DFDBB2D9F923E004FD5D5 /* History */,
 				D98DFDBD2D9F923E004FD5D5 /* HomePage */,
 				D98DFDD92D9F923E004FD5D5 /* ProfilePage */,
-				D98DFDDE2D9F923E004FD5D5 /* Root */,
 				D98DFE002D9F923E004FD5D5 /* WorkoutPage */,
 			);
 			path = Views;
@@ -996,6 +995,16 @@
 				D9AF183D2CDEBF42001ACDDA /* SwiftUI.framework */,
 			);
 			name = Frameworks;
+			sourceTree = "<group>";
+		};
+		D9EAD5E02DA865230058043D /* WhatsNew */ = {
+			isa = PBXGroup;
+			children = (
+				D9EAD63E2DA8E8AA0058043D /* Build15.swift */,
+				D9EAD63C2DA87B070058043D /* WhatsNewManager.swift */,
+				D9EAD63A2DA879C10058043D /* Feature.swift */,
+			);
+			path = WhatsNew;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -1200,6 +1209,8 @@
 				D98DFE162D9F923E004FD5D5 /* HumanModelView.swift in Sources */,
 				D98DFE172D9F923E004FD5D5 /* MuscleGroups.swift in Sources */,
 				D98DFE182D9F923E004FD5D5 /* MuscleIntensityView.swift in Sources */,
+				D9EAD63B2DA879C10058043D /* Feature.swift in Sources */,
+				D9EAD63F2DA8E8B60058043D /* Build15.swift in Sources */,
 				D98DFE192D9F923E004FD5D5 /* SceneKitContainer.swift in Sources */,
 				D98DFE1A2D9F923E004FD5D5 /* SceneManager.swift in Sources */,
 				D98DFE1B2D9F923E004FD5D5 /* Alert+View.swift in Sources */,
@@ -1212,6 +1223,7 @@
 				D98DFE222D9F923E004FD5D5 /* AlertType.swift in Sources */,
 				D98DFE232D9F923E004FD5D5 /* EnvironmentValues+.swift in Sources */,
 				D98DFE242D9F923E004FD5D5 /* UsesAlertControllerModifier.swift in Sources */,
+				D9EAD63D2DA87B070058043D /* WhatsNewManager.swift in Sources */,
 				D98DFE252D9F923E004FD5D5 /* Button.swift in Sources */,
 				D98DFE262D9F923E004FD5D5 /* ProgressDotsWorkout.swift in Sources */,
 				D98DFE272D9F923E004FD5D5 /* ScrollOffsetKey.swift in Sources */,
@@ -1247,8 +1259,6 @@
 				D98DFE452D9F923E004FD5D5 /* Workout+.swift in Sources */,
 				D98DFE462D9F923E004FD5D5 /* Workout+Exercise.swift in Sources */,
 				D98DFECE2D9F9BA8004FD5D5 /* WorkoutService+Fetch.swift in Sources */,
-				D98DFE472D9F923E004FD5D5 /* Workout+Live.swift in Sources */,
-				D98DFE482D9F923E004FD5D5 /* Workout+Nav.swift in Sources */,
 				D98DFE492D9F923E004FD5D5 /* ExerciseDetail.swift in Sources */,
 				D98DFE4A2D9F923E004FD5D5 /* ExerciseSet.swift in Sources */,
 				D98DFE4B2D9F923E004FD5D5 /* Template.swift in Sources */,
@@ -1379,7 +1389,6 @@
 				D98DFEB52D9F923E004FD5D5 /* Workout+Exercise.swift in Sources */,
 				D98DFEB62D9F923E004FD5D5 /* ExerciseImporter.swift in Sources */,
 				D98DFEB72D9F923E004FD5D5 /* ModelAliases.swift in Sources */,
-				D98DFEB82D9F923E004FD5D5 /* Workout+Nav.swift in Sources */,
 				D98DFEB92D9F923E004FD5D5 /* +Funcs.swift in Sources */,
 				D98DFEBA2D9F923E004FD5D5 /* WorkoutExercise.swift in Sources */,
 				D98DFEBB2D9F923E004FD5D5 /* ExerciseEntity.swift in Sources */,
@@ -1387,7 +1396,6 @@
 				D98DFEBD2D9F923E004FD5D5 /* UserProfile.swift in Sources */,
 				D98DFEBE2D9F923E004FD5D5 /* Workout+.swift in Sources */,
 				D98DFEBF2D9F923E004FD5D5 /* TemplateExerciseSet.swift in Sources */,
-				D98DFEC02D9F923E004FD5D5 /* Workout+Live.swift in Sources */,
 				D98DFEC12D9F923E004FD5D5 /* SchemaV1.swift in Sources */,
 				D98DFEC22D9F923E004FD5D5 /* Button.swift in Sources */,
 				D98DFEC32D9F923E004FD5D5 /* AppContainer.swift in Sources */,
@@ -1627,7 +1635,7 @@
 			buildSettings = {
 				BUNDLE_LOADER = "$(TEST_HOST)";
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 15;
+				CURRENT_PROJECT_VERSION = 16;
 				DEAD_CODE_STRIPPING = YES;
 				DEVELOPMENT_TEAM = 3RXQC7X4AK;
 				GENERATE_INFOPLIST_FILE = YES;
@@ -1652,7 +1660,7 @@
 			buildSettings = {
 				BUNDLE_LOADER = "$(TEST_HOST)";
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 15;
+				CURRENT_PROJECT_VERSION = 16;
 				DEAD_CODE_STRIPPING = YES;
 				DEVELOPMENT_TEAM = 3RXQC7X4AK;
 				GENERATE_INFOPLIST_FILE = YES;
@@ -1676,7 +1684,7 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 15;
+				CURRENT_PROJECT_VERSION = 16;
 				DEAD_CODE_STRIPPING = YES;
 				DEVELOPMENT_TEAM = 3RXQC7X4AK;
 				GENERATE_INFOPLIST_FILE = YES;
@@ -1700,7 +1708,7 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 15;
+				CURRENT_PROJECT_VERSION = 16;
 				DEAD_CODE_STRIPPING = YES;
 				DEVELOPMENT_TEAM = 3RXQC7X4AK;
 				GENERATE_INFOPLIST_FILE = YES;
@@ -1726,7 +1734,7 @@
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				ASSETCATALOG_COMPILER_WIDGET_BACKGROUND_COLOR_NAME = WidgetBackground;
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 15;
+				CURRENT_PROJECT_VERSION = 16;
 				DEVELOPMENT_TEAM = 3RXQC7X4AK;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = SupaSetWidget/Info.plist;
@@ -1759,7 +1767,7 @@
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				ASSETCATALOG_COMPILER_WIDGET_BACKGROUND_COLOR_NAME = WidgetBackground;
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 15;
+				CURRENT_PROJECT_VERSION = 16;
 				DEVELOPMENT_TEAM = 3RXQC7X4AK;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = SupaSetWidget/Info.plist;

@@ -18,8 +18,6 @@ extension SupaSetSchemaV1 {
         var endTime: Date?
         var isFinished: Bool
         var notes: String
-        var currentExerciseOrder: Int
-        var currentSetOrder: Int
         
         @Relationship(deleteRule: .cascade)
         var exercises: [WorkoutExercise] = []
@@ -38,17 +36,13 @@ extension SupaSetSchemaV1 {
              date: Date = Date(),
              endTime: Date? = nil,
              isFinished: Bool = false,
-             notes: String = "",
-             currentExerciseOrder: Int = 0,
-             currentSetOrder: Int = 0) {
+             notes: String = "") {
             self.id = UUID()
             self.name = name
             self.date = date
             self.endTime = endTime
             self.isFinished = isFinished
             self.notes = notes
-            self.currentExerciseOrder = currentExerciseOrder
-            self.currentSetOrder = currentSetOrder
             self.exercises = []
         }
         init(
@@ -57,17 +51,13 @@ extension SupaSetSchemaV1 {
             date: Date = Date(),
             endTime: Date? = nil,
             isFinished: Bool = false,
-            notes: String = "",
-            currentExerciseOrder: Int = 0,
-            currentSetOrder: Int = 0) {
+            notes: String = "") {
                 self.id = id
                 self.name = name
                 self.date = date
                 self.endTime = endTime
                 self.isFinished = isFinished
                 self.notes = notes
-                self.currentExerciseOrder = currentExerciseOrder
-                self.currentSetOrder = currentSetOrder
                 self.exercises = []
             }
         init(template: Template) {
@@ -75,8 +65,6 @@ extension SupaSetSchemaV1 {
             self.name = template.name
             self.date = Date()
             self.isFinished = false
-            self.currentExerciseOrder = 0
-            self.currentSetOrder = 0
             self.notes = ""
             
             self.exercises = template.exercises.map { templateExercise in

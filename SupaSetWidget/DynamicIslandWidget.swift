@@ -37,7 +37,7 @@ struct LiveActivityWidget: Widget {
                             }
                             .frame(maxHeight: .infinity)
                             .buttonStyle(PlainButtonStyle())
-                            .background(Color.theme.accent)
+                            .background(Color.accent)
                             .clipShape(.circle)
                             
                             Button(intent: IncrementWeightIntent(workoutId: context.attributes.workoutId)) {
@@ -47,11 +47,11 @@ struct LiveActivityWidget: Widget {
                             }
                             .frame(maxHeight: .infinity)
                             .buttonStyle(PlainButtonStyle())
-                            .background(Color.theme.accent)
+                            .background(Color.accent)
                             .clipShape(.circle)
                         }
                     }
-                    .foregroundStyle(Color.theme.text)
+                    .foregroundStyle(Color.text)
                 }
                 
                 DynamicIslandExpandedRegion(.trailing) {
@@ -76,7 +76,7 @@ struct LiveActivityWidget: Widget {
                             }
                             .frame(maxHeight: .infinity)
                             .buttonStyle(PlainButtonStyle())
-                            .background(Color.theme.accent)
+                            .background(Color.accent)
                             .clipShape(.circle)
                             
                             Button(intent: IncrementRepsIntent(workoutId: context.attributes.workoutId)) {
@@ -87,11 +87,11 @@ struct LiveActivityWidget: Widget {
                             }
                             .frame(maxHeight: .infinity)
                             .buttonStyle(PlainButtonStyle())
-                            .background(Color.theme.accent)
+                            .background(Color.accent)
                             .clipShape(.circle)
                         }
                     }
-                    .foregroundStyle(Color.theme.text)
+                    .foregroundStyle(Color.text)
                 }
                 
                 DynamicIslandExpandedRegion(.center) {
@@ -102,10 +102,10 @@ struct LiveActivityWidget: Widget {
                         Text("Set \(context.state.currentSetNumber)/\(context.state.totalSets)")
                             .padding(.horizontal, 6)
                             .padding(.vertical, 2)
-                            .background(Color.theme.secondary.opacity(0.5))
+                            .background(Color.primaryThemeColorTwo.opacity(0.5))
                             .clipShape(Capsule())
                     }
-                    .foregroundStyle(Color.theme.text)
+                    .foregroundStyle(Color.text)
                 }
                 
                 DynamicIslandExpandedRegion(.bottom) {
@@ -119,9 +119,9 @@ struct LiveActivityWidget: Widget {
                     }
                     .buttonStyle(PlainButtonStyle())
                     .padding(5)
-                    .background(Color.theme.secondary)
+                    .background(Color.primaryThemeColorTwo)
                     .clipShape(.capsule)
-                    .foregroundStyle(Color.theme.text)
+                    .foregroundStyle(Color.text)
                 }
             } compactLeading: {
                 Image(systemName: "dumbbell.fill")
@@ -140,7 +140,7 @@ struct LiveActivityWidget: Widget {
                     .font(.callout.bold())
                     .frame(height: 10)
             }
-            .keylineTint(Color.theme.accent)
+            .keylineTint(Color.accent)
         }
     }
 }

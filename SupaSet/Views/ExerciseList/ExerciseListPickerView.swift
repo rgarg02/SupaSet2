@@ -201,7 +201,6 @@ struct ExerciseListPickerView: View {
             for exercise in selectedExercises {
                 workout.insertExercise(exercise.id)
             }
-            WorkoutActivityManager.shared.updateWorkoutActivity(workout: workout)
         case .replace(let workoutExercise):
             if let exercise = selectedExercises.first {
                 workoutExercise.exerciseID = exercise.id

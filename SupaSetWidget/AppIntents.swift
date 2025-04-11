@@ -34,7 +34,7 @@ struct CompleteSetIntent: LiveActivityIntent {
                 return .result()
             }
             
-            WorkoutActivityManager.shared.completeCurrentSet(workout: workout)
+            WorkoutActivityManager.shared.completeSetAndRefresh(workout)
             return .result()
         } catch {
             return .result()
@@ -74,7 +74,7 @@ struct IncrementWeightIntent: LiveActivityIntent {
                 return .result()
             }
             // Ensure we're operating within the correct context
-            WorkoutActivityManager.shared.incrementWeight(workout: workout)
+            WorkoutActivityManager.shared.incrementWeightAndRefresh(workout)
             
             try context.save()
             return .result()
@@ -111,7 +111,7 @@ struct DecrementWeightIntent: LiveActivityIntent {
                 return .result()
             }
             
-            WorkoutActivityManager.shared.decrementWeight(workout: workout)
+            WorkoutActivityManager.shared.decrementWeightAndRefresh(workout)
             return .result()
         } catch {
             return .result()
@@ -147,7 +147,7 @@ struct IncrementRepsIntent: LiveActivityIntent {
                 return .result()
             }
             
-            WorkoutActivityManager.shared.incrementReps(workout: workout)
+            WorkoutActivityManager.shared.incrementRepsAndRefresh(workout)
             return .result()
         } catch {
             return .result()
@@ -182,7 +182,7 @@ struct DecrementRepsIntent: LiveActivityIntent {
                 return .result()
             }
             
-            WorkoutActivityManager.shared.decrementReps(workout: workout)
+            WorkoutActivityManager.shared.decrementRepsAndRefresh(workout)
             return .result()
         } catch {
             return .result()
