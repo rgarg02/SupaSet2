@@ -65,7 +65,6 @@ struct ExerciseView: View {
                     let order = workoutExercise.sets.lazy
                         .filter { $0.type == .working && $0.order < set.order }
                         .count
-
                     SwipeAction(cornerRadius: 8, direction: .trailing) {
                         SetRowViewCombined(order: order, isTemplate: false, weight: $set.weight, reps: $set.reps, isDone: $set.isDone, type: $set.type, exerciseID: workoutExercise.exerciseID)
                             // --- Weight Change ---

@@ -54,7 +54,7 @@ struct MuscleIntensityView: View {
             totalVolume += exerciseVolume
             
             // Get the muscles targeted by this exercise
-            if let mappedExercise = exerciseViewModel.exercises.first(where: { $0.id == exercise.exerciseID }) {
+            if let mappedExercise = exerciseViewModel.getExercise(for: exercise.exerciseID) {
                 let primaryMuscleGroups = mappedExercise.primaryMuscles
                 let secondaryMuscleGroups = mappedExercise.secondaryMuscles
                 

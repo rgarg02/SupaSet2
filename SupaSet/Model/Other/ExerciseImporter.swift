@@ -10,27 +10,27 @@ import NaturalLanguage
 
 extension String {
     // Remove content within parentheses for comparison
-//    private func removeParentheses() -> String {
-//        var result = ""
-//        var depth = 0
-//        
-//        for char in self {
-//            if char == "(" {
-//                depth += 1
-//            } else if char == ")" {
-//                depth -= 1
-//            } else if depth == 0 {
-//                result.append(char)
-//            }
-//        }
-//        
-//        return result.trimmingCharacters(in: .whitespacesAndNewlines)
-//    }
+    //    private func removeParentheses() -> String {
+    //        var result = ""
+    //        var depth = 0
+    //
+    //        for char in self {
+    //            if char == "(" {
+    //                depth += 1
+    //            } else if char == ")" {
+    //                depth -= 1
+    //            } else if depth == 0 {
+    //                result.append(char)
+    //            }
+    //        }
+    //
+    //        return result.trimmingCharacters(in: .whitespacesAndNewlines)
+    //    }
     
     func similarity(to other: String) -> Double {
         // Remove content within parentheses from both strings
-//        let cleanSelf = self.removeParentheses()
-//        let cleanOther = other.removeParentheses()
+        //        let cleanSelf = self.removeParentheses()
+        //        let cleanOther = other.removeParentheses()
         
         let tokenizer = NLTokenizer(unit: .word)
         
@@ -53,7 +53,6 @@ enum ExerciseImporterError: Error {
 }
 @Observable
 class ExerciseViewModel {
-    private(set) var exercises: [Exercise] = []
     private(set) var isLoading = false
     private var modelContext: ModelContext
     private var _newExercises: [Exercise] = []
@@ -66,23 +65,49 @@ class ExerciseViewModel {
     }
     func getExerciseName(for exerciseId: String) -> String {
         // Find the exercise in the view model by ID and return its name
-        exercises.first(where: { $0.id == exerciseId })?.name ?? ""
+        //        exercises.first(where: { $0.id == exerciseId })?.name ?? ""
+        do {
+            var descriptor = FetchDescriptor<ExerciseEntity>(predicate: #Predicate {$0.id == exerciseId})
+            descriptor.fetchLimit = 1
+            descriptor.propertiesToFetch = [\.name]
+            let exerciseName = try modelContext.fetch(descriptor)
+            return exerciseName.first?.name ?? ""
+        } catch {
+            return ""
+        }
+    }
+
+    func getExercise(for exerciseId: String) -> ExerciseEntity? {
+        do {
+            var descriptor = FetchDescriptor<ExerciseEntity>(predicate: #Predicate {$0.id == exerciseId})
+            descriptor.fetchLimit = 1
+            let exercises = try modelContext.fetch(descriptor)
+            if let exercise = exercises.first {
+                return exercise
+            }
+            return nil
+        } catch {
+            return nil
+        }
     }
     func findOrCreateExerciseID(for name: String) -> String {
         let threshold: Double = 0.85  // Adjust this for better accuracy
         var bestMatch: (id: String, similarity: Double)? = nil
-        for exercise in exercises {
-            let similarity = name.similarity(to: exercise.name)
-            if similarity >= threshold, similarity > (bestMatch?.similarity ?? 0) {
-                bestMatch = (exercise.id, similarity)
+        let descriptor = FetchDescriptor<ExerciseEntity>()
+        if let exercises = try? modelContext.fetch(descriptor) {
+            for exercise in exercises {
+                let similarity = name.similarity(to: exercise.name)
+                if similarity >= threshold, similarity > (bestMatch?.similarity ?? 0) {
+                    bestMatch = (exercise.id, similarity)
+                }
+            }
+            if let bestMatch = bestMatch {
+                return bestMatch.id
+            } else {
+                return createNewExercise(with: name)
             }
         }
-        
-        if let bestMatch = bestMatch {
-            return bestMatch.id
-        } else {
-            return createNewExercise(with: name)
-        }
+        return createNewExercise(with: name)
     }
     func createNewExercise(with name: String) -> String {
         let newExercise = Exercise(
@@ -99,12 +124,11 @@ class ExerciseViewModel {
             images: [],
             frequency: nil
         )
-        exercises.append(newExercise)
         _newExercises.append(newExercise)
         
         return newExercise.id
     }
-
+    
     // Update the addNewExercisesToStore method in ExerciseViewModel
     func addNewExercisesToStore() {
         // This is now just for compatibility - we'll use addConfirmedExercisesToStore instead
@@ -115,30 +139,11 @@ class ExerciseViewModel {
         try? modelContext.save()
         _newExercises.removeAll()
     }
-    // Search and filter
-    func exercises(matching query: String) -> [Exercise] {
-        guard !query.isEmpty else { return exercises }
-        return exercises.filter {
-            $0.name.localizedCaseInsensitiveContains(query) ||
-            $0.primaryMuscles.map(\.rawValue).contains { $0.localizedCaseInsensitiveContains(query) }
-        }
-    }
-    
-    func exercises(forMuscle muscle: MuscleGroup) -> [Exercise] {
-        exercises.filter {
-            $0.primaryMuscles.contains(muscle) || $0.secondaryMuscles.contains(muscle)
-        }
-    }
-    
-    func exercises(forEquipment equipment: Equipment) -> [Exercise] {
-        exercises.filter { $0.equipment == equipment }
-    }
     @MainActor
     func loadAndSaveExercises() {
         guard let exercises = ExerciseLoader.loadExercises() else { return }
         let context = modelContext
         
-        // Convert each Exercise to an ExerciseEntity and insert it into the context.
         exercises.forEach { exercise in
             let exerciseEntity = ExerciseEntity(from: exercise)
             context.insert(exerciseEntity)
@@ -167,37 +172,10 @@ class ExerciseViewModel {
             if exerciseEntities.isEmpty {
                 loadAndSaveExercises()
             }
-            // Map to Exercise structs
-            self.exercises = exerciseEntities.map { entity -> Exercise in
-                // Convert primary muscles
-                let primaryMuscles = entity.primaryMuscles
-                
-                // Convert secondary muscles
-                let secondaryMuscles = entity.secondaryMuscles
-                
-                // Create Exercise object
-                return Exercise(
-                    id: entity.id,
-                    name: entity.name,
-                    force: entity.force,
-                    level: entity.level,
-                    mechanic: entity.mechanic,
-                    equipment: entity.equipment,
-                    primaryMuscles: primaryMuscles,
-                    secondaryMuscles: secondaryMuscles,
-                    instructions: entity.instructions.map {$0.text},
-                    category: entity.category,
-                    images: entity.images.map { $0.url },
-                    frequency: entity.frequency
-                )
-            }
-            
-            print("Loaded \(self.exercises.count) exercises from SwiftData")
         } catch {
-            print("Failed to load exercises from SwiftData: \(error.localizedDescription)")
             throw ExerciseImporterError.couldNotLoad
         }
-        }}
+    }}
 enum ExerciseError: LocalizedError {
     case fileNotFound
     
@@ -210,8 +188,8 @@ enum ExerciseError: LocalizedError {
 }
 extension ExerciseViewModel {
     var newExercises: [Exercise] {
-            get { _newExercises }
-        }
+        get { _newExercises }
+    }
     func mapExerciseToExisting(fromId: String, toId: String) {
         // Update all workouts that use fromId to use toId instead
         Task {
@@ -220,7 +198,6 @@ extension ExerciseViewModel {
         
         // Remove the new exercise from our tracking lists
         _newExercises.removeAll(where: { $0.id == fromId })
-        exercises.removeAll(where: { $0.id == fromId })
     }
     
     func confirmNewExercise(_ exerciseId: String) {
@@ -231,10 +208,6 @@ extension ExerciseViewModel {
     }
     
     func clearNewExercises() {
-        // Clear all new exercises (used when canceling)
-        exercises.removeAll(where: { exercise in
-            _newExercises.contains(where: { $0.id == exercise.id })
-        })
         _newExercises.removeAll()
         _confirmedNewExercises.removeAll()
     }

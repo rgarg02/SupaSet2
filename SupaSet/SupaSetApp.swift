@@ -30,6 +30,7 @@ struct SupaSetApp: App {
             UserProfile.self
         ])
         do {
+            GRDBManager.shared.importExercisesFromJSONIfNeeded()
             let storeURL = URL.documentsDirectory.appending(path: "SupaSet.sqlite")
             let config = ModelConfiguration(url: storeURL)
             container = try ModelContainer(for: schema, configurations: config)

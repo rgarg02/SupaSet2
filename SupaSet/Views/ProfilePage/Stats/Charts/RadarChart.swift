@@ -303,7 +303,7 @@ struct MuscleRadarChartView: View {
         for workout in workouts {
             for exercise in workout.exercises {
                 // Get exercise details from the view model
-                guard let exerciseInfo = exerciseViewModel.exercises.first(where: { $0.id == exercise.exerciseID }) else {
+                guard let exerciseInfo = exerciseViewModel.getExercise(for: exercise.exerciseID) else {
                     continue
                 }
                 

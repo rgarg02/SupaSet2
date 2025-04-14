@@ -64,14 +64,4 @@ struct VolumeChartSection: View {
     WorkoutStatsView()
         .modelContainer(preview.container)
         .environment(preview.viewModel)
-        .onAppear {
-            Task {
-                try await preview.viewModel.loadExercises()
-                print("preview : \(preview.viewModel.exercises.count)")
-                let workouts = try PreviewContainer.createCompletedWorkouts(using: preview.container.mainContext, exercises: preview.viewModel.exercises)
-                for workout in workouts {
-                    preview.container.mainContext.insert(workout)
-                }
-            }
-        }
 }

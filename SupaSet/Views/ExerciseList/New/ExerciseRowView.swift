@@ -1,13 +1,9 @@
-//
-//  ExerciseRowView.swift
-//  SupaSet
-//
-//  Created by Rishi Garg on 11/6/24.
-//
 import SwiftUI
 struct ExerciseRowView: View {
-    let exercise: Exercise
-    @Binding var selectedExercise: Exercise?
+    @EnvironmentObject var viewModel: ExerciseListViewModel
+    let exercise: ExerciseRecord
+    @State private var primaryMuscles: [MuscleGroup] = []
+    @Binding var selectedExercise: ExerciseRecord?
     @Binding var isShowingDetail: Bool
     var body: some View {
         VStack(alignment: .leading, spacing: 8) {
@@ -42,12 +38,16 @@ struct ExerciseRowView: View {
                     .imageScale(.small)
                 ScrollView(.horizontal, showsIndicators: false) {
                     HStack {
-                        ForEach(exercise.primaryMuscles, id: \.self) { muscle in
+                        ForEach(primaryMuscles, id: \.self) { muscle in
                             Badge(for: muscle)
                         }
                     }
                 }
             }
+        }
+        .contentShape(Rectangle())
+        .task {
+            primaryMuscles = await viewModel.fetchMuscleGroups(for: exercise.id)
         }
         .padding(.all, 8)
     }
@@ -63,11 +63,11 @@ struct Badge<T: RawRepresentable>: View where T.RawValue == String {
        self.text = value.rawValue.capitalized
        
        if let level = value as? Level {
-           self.backgroundColor = level.color.shade(50)
-           self.textColor = level.color.shade(50).bestTextColor()
+           self.backgroundColor = level.color
+           self.textColor = .text
        } else {
            self.backgroundColor = backgroundColor
-           self.textColor = backgroundColor.bestTextColor()
+           self.textColor = .text
        }
    }
    
@@ -81,34 +81,4 @@ struct Badge<T: RawRepresentable>: View where T.RawValue == String {
            .bold()
            .clipShape(Capsule())
    }
-}
-
-// Preview Provider
-#Preview {
-    @Previewable @State var exercise : Exercise? = Exercise(
-        id: "1",
-        name: "Bench Press",
-        force: .push,
-        level: .intermediate,
-        mechanic: .compound,
-        equipment: .barbell,
-        primaryMuscles: [.chest, .triceps, .shoulders],
-        secondaryMuscles: [.forearms],
-        instructions: ["Sample instruction"],
-        category: .strength,
-        images: []
-    )
-    if let exercise{
-        NavigationView{
-            List{
-                ExerciseRowView(exercise: exercise, selectedExercise: $exercise,
-                                isShowingDetail: .constant(false))
-                .padding()
-                ExerciseRowView(exercise: exercise, selectedExercise: $exercise,
-                                isShowingDetail: .constant(false))
-                .padding()
-                .colorScheme(.dark)
-            }
-        }
-    }
 }

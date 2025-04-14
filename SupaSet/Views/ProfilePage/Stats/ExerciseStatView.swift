@@ -177,7 +177,7 @@ struct ExerciseStatView: View {
                 .fontWeight(.bold)
             
             // Muscle groups if available
-            if let exercise = exerciseViewModel.exercises.first(where: { $0.id == exerciseID }) {
+            if let exercise = exerciseViewModel.getExercise(for: exerciseID) {
                 HStack(spacing: 8) {
                     // Primary muscles
                     if !exercise.primaryMuscles.isEmpty {

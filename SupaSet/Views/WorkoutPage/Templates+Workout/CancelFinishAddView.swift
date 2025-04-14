@@ -23,9 +23,9 @@ struct CancelFinishAddView<T: Nameable>: View {
                 NavigationLink {
                     Group {
                         if let workout = item as? Workout {
-                            ExerciseListPickerView(workout: workout)
+                            ExercisesListView(workout: workout)
                         } else if let template = item as? Template {
-                            ExerciseListPickerView(template: template)
+                            ExercisesListView(template: template)
                         }
                     }
                 } label: {

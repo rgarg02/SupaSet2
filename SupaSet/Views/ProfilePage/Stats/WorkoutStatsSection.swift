@@ -222,7 +222,7 @@ struct WorkoutStatsSection: View {
                 }
                 
                 // Muscle Group: accumulate volume for primary and secondary muscles.
-                if let actualExercise = exerciseViewModel.exercises.first(where: { $0.id == exercise.exerciseID }) {
+                if let actualExercise = exerciseViewModel.getExercise(for: exercise.exerciseID) {
                     for muscle in actualExercise.primaryMuscles {
                         volumeByMuscle[muscle.rawValue, default: 0] += exercise.totalVolume
                     }

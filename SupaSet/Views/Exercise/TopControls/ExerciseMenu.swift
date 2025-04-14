@@ -22,9 +22,9 @@ struct ExerciseMenu<T: ExerciseMenuType>: View {
             NavigationView{
                 Group {
                     if let workoutExercise = exercise as? WorkoutExercise {
-                        ExerciseListPickerView(workoutExercise: workoutExercise)
+                        ExercisesListView(workoutExercise: workoutExercise)
                     } else if let templateExercise = exercise as? TemplateExercise {
-                        ExerciseListPickerView(templateExercise: templateExercise)
+                        ExercisesListView(templateExercise: templateExercise)
                     }
                 }
                 .toolbar{

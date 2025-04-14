@@ -46,56 +46,8 @@ struct PreviewContainer {
         
         template = Template(name: "Full Body Routine", order: 0)
         container.mainContext.insert(template)
+        self.completedWorkouts = []
         
-        // Add exercises to template
-        if !viewModel.exercises.isEmpty {
-            for _ in 0..<6 {
-                template.insertExercise(viewModel.exercises.randomElement()!.id)
-            }
-            
-            // Create additional templates
-            for index in 0..<5 {
-                let templateNames = ["Push Day", "Pull Day", "Leg Day", "Upper Body", "Lower Body"]
-                let randomTemplate = Template(name: templateNames[index % templateNames.count], order: index)
-                container.mainContext.insert(randomTemplate)
-                
-                for _ in 0..<6 {
-                    randomTemplate.insertExercise(viewModel.exercises.randomElement()!.id)
-                }
-            }
-            
-            // Add exercises to current workout
-            workout.insertExercise(viewModel.exercises.randomElement()!.id)
-            workout.insertExercise(viewModel.exercises.randomElement()!.id)
-            
-            // Add some sets to the current workout's exercises
-            if let firstExercise = workout.exercises.first {
-                firstExercise.sets = [
-                    ExerciseSet(reps: 10, weight: 135, type: .warmup, order: 0),
-                    ExerciseSet(reps: 8, weight: 155, type: .working, order: 1),
-                    ExerciseSet(reps: 8, weight: 155, type: .working, order: 2),
-                    ExerciseSet(reps: 6, weight: 175, type: .working, rpe: 8, order: 3)
-                ]
-                
-                // Mark first set as completed
-                firstExercise.sets[0].isDone = true
-            }
-            
-            if workout.exercises.count > 1 {
-                let secondExercise = workout.exercises[1]
-                secondExercise.sets = [
-                    ExerciseSet(reps: 12, weight: 50, type: .warmup, order: 0),
-                    ExerciseSet(reps: 10, weight: 60, type: .working, order: 1),
-                    ExerciseSet(reps: 10, weight: 60, type: .working, rpe: 7, order: 2)
-                ]
-            }
-        }
-        
-        // Create completed workouts
-        completedWorkouts = try PreviewContainer.createCompletedWorkouts(
-            using: container.mainContext,
-            exercises: viewModel.exercises
-        )
     }
     
     // Static helper for previews - now needs to be async
@@ -142,10 +94,6 @@ struct PreviewContainer {
                 isFinished: true
             )
             container.mainContext.insert(completedWorkout)
-            let samples = try createCompletedWorkouts(using: container.mainContext, exercises: viewModel.exercises)
-            for sample in samples {
-                container.mainContext.insert(sample)
-            }
             // Return a simplified preview container
             return PreviewContainer(
                 container: container,

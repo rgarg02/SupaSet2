@@ -9,11 +9,12 @@
 import SwiftUI
 struct SettingsView: View {
     @Environment(\.dismiss) private var dismiss
+    @Environment(\.modelContext) private var modelContext
     var body: some View {
         NavigationStack {
             List {
                 Section("Account") {
-                    CSVImportView()
+                    CSVImportView(modelContext: modelContext)
                 }
             }
             .navigationTitle("Settings")
